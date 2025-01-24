@@ -14,5 +14,8 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
+  daisyui: {
+    themes: ["corporate"], // Ajoutez les thèmes que vous souhaitez utiliser
+  },
 } satisfies Config;
