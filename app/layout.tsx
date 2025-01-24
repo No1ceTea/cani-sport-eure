@@ -1,6 +1,9 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next"
 import "./globals.css"
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: "Cani-Sports Eure",
@@ -14,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body>
+      <body className={inter.className}>
         {children}
         <Analytics />
       </body>

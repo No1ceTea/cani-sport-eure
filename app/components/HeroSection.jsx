@@ -23,13 +23,9 @@ export default function HeroSection() {
           pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
           est laborum.
         </p>
-        <Link
-          href="/decouvrir"
-          className="btn btn-primary"
-        >
-          Nous découvrir
+        <Link href="/decouvrir">
+          <button className="btn btn-primary">Nous découvrir</button>
         </Link>
-        
       </div>
     </section>
   );

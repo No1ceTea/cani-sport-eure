@@ -61,6 +61,7 @@ Dans le projet cani-sport-eure, vous retrouverez les dossiers et fichiers suivan
 
 **Framework** - [Next.js](https://nextjs.org/)
 **Stylisation** - [TailwindCSS](https://tailwindcss.com/)
+**Component library** - [DaisyUI](https://daisyui.com/)
 **UI/UX** - [Figma](https://figma.com)
 **Icons** - [Boxicons](https://boxicons.com/) | [Tablers](https://tabler-icons.io/)
 **Formatage du code** - [Prettier](https://prettier.io/)
