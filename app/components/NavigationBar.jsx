@@ -9,6 +9,9 @@ export default function NavigationBar() {
         <Link href="/" className="relative w-24 h-24">
           <Image src="/logo-noir-SansFond.png" alt="Cani-Sports Eure Logo" fill className="object-contain" />
         </Link>
+        <Link href="/login" className="text-white hover:underline">
+            Connexion
+          </Link>
         <button className="btn btn-outline btn-primary">
           <svg
             xmlns="http://www.w3.org/2000/svg"
