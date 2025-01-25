@@ -7,7 +7,7 @@ export default function Presentation() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column */}
         <div className="lg:col-span-7">
-          <h1 className="text-3xl font-bold mb-6">Présentation de l'association</h1>
+          <h1 className="text-3xl font-bold mb-6">Présentation de l&apos;association</h1>
 
           <p className="text-gray-700 mb-8">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et

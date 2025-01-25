@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,8 +28,7 @@ export default function LoginPage() {
     >
       {/* Logo */}
       <div className="w-1/3 flex items-center justify-center">
-        <img
-          src="/logo-noir-SansFond.png" // Chemin vers votre logo
+        <Image src="/logo-noir-SansFond.png" // Chemin vers votre logo
           alt="Logo Cani-Sports Eure"
           className="w-2/3 max-w-xs"
         />
