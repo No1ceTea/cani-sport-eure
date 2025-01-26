@@ -3,21 +3,35 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import NavigationBar from "../components/NavigationBar"; // Assurez-vous que le chemin est correct
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import NavigationBar from "../components/NavigationBar";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const supabase = createClientComponentClient();
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "user@example.com" && password === "password123") {
-      localStorage.setItem("authToken", "exampleToken");
-      router.push("/"); // Redirection après connexion réussie
-    } else {
-      alert("Identifiants incorrects !");
+    setLoading(true);
+    setError(null);
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+    } else if (data?.session) {
+      router.push("/");
     }
   };
 
@@ -26,14 +40,14 @@ export default function LoginPage() {
       <NavigationBar />
       <div
         className="flex items-center justify-center h-screen bg-cover bg-center"
-        style={{ backgroundImage: "url('/ton-image-de-fond.jpg')" }} // Remplace par ton image
+        style={{ backgroundImage: "url('/ton-image-de-fond.jpg')" }}
       >
         {/* Conteneur principal */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-32">
           {/* Logo */}
-          <div className="flex items-center justify-center">
+          <div className="hidden md:flex items-center justify-center">
             <Image
-              src="/logo-noir-SansFond.png" // Remplace par ton logo
+              src="/logo-noir-SansFond.png"
               alt="Logo Cani-Sports Eure"
               width={200}
               height={200}
@@ -47,6 +61,12 @@ export default function LoginPage() {
               Connexion
             </h2>
             <form onSubmit={handleLogin}>
+              {error && (
+                <div className="alert alert-error shadow-lg mb-4">
+                  <span>{error}</span>
+                </div>
+              )}
+
               {/* Champ email */}
               <div className="form-control mb-4">
                 <label className="label text-white">
@@ -100,9 +120,12 @@ export default function LoginPage() {
               {/* Bouton de connexion */}
               <button
                 type="submit"
-                className="btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100"
+                className={`btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100 ${
+                  loading ? "loading" : ""
+                }`}
+                disabled={loading}
               >
-                Se connecter
+                {loading ? "Connexion en cours..." : "Se connecter"}
               </button>
             </form>
 
@@ -116,7 +139,7 @@ export default function LoginPage() {
               </a>
               <p className="text-sm mt-2 text-white">
                 Pas encore inscrit ?{" "}
-                <a href="#" className="underline hover:text-blue-300">
+                <a href="/signup" className="underline hover:text-blue-300">
                   Inscription
                 </a>
               </p>
