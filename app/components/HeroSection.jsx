@@ -6,7 +6,7 @@ export default function HeroSection() {
     <section className="relative min-h-screen w-full">
       {/* Background Image */}
       <Image
-        src="/montagne.jpeg" // Remplacez ceci par le chemin de votre image
+        src="/montagne.jpg" // Remplacez ceci par le chemin de votre image
         alt="Background"
         fill
         className="object-cover object-center"

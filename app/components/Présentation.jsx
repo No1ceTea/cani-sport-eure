@@ -44,7 +44,7 @@ export default function Presentation() {
           {/* Cross */}
           <div className="flex items-start gap-4">
             <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-full flex items-center justify-center">
-              <Image src="/placeholder.svg" alt="Cross icon" width={48} height={48} className="opacity-70" />
+              <Image src="/cani-trail.png" alt="Cross icon" width={48} height={48} className="opacity-70" />
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">Cross</h3>
@@ -58,7 +58,7 @@ export default function Presentation() {
           {/* Trail */}
           <div className="flex items-start gap-4">
             <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-full flex items-center justify-center">
-              <Image src="/placeholder.svg" alt="Trail icon" width={48} height={48} className="opacity-70" />
+              <Image src="/cani-trail.png" alt="Trail icon" width={48} height={48} className="opacity-70" />
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">Trail</h3>
@@ -72,7 +72,7 @@ export default function Presentation() {
           {/* Marche */}
           <div className="flex items-start gap-4">
             <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-full flex items-center justify-center">
-              <Image src="/placeholder.svg" alt="Marche icon" width={48} height={48} className="opacity-70" />
+              <Image src="/cani-marche.png" alt="Marche icon" width={48} height={48} className="opacity-70" />
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">Marche</h3>
@@ -86,7 +86,7 @@ export default function Presentation() {
           {/* VTT */}
           <div className="flex items-start gap-4">
             <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-full flex items-center justify-center">
-              <Image src="/placeholder.svg" alt="VTT icon" width={48} height={48} className="opacity-70" />
+              <Image src="/cani-vtt.png" alt="VTT icon" width={48} height={48} className="opacity-70" />
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">VTT</h3>
@@ -100,7 +100,7 @@ export default function Presentation() {
           {/* Trottinette */}
           <div className="flex items-start gap-4">
             <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-full flex items-center justify-center">
-              <Image src="/placeholder.svg" alt="Trottinette icon" width={48} height={48} className="opacity-70" />
+              <Image src="/cani-trottinette.png" alt="Trottinette icon" width={48} height={48} className="opacity-70" />
             </div>
             <div>
               <h3 className="text-xl font-bold mb-2">Trottinette</h3>
