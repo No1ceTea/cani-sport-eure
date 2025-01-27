@@ -32,6 +32,8 @@ export default function LoginPage() {
           src="/Logo-ContourBlanc-SansFond.png"
           alt="Logo Cani-Sports Eure"
           className="w-full max-w-xs"
+          width={500}
+          height={500}
         />
     </div>
 
@@ -114,6 +116,8 @@ export default function LoginPage() {
             alt={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
             onClick={() => setShowPassword(!showPassword)}
             className="absolute top-1/2 right-3 w-6 h-6 transform -translate-y-1/2 cursor-pointer"
+            width={20}
+            height={20}
           />
         </div>
       </div>

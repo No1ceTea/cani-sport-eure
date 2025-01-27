@@ -287,6 +287,8 @@ export default function SignupPage() {
             src="/Logo-ContourBlanc-SansFond.png"
             alt="Logo Cani-Sports Eure"
             className="w-full max-w-xs"
+            width={500}
+            height={500}
           />
         </div>
       </div>

@@ -64,6 +64,8 @@ const PresentationSection = () => {
                     borderRadius: "31px",
                     borderColor: "black",
                 }}
+                width={400}
+                height={250}
               />
             </div>
   
@@ -138,6 +140,8 @@ const PresentationSection = () => {
                     src={activity.icon}
                     alt={activity.title}
                     className="w-40 h-15 mr-4"
+                    width={200}
+                    height={15}
                   />
                   <div>
                     <h4

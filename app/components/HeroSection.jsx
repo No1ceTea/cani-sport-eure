@@ -13,6 +13,8 @@ const HeroSection = () => {
           src="/logo-noir-SansFond.png" // Chemin de votre logo
           alt="Cani-Sports Logo"
           className="w-20 h-auto"
+          width={200}
+          height={200}
         />
       </div>
 
@@ -66,6 +68,8 @@ const HeroSection = () => {
             src="/display-password.png" // Remplacez par votre chemin d'icône
             alt="Chevron Down Icon"
             className="ml-3 w-6 h-6" // Taille de l'icône
+            width={50}
+            height={50}
           />
         </button>
       </div>
