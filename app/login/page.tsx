@@ -31,8 +31,12 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else if (data?.session) {
-      router.push("/");
+      router.push("/"); // Redirection vers la page d'accueil
     }
+  };
+
+  const redirectToSignup = () => {
+    router.push("/inscription"); // Redirection vers la page d'inscription
   };
 
   return (
@@ -139,9 +143,12 @@ export default function LoginPage() {
               </a>
               <p className="text-sm mt-2 text-white">
                 Pas encore inscrit ?{" "}
-                <a href="/signup" className="underline hover:text-blue-300">
+                <button
+                  onClick={redirectToSignup}
+                  className="underline hover:text-blue-300"
+                >
                   Inscription
-                </a>
+                </button>
               </p>
             </div>
           </div>
