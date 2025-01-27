@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import NavigationBar from "../components/NavigationBar";
 
 export default function Inscription() {
   const supabase = createClientComponentClient(); // Initialise le client Supabase
@@ -16,6 +17,9 @@ export default function Inscription() {
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // État pour le modal
+  const [showModal, setShowModal] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,11 +55,12 @@ export default function Inscription() {
   };
 
   return (
-    <div
-      className="flex items-center justify-center h-screen bg-cover bg-center gap-32"
-      style={{ backgroundImage: "url('/ton-image-de-fond.jpg')" }} // Remplace par ton image
-    >
-      {/* Logo */}
+    <div>
+      <NavigationBar />      <div
+        className="flex items-center justify-center h-screen bg-cover bg-center gap-32"
+        style={{ backgroundImage: "url('/ton-image-de-fond.jpg')" }} // Remplace par ton image
+      >
+        {/* Logo */}
         <div className="hidden md:flex items-center justify-center">
           <Image
             src="/logo-noir-SansFond.png"
@@ -66,115 +71,143 @@ export default function Inscription() {
           />
         </div>
 
-      {/* Formulaire d'inscription */}
-      <div className="w-full max-w-md p-8 bg-blue-900 bg-opacity-90 rounded-2xl shadow-xl">
-        <h2 className="text-3xl font-bold text-center text-white mb-6">
-          Inscription
-        </h2>
-        <form onSubmit={handleSignup}>
-          {error && (
-            <div className="alert alert-error shadow-lg mb-4">
-              <span>{error}</span>
-            </div>
-          )}
-          {/* Champ email */}
-          <div className="form-control mb-4">
-            <label className="label text-white">
-              <span>Email</span>
-            </label>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
-            />
-          </div>
-          {/* Champ mot de passe */}
-          <div className="form-control mb-4">
-            <label className="label text-white">
-              <span>Mot de passe</span>
-            </label>
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
-            />
-          </div>
-          {/* Confirmation mot de passe */}
-          <div className="form-control mb-4">
-            <label className="label text-white">
-              <span>Confirmation de mot de passe</span>
-            </label>
-            <input
-              type="password"
-              placeholder="Confirmation de mot de passe"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
-            />
-          </div>
-          {/* Champ nom */}
-          <div className="form-control mb-4">
-            <label className="label text-white">
-              <span>Nom</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Nom"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
-            />
-          </div>
-          {/* Champ prénom */}
-          <div className="form-control mb-4">
-            <label className="label text-white">
-              <span>Prénom</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Prénom"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
-            />
-          </div>
-          {/* Politique de confidentialité */}
-          <div className="form-control mb-6">
-            <label className="label cursor-pointer text-white space-x-2">
+        {/* Formulaire d'inscription */}
+        <div className="w-full max-w-md p-8 bg-blue-900 bg-opacity-90 rounded-2xl shadow-xl">
+          <h2 className="text-3xl font-bold text-center text-white mb-6">
+            Inscription
+          </h2>
+          <form onSubmit={handleSignup}>
+            {error && (
+              <div className="alert alert-error shadow-lg mb-4">
+                <span>{error}</span>
+              </div>
+            )}
+            {/* Champ email */}
+            <div className="form-control mb-4">
+              <label className="label text-white">
+                <span>Email</span>
+              </label>
               <input
-                type="checkbox"
-                className="checkbox checkbox-primary"
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input input-bordered input-primary w-full"
                 required
               />
-              <span>J&apos;accepte la politique de confidentialité</span>
-            </label>
+            </div>
+            {/* Champ mot de passe */}
+            <div className="form-control mb-4">
+              <label className="label text-white">
+                <span>Mot de passe</span>
+              </label>
+              <input
+                type="password"
+                placeholder="Mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input input-bordered input-primary w-full"
+                required
+              />
+            </div>
+            {/* Confirmation mot de passe */}
+            <div className="form-control mb-4">
+              <label className="label text-white">
+                <span>Confirmation de mot de passe</span>
+              </label>
+              <input
+                type="password"
+                placeholder="Confirmation de mot de passe"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="input input-bordered input-primary w-full"
+                required
+              />
+            </div>
+            {/* Champ nom */}
+            <div className="form-control mb-4">
+              <label className="label text-white">
+                <span>Nom</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Nom"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="input input-bordered input-primary w-full"
+                required
+              />
+            </div>
+            {/* Champ prénom */}
+            <div className="form-control mb-4">
+              <label className="label text-white">
+                <span>Prénom</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Prénom"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="input input-bordered input-primary w-full"
+                required
+              />
+            </div>
+            {/* Politique de confidentialité */}
+            <div className="form-control mb-6">
+              <label className="label cursor-pointer text-white space-x-2">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-primary"
+                  required
+                />
+                <span>
+                  J&apos;accepte la{" "}
+                  <span
+                    className="underline cursor-pointer text-blue-300"
+                    onClick={() => setShowModal(true)}
+                  >
+                    politique de confidentialité
+                  </span>
+                </span>
+              </label>
+            </div>
+            {/* Bouton d'inscription */}
+            <button
+              type="submit"
+              className={`btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100 ${
+                loading ? "loading" : ""
+              }`}
+              disabled={loading}
+            >
+              {loading ? "Inscription en cours..." : "S'inscrire"}
+            </button>
+          </form>
+          <p className="text-center text-sm mt-4 text-white">
+            Déjà inscrit ?{" "}
+            <a href="/login" className="underline hover:text-blue-300">
+              Je me connecte
+            </a>
+          </p>
+        </div>
+
+        {/* Modal politique de confidentialité */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
+              <h3 className="text-2xl font-bold mb-4">Politique de confidentialité</h3>
+              <p>
+                Ici, ajoutez le texte de votre politique de confidentialité. Si le texte est
+                long, il pourra défiler dans cette boîte.
+              </p>
+              <button
+                className="btn btn-primary mt-4"
+                onClick={() => setShowModal(false)}
+              >
+                Fermer
+              </button>
+            </div>
           </div>
-          {/* Bouton d'inscription */}
-          <button
-            type="submit"
-            className={`btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100 ${
-              loading ? "loading" : ""
-            }`}
-            disabled={loading}
-          >
-            {loading ? "Inscription en cours..." : "S'inscrire"}
-          </button>
-        </form>
-        <p className="text-center text-sm mt-4 text-white">
-          Déjà inscrit ?{" "}
-          <a href="/login" className="underline hover:text-blue-300">
-            Je me connecte
-          </a>
-        </p>
+        )}
       </div>
     </div>
   );

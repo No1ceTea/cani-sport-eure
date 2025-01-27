@@ -16,6 +16,26 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Fonction pour traduire les messages d'erreur en français
+  const translateError = (errorMessage: string): string => {
+    switch (errorMessage) {
+      case "Invalid login credentials":
+        return "Identifiants de connexion invalides.";
+      case "Email not confirmed":
+        return "Votre adresse email n'a pas encore été confirmée.";
+      case "User not found":
+        return "Utilisateur non trouvé.";
+      case "Password is incorrect":
+        return "Le mot de passe est incorrect.";
+      case "Email is required":
+        return "L'email est requis.";
+      case "Password is required":
+        return "Le mot de passe est requis.";
+      default:
+        return "Une erreur est survenue. Veuillez réessayer.";
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -29,7 +49,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (error) {
-      setError(error.message);
+      setError(translateError(error.message));
     } else if (data?.session) {
       router.push("/"); // Redirection vers la page d'accueil
     }
