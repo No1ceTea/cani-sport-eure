@@ -184,7 +184,7 @@ export default function Inscription() {
           </form>
           <p className="text-center text-sm mt-4 text-white">
             Déjà inscrit ?{" "}
-            <a href="/login" className="underline hover:text-blue-300">
+            <a href="/connexion" className="underline hover:text-blue-300">
               Je me connecte
             </a>
           </p>

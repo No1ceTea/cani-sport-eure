@@ -63,7 +63,7 @@ export default function NavigationBar() {
             <a href="#articles" className="text-lg hover:underline">
               Articles
             </a>
-            <Link href="/login" className="text-lg hover:underline">
+            <Link href="/connexion" className="text-lg hover:underline">
               Se connecter
             </Link>
           </nav>

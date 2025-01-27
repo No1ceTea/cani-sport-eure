@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import NavigationBar from "../components/NavigationBar";
 
@@ -15,8 +16,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-  // Fonction pour traduire les messages d'erreur en français
+  useEffect(() => {
+    setIsClient(true); // Indique que nous sommes côté client
+  }, []);
+
   const translateError = (errorMessage: string): string => {
     switch (errorMessage) {
       case "Invalid login credentials":
@@ -66,20 +71,19 @@ export default function LoginPage() {
         className="flex items-center justify-center h-screen bg-cover bg-center"
         style={{ backgroundImage: "url('/ton-image-de-fond.jpg')" }}
       >
-        {/* Conteneur principal */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-32">
-          {/* Logo */}
-          <div className="hidden md:flex items-center justify-center">
-            <Image
-              src="/logo-noir-SansFond.png"
-              alt="Logo Cani-Sports Eure"
-              width={200}
-              height={200}
-              className="w-auto h-auto"
-            />
-          </div>
+          {isClient && (
+            <div className="hidden md:flex items-center justify-center">
+              <Image
+                src="/logo-noir-SansFond.png"
+                alt="Logo Cani-Sports Eure"
+                width={200}
+                height={200}
+                className="w-auto h-auto"
+              />
+            </div>
+          )}
 
-          {/* Formulaire */}
           <div className="card w-full max-w-sm bg-blue-900 bg-opacity-90 shadow-xl p-6 md:p-8">
             <h2 className="text-2xl font-bold text-center mb-6 text-white">
               Connexion
@@ -91,7 +95,6 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* Champ email */}
               <div className="form-control mb-4">
                 <label className="label text-white">
                   <span>Email</span>
@@ -106,7 +109,6 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Champ mot de passe */}
               <div className="form-control mb-4">
                 <label className="label text-white">
                   <span>Mot de passe</span>
@@ -130,7 +132,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Checkbox "Se souvenir de moi" */}
               <div className="form-control flex items-center mb-6">
                 <label className="label cursor-pointer text-white space-x-2">
                   <input
@@ -141,7 +142,6 @@ export default function LoginPage() {
                 </label>
               </div>
 
-              {/* Bouton de connexion */}
               <button
                 type="submit"
                 className={`btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100 ${
@@ -153,14 +153,13 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Liens supplémentaires */}
             <div className="mt-6 text-center">
-              <a
-                href="#"
+              <Link
+                href="/mot-de-passe-oublie"
                 className="text-sm underline text-white hover:text-blue-300"
               >
                 Mot de passe oublié ?
-              </a>
+              </Link>
               <p className="text-sm mt-2 text-white">
                 Pas encore inscrit ?{" "}
                 <button
