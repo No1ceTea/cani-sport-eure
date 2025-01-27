@@ -155,7 +155,7 @@ export default function Inscription() {
                 className="checkbox checkbox-primary"
                 required
               />
-              <span>J'accepte la politique de confidentialité</span>
+              <span>J&apos;accepte la politique de confidentialité</span>
             </label>
           </div>
           {/* Bouton d'inscription */}
