@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,7 +28,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-between w-full max-w-7xl">
       {/* Logo */}
       <div className="w-1/4 flex items-center justify-center">
-        <img
+        <Image
           src="/Logo-ContourBlanc-SansFond.png"
           alt="Logo Cani-Sports Eure"
           className="w-full max-w-xs"
@@ -108,7 +109,7 @@ export default function LoginPage() {
             placeholder="Mot de passe"
             required
           />
-          <img
+          <Image
             src={showPassword ? "/hide-password.png" : "/display-password.png"}
             alt={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
             onClick={() => setShowPassword(!showPassword)}

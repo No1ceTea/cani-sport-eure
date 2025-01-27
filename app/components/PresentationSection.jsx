@@ -1,3 +1,4 @@
+import Image from "next/image";
 const PresentationSection = () => {
     return (
       <section
@@ -52,10 +53,10 @@ const PresentationSection = () => {
                   fontSize: "1.5rem", // Taille du texte
                 }}
               >
-                Titre de l'encadré
+                Titre de l&apos;encadré
               </div>
               {/* Image */}
-              <img
+              <Image
                 src="/course.jpg" // Remplacez par le chemin de votre image
                 alt="Présentation"
                 className="w-full shadow-lg mb-8 border-2"
@@ -133,7 +134,7 @@ const PresentationSection = () => {
                 },
               ].map((activity, index) => (
                 <li key={index} className="flex items-center">
-                  <img
+                  <Image
                     src={activity.icon}
                     alt={activity.title}
                     className="w-40 h-15 mr-4"

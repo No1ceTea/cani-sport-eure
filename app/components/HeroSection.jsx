@@ -1,3 +1,4 @@
+import Image from "next/image";
 const HeroSection = () => {
   return (
     <section
@@ -8,7 +9,7 @@ const HeroSection = () => {
     >
       {/* Logo en haut à gauche */}
       <div className="absolute top-6 left-6">
-        <img
+        <Image
           src="/logo-noir-SansFond.png" // Chemin de votre logo
           alt="Cani-Sports Logo"
           className="w-20 h-auto"
@@ -61,7 +62,7 @@ const HeroSection = () => {
           }}
         >
           <span className="flex-grow text-center">Nous découvrir</span>
-          <img
+          <Image
             src="/display-password.png" // Remplacez par votre chemin d'icône
             alt="Chevron Down Icon"
             className="ml-3 w-6 h-6" // Taille de l'icône

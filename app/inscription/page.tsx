@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Image from "next/image";
 
 export default function SignupPage() {
   const supabase = createClientComponentClient();
@@ -23,7 +24,7 @@ export default function SignupPage() {
   useEffect(() => {
     if (!isMounted) return;
 
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") {
         alert("Votre compte est confirmé !");
         router.push("/");
@@ -259,7 +260,7 @@ export default function SignupPage() {
                   fontFamily: "calibri, sans-serif",
                 }}
               >
-                J'accepte la{" "}
+                J&apos;accepte la{" "}
                 <a href="#" className="underline hover:text-blue-300">
                   politique de confidentialité
                 </a>
@@ -277,12 +278,12 @@ export default function SignupPage() {
                 fontWeight: "bold",
               }}
             >
-              S'inscrire
+              S&apos;inscrire
             </button>
           </form>
         </div>
         <div className="w-1/4 flex items-center justify-center">
-          <img
+          <Image
             src="/Logo-ContourBlanc-SansFond.png"
             alt="Logo Cani-Sports Eure"
             className="w-full max-w-xs"

@@ -10,7 +10,7 @@ export default function HomePage() {
       className="bg-cover bg-center"
     >
       {/* Navigation bar */}
-      {/* <Navigation /> */}
+      <Navigation />
 
       {/* Section Hero */}
       <HeroSection />
