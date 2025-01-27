@@ -24,24 +24,24 @@ export default function LoginPage() {
       className="flex items-center justify-center h-screen bg-cover bg-center px-8"
       style={{ backgroundImage: "url('/montagne.jpeg')" }} // Chemin vers votre image de fond
     >
-        <div className="flex items-center justify-center w-full">
-  {/* Logo */}
-  <div className="w-1/4 flex items-center justify-center hidden md:flex">
-    <img
-      src="/Logo-ContourBlanc-SansFond.png" // Chemin vers votre logo
-      alt="Logo Cani-Sports Eure"
-      className="w-full max-w-xs"
-    />
-  </div>
+    <div className="flex items-center justify-between w-full max-w-7xl">
+      {/* Logo */}
+      <div className="w-1/4 flex items-center justify-center">
+        <img
+          src="/Logo-ContourBlanc-SansFond.png"
+          alt="Logo Cani-Sports Eure"
+          className="w-full max-w-xs"
+        />
+    </div>
 
-  {/* Formulaire de connexion */}
-  <div
-    className="bg-blue bg-opacity-89 p-8 shadow-lg w-full max-w-2xl"
-    style={{
-      borderRadius: "67px", // Border-radius du formulaire
-      boxShadow: "0px 0px 26px 9px rgba(0, 0, 0, 0.25)", // Ombre portée
-    }}
-  >
+    {/* Formulaire de connexion */}
+    <div
+      className="bg-blue bg-opacity-89 p-8 shadow-lg w-full max-w-2xl"
+      style={{
+        borderRadius: "67px",
+        boxShadow: "0px 0px 26px 9px rgba(0, 0, 0, 0.25)",
+      }}
+    >
     <h2
       className="text-2xl font-bold text-center mb-6"
       style={{

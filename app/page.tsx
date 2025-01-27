@@ -1,12 +1,22 @@
-import "./globals.css"
-import HeroSection from "./components/HeroSection"
-import NavigationBar from "./components/NavigationBar"
+"use client";
 
-export default function Home() {
+import HeroSection from "./components/HeroSection";
+import PresentationSection from "./components/PresentationSection";
+import Navigation from "./components/NavigationBar"
+
+export default function HomePage() {
   return (
-    <main>
-      <NavigationBar />
+    <div
+      className="bg-cover bg-center"
+    >
+      {/* Navigation bar */}
+      {/* <Navigation /> */}
+
+      {/* Section Hero */}
       <HeroSection />
-    </main>
-  )
+
+      {/* Section Présentation */}
+      <PresentationSection />
+    </div>
+  );
 }
