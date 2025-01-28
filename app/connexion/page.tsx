@@ -68,106 +68,173 @@ export default function LoginPage() {
     <div>
       <NavigationBar />
       <div
-        className="flex items-center justify-center h-screen bg-cover bg-center"
-        style={{ backgroundImage: "url('/ton-image-de-fond.jpg')" }}
+        className="flex items-center justify-center h-screen bg-cover bg-center px-8"
+        style={{ backgroundImage: "url('/montagne.jpeg')" }} // Chemin vers votre image de fond
       >
-        <div className="flex flex-col md:flex-row items-center justify-center gap-32">
+        <div className="flex items-center justify-between w-full max-w-7xl">
           {isClient && (
-            <div className="hidden md:flex items-center justify-center">
+            <div className="w-1/4 flex items-center justify-center">
               <Image
-                src="/logo-noir-SansFond.png"
+                src="/Logo-ContourBlanc-SansFond.png"
                 alt="Logo Cani-Sports Eure"
-                width={200}
-                height={200}
-                className="w-auto h-auto"
+                className="w-full max-w-xs"
+                width={500}
+                height={500}
               />
             </div>
           )}
 
-          <div className="card w-full max-w-sm bg-blue-900 bg-opacity-90 shadow-xl p-6 md:p-8">
-            <h2 className="text-2xl font-bold text-center mb-6 text-white">
+          <div
+            className="bg-blue bg-opacity-89 p-8 shadow-lg w-full max-w-2xl"
+            style={{
+              borderRadius: "67px",
+              boxShadow: "0px 0px 26px 9px rgba(0, 0, 0, 0.25)",
+            }}
+          >
+            <h2
+              className="text-2xl font-bold text-center mb-6"
+              style={{
+                color: "white", // Connexion en blanc
+                fontFamily: "opendyslexic, sans-serif", // Police OpenDyslexic
+                fontSize: 30,
+              }}
+            >
               Connexion
             </h2>
-            <form onSubmit={handleLogin}>
-              {error && (
-                <div className="alert alert-error shadow-lg mb-4">
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <div className="form-control mb-4">
-                <label className="label text-white">
-                  <span>Email</span>
+            <form onSubmit={handleLogin} className="max-w-sm mx-auto">
+              {/* Email */}
+              <div className="mb-4">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium mb-2"
+                  style={{
+                    color: "white", // Label en blanc
+                    fontFamily: "calibri, sans-serif", // Police Calibri
+                  }}
+                >
+                  Email
                 </label>
                 <input
                   type="email"
-                  placeholder="Email"
+                  id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input input-bordered input-primary w-full"
+                  className="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  style={{
+                    borderRadius: "9px", // Border-radius des champs
+                    fontFamily: "calibri, sans-serif", // Police Calibri
+                    color: "black", // Texte en noir
+                  }}
+                  placeholder="Email"
                   required
                 />
               </div>
 
-              <div className="form-control mb-4">
-                <label className="label text-white">
-                  <span>Mot de passe</span>
+              {/* Password */}
+              <div className="mb-4 relative">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                  style={{
+                    color: "white",
+                    fontFamily: "calibri, sans-serif",
+                  }}
+                >
+                  Mot de passe
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Mot de passe"
+                    id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input input-bordered input-primary w-full"
+                    className="w-full p-3 pr-12 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    style={{
+                      borderRadius: "9px",
+                      fontFamily: "calibri, sans-serif",
+                      color: "black",
+                    }}
+                    placeholder="Mot de passe"
                     required
                   />
-                  <button
-                    type="button"
+                  <Image
+                    src={showPassword ? "/hide-password.png" : "/display-password.png"}
+                    alt={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
-                  >
-                    {showPassword ? "🙈" : "👁️"}
-                  </button>
+                    className="absolute top-1/2 right-3 w-6 h-6 transform -translate-y-1/2 cursor-pointer"
+                    width={20}
+                    height={20}
+                  />
                 </div>
               </div>
 
-              <div className="form-control flex items-center mb-6">
-                <label className="label cursor-pointer text-white space-x-2">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-primary"
-                  />
-                  <span>Se souvenir de moi</span>
+              {/* Error Message */}
+              {error && (
+                <div className="mb-4 text-red-500 text-center" style={{ fontFamily: "calibri, sans-serif" }}>
+                  {error}
+                </div>
+              )}
+
+              {/* Remember Me */}
+              <div className="mb-6 flex items-center">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400"
+                />
+                <label
+                  htmlFor="rememberMe"
+                  className="ml-2 text-sm"
+                  style={{
+                    color: "white", // Texte en blanc
+                    fontFamily: "calibri, sans-serif", // Police Calibri
+                  }}
+                >
+                  Se souvenir de moi
                 </label>
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
-                className={`btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100 ${
-                  loading ? "loading" : ""
-                }`}
+                className="w-full py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                style={{
+                  backgroundColor: "white", // Bouton en blanc
+                  color: "black", // Texte en noir
+                  borderRadius: "100px", // Border-radius du bouton
+                  fontFamily: "calibri, sans-serif", // Police Calibri
+                  marginTop: "40px",
+                  fontWeight: "bold",
+                }}
                 disabled={loading}
               >
-                {loading ? "Connexion en cours..." : "Se connecter"}
+                {loading ? "Chargement..." : "Se connecter"}
               </button>
             </form>
 
+            {/* Links */}
             <div className="mt-6 text-center">
-              <Link
-                href="/mot-de-passe-oublie"
-                className="text-sm underline text-white hover:text-blue-300"
+              <a
+                href="#"
+                className="text-sm underline hover:text-blue-300"
+                style={{
+                  color: "white", // Texte en blanc
+                  fontFamily: "calibri, sans-serif", // Police Calibri
+                }}
               >
                 Mot de passe oublié ?
-              </Link>
-              <p className="text-sm mt-2 text-white">
+              </a>
+              <p
+                className="text-sm mt-2"
+                style={{
+                  color: "white", // Texte en blanc
+                  fontFamily: "calibri, sans-serif", // Police Calibri
+                }}
+              >
                 Pas encore inscrit ?{" "}
-                <button
-                  onClick={redirectToSignup}
-                  className="underline hover:text-blue-300"
-                >
-                  Inscription
-                </button>
+                <Link href="#" className="underline hover:text-blue-300">
+                  <button onClick={redirectToSignup}>Inscription</button>
+                </Link>
               </p>
             </div>
           </div>

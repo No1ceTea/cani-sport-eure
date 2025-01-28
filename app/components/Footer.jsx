@@ -1,6 +1,7 @@
 "use client";
 
 import { FaInstagram, FaFacebook, FaEnvelope } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -9,10 +10,12 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-10">
           {/* Logo */}
           <div className="flex flex-col items-center md:items-start">
-            <img
+            <Image
               src="/logo-noir-SansFond.png"
               alt="Cani-Sports Eure Logo"
               className="w-20 md:w-28"
+              width={50}
+              height={50}
             />
           </div>
 
