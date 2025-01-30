@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function NavigationBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,22 +10,34 @@ export default function NavigationBar() {
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+
   return (
-    <section>
-      {/* Navigation */}
-      <nav className="fixed top-0 right-0 z-10 p-4 flex justify-between items-center">
-        <button className="btn btn-outline btn-primary" onClick={toggleMenu}>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        className="w-8 h-8"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
-      {/* Menu latéral avec animation */}
+    <nav className="navbar w-full items-center justify-between p-4 ">
+      {/* Logo */}
+      <Link href="/">
+        <Image
+          src="/logo-noir-SansFond.png"
+          alt="Cani-Sports Logo"
+          width={50}
+          height={50}
+          className="w-12 h-auto"
+        />
+      </Link>
+      
+      {/* Bouton Menu */}
+      <button className="btn btn-outline btn-primary" onClick={toggleMenu}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          className="w-8 h-8"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      
+      {/* Menu latéral */}
       <div
         className={`fixed inset-0 z-40 transition-opacity duration-500 ${
           isOpen ? "opacity-100 visible" : "opacity-0 invisible"
@@ -37,15 +50,15 @@ export default function NavigationBar() {
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Bouton pour fermer le menu */}
+          {/* Bouton fermer */}
           <button
             className="absolute top-4 right-4 text-xl"
             onClick={toggleMenu}
           >
             ✕
           </button>
-
-          {/* Contenu du menu */}
+          
+          {/* Liens du menu */}
           <nav className="flex flex-col space-y-4 mt-8">
             <a href="#le-club" className="text-lg hover:underline">
               Le Club
@@ -65,8 +78,6 @@ export default function NavigationBar() {
           </nav>
         </div>
       </div>
-      </nav>
-    </section>
+    </nav>
   );
 }
-    

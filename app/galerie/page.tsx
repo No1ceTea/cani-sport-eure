@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import supabase from "@/lib/supabaseClient"; // Fichier de configuration Supabase
 import Image from "next/image";
-import Navigation from "../components/NavigationBar";
+import NavigationBar from "../components/NavigationBar";
 
 interface ImageData {
   url: string;
@@ -56,15 +56,16 @@ const GalleryPage = () => {
 
   return (
     <div
-      className="min-h-screen p-8 top-0"
+      className="min-h-screen pr-8 pl-8"
       style={{
         backgroundImage: "url('/fond.png')",
-        backgroundSize: "70%",
+        backgroundSize: "cover", // Assure que l'image couvre tout l'écran
         backgroundRepeat: "no-repeat",
+        backgroundPosition: "center", // Centrer l'image de fond
         backgroundColor: "white",
-        backgroundPosition: "right",
       }}
     >
+      <NavigationBar />
       <h1
         className="text-3xl font-bold mb-8"
         style={{
@@ -74,8 +75,6 @@ const GalleryPage = () => {
       >
         Galerie de photo
       </h1>
-      {/* Navigation bar */}
-      <Navigation />
       {/* Filtres de recherche */}
       <div className="flex flex-wrap gap-4 mb-8">
         {/* Barre de recherche */}

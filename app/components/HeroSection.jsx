@@ -8,17 +8,6 @@ const HeroSection = () => {
         backgroundImage: "url('/montagne.jpeg')", // Chemin de votre image
       }}
     >
-      {/* Logo en haut à gauche */}
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
-        <Image
-          src="/logo-noir-SansFond.png" // Chemin de votre logo
-          alt="Cani-Sports Logo"
-          className="w-16 sm:w-20 h-auto"
-          width={200}
-          height={200}
-        />
-      </div>
-
       {/* Contenu principal */}
       <div className="w-full flex flex-col items-center text-center px-4">
         {/* Titre principal */}

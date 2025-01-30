@@ -71,21 +71,11 @@ export default function LoginPage() {
         className="flex items-center justify-center h-screen bg-cover bg-center"
         style={{ backgroundImage: "url('/montagne.jpeg')" }}
       >
-        {/* Logo en haut à gauche */}
-        <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
-          <Image
-            src="/logo-noir-SansFond.png" // Chemin de votre logo
-            alt="Cani-Sports Logo"
-            className="w-16 sm:w-20 h-auto"
-            width={200}
-            height={200}
-          />
-        </div>
         <div className="flex flex-col md:flex-row items-center justify-center gap-32">
           {isClient && (
             <div className="hidden md:flex items-center justify-center">
               <Image
-                src="/logo-noir-SansFond.png"
+                src="/Logo-ContourBlanc-SansFond.png"
                 alt="Logo Cani-Sports Eure"
                 width={200}
                 height={200}
