@@ -6,7 +6,7 @@ import Navigation from "./components/NavigationBar"
 
 export default function HomePage() {
   return (
-    <div
+    <main
       className="bg-cover bg-center"
     >
       {/* Navigation bar */}
@@ -17,6 +17,6 @@ export default function HomePage() {
 
       {/* Section Présentation */}
       <PresentationSection />
-    </div>
+    </main>
   );
 }
