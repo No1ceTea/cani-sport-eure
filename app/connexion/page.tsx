@@ -232,8 +232,8 @@ export default function LoginPage() {
                 }}
               >
                 Pas encore inscrit ?{" "}
-                <Link href="#" className="underline hover:text-blue-300">
-                  <button onClick={redirectToSignup}>Inscription</button>
+                <Link href="/inscription" className="text-sm underline hover:text-blue-300">
+                  Inscription
                 </Link>
               </p>
             </div>
