@@ -45,7 +45,7 @@ export default function Gallery() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-center mb-6">Galerie d'Images</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">Galerie d&apos;Images</h2>
       {images.length === 0 ? (
         <p className="text-center text-gray-500">Aucune image trouvée.</p>
       ) : (

@@ -60,10 +60,6 @@ export default function LoginPage() {
     }
   };
 
-  const redirectToSignup = () => {
-    router.push("/inscription"); // Redirection vers la page d'inscription
-  };
-
   return (
     <div>
       <NavigationBar />
