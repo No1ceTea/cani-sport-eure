@@ -2,7 +2,7 @@
 
 import HeroSection from "./components/HeroSection";
 import PresentationSection from "./components/PresentationSection";
-import Navigation from "./components/NavigationBar"
+import NavigationBar from "./components/NavigationBar"
 
 export default function HomePage() {
   return (
@@ -10,7 +10,7 @@ export default function HomePage() {
       className="bg-cover bg-center"
     >
       {/* Navigation bar */}
-      <Navigation />
+      <NavigationBar />
 
       {/* Section Hero */}
       <HeroSection />

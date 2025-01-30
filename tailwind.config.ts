@@ -11,16 +11,7 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        blue: "#475C99",
-        darkBlue: "#031F73",
-        black: "#050403",
-        yellow:"#FED100",
-        red:"BB1119",
-        green: "#4EC052",
       },
-      opacity:{
-        '89':'0.89',
-      }
     },
   },
   plugins: [require('daisyui')],
