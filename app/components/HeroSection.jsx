@@ -1,32 +1,81 @@
 import Image from "next/image";
-import Link from "next/link";
 
-export default function HeroSection() {
+const HeroSection = () => {
   return (
-    <section className="relative min-h-screen w-full">
-      {/* Background Image */}
-      <Image
-        src="/montagne.jpg" // Remplacez ceci par le chemin de votre image
-        alt="Background"
-        fill
-        className="object-cover object-center"
-        priority
-      />
-      
-      {/* Hero Content */}
-      <div className="relative h-screen flex flex-col items-center justify-center px-4 text-center text-white">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-wider mb-8">CANI-SPORTS EURE</h1>
-        <p className="max-w-3xl mx-auto text-base md:text-lg mb-12 leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-          est laborum.
+    <section
+      className="h-screen bg-cover bg-center relative px-8"
+      style={{
+        backgroundImage: "url('/montagne.jpeg')", // Chemin de votre image
+      }}
+    >
+      {/* Logo en haut à gauche */}
+      <div className="absolute top-6 left-6">
+        <Image
+          src="/logo-noir-SansFond.png" // Chemin de votre logo
+          alt="Cani-Sports Logo"
+          className="w-20 h-auto"
+          width={200}
+          height={200}
+        />
+      </div>
+
+      {/* Contenu principal */}
+      <div className="h-full flex flex-col justify-center relative">
+        {/* Titre principal légèrement à gauche */}
+        <h1
+          className="text-white font-bold"
+          style={{
+            fontSize: "4rem",
+            fontFamily: "opendyslexic, sans-serif",
+            marginLeft: "15%", // Décalage vers la gauche
+          }}
+        >
+          CANI-SPORTS EURE
+        </h1>
+
+        {/* Texte sous le titre, légèrement à droite */}
+        <p
+          className="text-white"
+          style={{
+            fontSize: "1rem",
+            fontFamily: "calibri, sans-serif",
+            maxWidth: "700px", // Limite la largeur du texte
+            textAlign: "left", // Aligne le texte à gauche
+            marginLeft: "50%", // Décalage vers la droite
+            marginTop: "3rem", // Positionné sous le titre
+            textAlign: "center"
+          }}
+        >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. 
         </p>
-        <Link href="/decouvrir">
-          <button className="btn btn-primary">Nous découvrir</button>
-        </Link>
+
+        {/* Bouton en bas à droite */}
+        <button
+          className="absolute bottom-10 right-10 flex items-center justify-center px-12 py-3 border-2 font-bold bg-darkBlue"
+          style={{
+            color: "white", // Texte en blanc
+            borderRadius: "50px", // Bordures arrondies
+            borderColor: "black", // Contour noir
+            fontFamily: "calibri, sans-serif",
+            fontSize: "1.2rem", // Augmentation de la taille du texte
+            minWidth: "250px", // Largeur minimale augmentée
+            minHeight: "70px",
+          }}
+        >
+          <span className="flex-grow text-center">Nous découvrir</span>
+          <Image
+            src="/display-password.png" // Remplacez par votre chemin d'icône
+            alt="Chevron Down Icon"
+            className="ml-3 w-6 h-6" // Taille de l'icône
+            width={50}
+            height={50}
+          />
+        </button>
       </div>
     </section>
   );
-}
+};
+
+export default HeroSection;

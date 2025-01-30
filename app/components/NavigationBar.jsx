@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function NavigationBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,10 +12,7 @@ export default function NavigationBar() {
   return (
     <section>
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-10 p-4 flex justify-between items-center">
-        <Link href="/" className="relative w-24 h-24">
-          <Image src="/logo-noir-SansFond.png" alt="Cani-Sports Eure Logo" fill className="object-contain" />
-        </Link>
+      <nav className="fixed top-0 right-0 z-10 p-4 flex justify-between items-center">
         <button className="btn btn-outline btn-primary" onClick={toggleMenu}>
       <svg
         xmlns="http://www.w3.org/2000/svg"

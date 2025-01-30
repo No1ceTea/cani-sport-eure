@@ -1,213 +1,296 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import NavigationBar from "../components/NavigationBar";
+import Image from "next/image";
 
-export default function Inscription() {
-  const supabase = createClientComponentClient(); // Initialise le client Supabase
+export default function SignupPage() {
+  const supabase = createClientComponentClient();
   const router = useRouter();
 
+  const [isMounted, setIsMounted] = useState(false); // Vérifie le montage côté client
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
 
-  // État pour le modal
-  const [showModal, setShowModal] = useState(false);
+  useEffect(() => {
+    setIsMounted(true); // Assure que le rendu se fait uniquement côté client
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        alert("Votre compte est confirmé !");
+        router.push("/");
+      }
+    });
+
+    return () => {
+      if (data?.subscription) {
+        data.subscription.unsubscribe();
+      }
+    };
+  }, [isMounted, supabase, router]);
+
+  if (!isMounted) {
+    // Empêche le rendu côté serveur
+    return null;
+  }
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-    // Vérifie que les mots de passe correspondent
     if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      setLoading(false);
+      alert("Les mots de passe ne correspondent pas !");
       return;
     }
 
-    // Appelle Supabase pour créer un utilisateur
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
+    if (!policyAccepted) {
+      alert("Vous devez accepter la politique de confidentialité.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+          },
         },
-      },
-    });
+      });
 
-    setLoading(false);
+      if (error) {
+        alert("Erreur lors de l'inscription : " + error.message);
+        return;
+      }
 
-    if (error) {
-      setError(error.message);
-    } else if (data.user) {
-      router.push("/"); // Redirection après succès
+      alert(
+        "Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte."
+      );
+    } catch (err) {
+      console.error("Erreur lors de l'inscription :", err);
+      alert("Une erreur s'est produite. Veuillez réessayer.");
     }
   };
 
   return (
-    <div>
-      <NavigationBar />      <div
-        className="flex items-center justify-center h-screen bg-cover bg-center gap-32"
-        style={{ backgroundImage: "url('/ton-image-de-fond.jpg')" }} // Remplace par ton image
-      >
-        {/* Logo */}
-        <div className="hidden md:flex items-center justify-center">
-          <Image
-            src="/logo-noir-SansFond.png"
-            alt="Logo Cani-Sports Eure"
-            width={200}
-            height={200}
-            className="w-auto h-auto"
-          />
-        </div>
-
-        {/* Formulaire d'inscription */}
-        <div className="w-full max-w-md p-8 bg-blue-900 bg-opacity-90 rounded-2xl shadow-xl">
-          <h2 className="text-3xl font-bold text-center text-white mb-6">
+    <div
+      className="flex items-center justify-center h-screen bg-cover bg-center px-8"
+      style={{ backgroundImage: "url('/montagne.jpeg')" }}
+    >
+      <div className="flex items-center justify-between w-full max-w-7xl">
+        <div
+          className="bg-blue bg-opacity-89 p-8 shadow-lg w-full max-w-2xl"
+          style={{
+            borderRadius: "67px",
+            boxShadow: "0px 0px 26px 9px rgba(0, 0, 0, 0.25)",
+          }}
+        >
+          <h2
+            className="text-2xl font-bold text-center mb-6"
+            style={{
+              color: "white",
+              fontFamily: "opendyslexic, sans-serif",
+              fontSize: 30,
+            }}
+          >
             Inscription
           </h2>
-          <form onSubmit={handleSignup}>
-            {error && (
-              <div className="alert alert-error shadow-lg mb-4">
-                <span>{error}</span>
-              </div>
-            )}
-            {/* Champ email */}
-            <div className="form-control mb-4">
-              <label className="label text-white">
-                <span>Email</span>
+          <form onSubmit={handleSignup} className="max-w-sm mx-auto">
+            <div className="mb-4">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium mb-2"
+                style={{
+                  color: "white",
+                  fontFamily: "calibri, sans-serif",
+                }}
+              >
+                Email
               </label>
               <input
                 type="email"
-                placeholder="Email"
+                id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input input-bordered input-primary w-full"
+                className="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                style={{
+                  borderRadius: "9px",
+                  fontFamily: "calibri, sans-serif",
+                  color: "black",
+                }}
+                placeholder="Email"
                 required
               />
             </div>
-            {/* Champ mot de passe */}
-            <div className="form-control mb-4">
-              <label className="label text-white">
-                <span>Mot de passe</span>
+
+            <div className="mb-4 relative">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium mb-2"
+                style={{
+                  color: "white",
+                  fontFamily: "calibri, sans-serif",
+                }}
+              >
+                Mot de passe
               </label>
-              <input
-                type="password"
-                placeholder="Mot de passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input input-bordered input-primary w-full"
-                required
-              />
-            </div>
-            {/* Confirmation mot de passe */}
-            <div className="form-control mb-4">
-              <label className="label text-white">
-                <span>Confirmation de mot de passe</span>
-              </label>
-              <input
-                type="password"
-                placeholder="Confirmation de mot de passe"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="input input-bordered input-primary w-full"
-                required
-              />
-            </div>
-            {/* Champ nom */}
-            <div className="form-control mb-4">
-              <label className="label text-white">
-                <span>Nom</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Nom"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="input input-bordered input-primary w-full"
-                required
-              />
-            </div>
-            {/* Champ prénom */}
-            <div className="form-control mb-4">
-              <label className="label text-white">
-                <span>Prénom</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Prénom"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="input input-bordered input-primary w-full"
-                required
-              />
-            </div>
-            {/* Politique de confidentialité */}
-            <div className="form-control mb-6">
-              <label className="label cursor-pointer text-white space-x-2">
+              <div className="relative">
                 <input
-                  type="checkbox"
-                  className="checkbox checkbox-primary"
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  style={{
+                    borderRadius: "9px",
+                    fontFamily: "calibri, sans-serif",
+                    color: "black",
+                  }}
+                  placeholder="Mot de passe"
                   required
                 />
-                <span>
-                  J&apos;accepte la{" "}
-                  <span
-                    className="underline cursor-pointer text-blue-300"
-                    onClick={() => setShowModal(true)}
-                  >
-                    politique de confidentialité
-                  </span>
-                </span>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium mb-2"
+                style={{
+                  color: "white",
+                  fontFamily: "calibri, sans-serif",
+                }}
+              >
+                Confirmation du mot de passe
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                style={{
+                  borderRadius: "9px",
+                  fontFamily: "calibri, sans-serif",
+                  color: "black",
+                }}
+                placeholder="Confirmez votre mot de passe"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium mb-2"
+                style={{
+                  color: "white",
+                  fontFamily: "calibri, sans-serif",
+                }}
+              >
+                Prénom
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                style={{
+                  borderRadius: "9px",
+                  fontFamily: "calibri, sans-serif",
+                  color: "black",
+                }}
+                placeholder="Prénom"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium mb-2"
+                style={{
+                  color: "white",
+                  fontFamily: "calibri, sans-serif",
+                }}
+              >
+                Nom
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                style={{
+                  borderRadius: "9px",
+                  fontFamily: "calibri, sans-serif",
+                  color: "black",
+                }}
+                placeholder="Nom"
+                required
+              />
+            </div>
+
+            <div className="mb-6 flex items-center">
+              <input
+                type="checkbox"
+                id="policyAccepted"
+                checked={policyAccepted}
+                onChange={(e) => setPolicyAccepted(e.target.checked)}
+                className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400"
+                required
+              />
+              <label
+                htmlFor="policyAccepted"
+                className="ml-2 text-sm"
+                style={{
+                  color: "white",
+                  fontFamily: "calibri, sans-serif",
+                }}
+              >
+                J&apos;accepte la{" "}
+                <a href="#" className="underline hover:text-blue-300">
+                  politique de confidentialité
+                </a>
               </label>
             </div>
-            {/* Bouton d'inscription */}
+
             <button
               type="submit"
-              className={`btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100 ${
-                loading ? "loading" : ""
-              }`}
-              disabled={loading}
+              className="w-full py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+              style={{
+                backgroundColor: "white",
+                color: "black",
+                borderRadius: "100px",
+                fontFamily: "calibri, sans-serif",
+                fontWeight: "bold",
+              }}
             >
-              {loading ? "Inscription en cours..." : "S'inscrire"}
+              S&apos;inscrire
             </button>
           </form>
-          <p className="text-center text-sm mt-4 text-white">
-            Déjà inscrit ?{" "}
-            <a href="/connexion" className="underline hover:text-blue-300">
-              Je me connecte
-            </a>
-          </p>
         </div>
-
-        {/* Modal politique de confidentialité */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
-              <h3 className="text-2xl font-bold mb-4">Politique de confidentialité</h3>
-              <p>
-                Ici, ajoutez le texte de votre politique de confidentialité. Si le texte est
-                long, il pourra défiler dans cette boîte.
-              </p>
-              <button
-                className="btn btn-primary mt-4"
-                onClick={() => setShowModal(false)}
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        )}
+        <div className="w-1/4 flex items-center justify-center">
+          <Image
+            src="/Logo-ContourBlanc-SansFond.png"
+            alt="Logo Cani-Sports Eure"
+            className="w-full max-w-xs"
+            width={500}
+            height={500}
+          />
+        </div>
       </div>
     </div>
   );
