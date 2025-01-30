@@ -60,177 +60,124 @@ export default function LoginPage() {
     }
   };
 
+  const redirectToSignup = () => {
+    router.push("/inscription"); // Redirection vers la page d'inscription
+  };
+
   return (
     <div>
       <NavigationBar />
       <div
-        className="flex items-center justify-center h-screen bg-cover bg-center px-8"
-        style={{ backgroundImage: "url('/montagne.jpeg')" }} // Chemin vers votre image de fond
+        className="flex items-center justify-center h-screen bg-cover bg-center"
+        style={{ backgroundImage: "url('/montagne.jpeg')" }}
       >
-        <div className="flex items-center justify-between w-full max-w-7xl">
+        {/* Logo en haut à gauche */}
+        <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
+          <Image
+            src="/logo-noir-SansFond.png" // Chemin de votre logo
+            alt="Cani-Sports Logo"
+            className="w-16 sm:w-20 h-auto"
+            width={200}
+            height={200}
+          />
+        </div>
+        <div className="flex flex-col md:flex-row items-center justify-center gap-32">
           {isClient && (
-            <div className="w-1/4 flex items-center justify-center">
+            <div className="hidden md:flex items-center justify-center">
               <Image
-                src="/Logo-ContourBlanc-SansFond.png"
+                src="/logo-noir-SansFond.png"
                 alt="Logo Cani-Sports Eure"
-                className="w-full max-w-xs"
-                width={500}
-                height={500}
+                width={200}
+                height={200}
+                className="w-auto h-auto"
               />
             </div>
           )}
 
-          <div
-            className="bg-blue bg-opacity-89 p-8 shadow-lg w-full max-w-2xl"
-            style={{
-              borderRadius: "67px",
-              boxShadow: "0px 0px 26px 9px rgba(0, 0, 0, 0.25)",
-            }}
-          >
-            <h2
-              className="text-2xl font-bold text-center mb-6"
-              style={{
-                color: "white", // Connexion en blanc
-                fontFamily: "opendyslexic, sans-serif", // Police OpenDyslexic
-                fontSize: 30,
-              }}
-            >
+          <div className="card w-full max-w-sm bg-blue-900 bg-opacity-90 shadow-xl p-6 md:p-8">
+            <h2 className="text-2xl font-bold text-center mb-6 text-white">
               Connexion
             </h2>
-            <form onSubmit={handleLogin} className="max-w-sm mx-auto">
-              {/* Email */}
-              <div className="mb-4">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium mb-2"
-                  style={{
-                    color: "white", // Label en blanc
-                    fontFamily: "calibri, sans-serif", // Police Calibri
-                  }}
-                >
-                  Email
+            <form onSubmit={handleLogin}>
+              {error && (
+                <div className="alert alert-error shadow-lg mb-4">
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className="form-control mb-4">
+                <label className="label text-white">
+                  <span>Email</span>
                 </label>
                 <input
                   type="email"
-                  id="email"
+                  placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  style={{
-                    borderRadius: "9px", // Border-radius des champs
-                    fontFamily: "calibri, sans-serif", // Police Calibri
-                    color: "black", // Texte en noir
-                  }}
-                  placeholder="Email"
+                  className="input input-bordered input-primary w-full"
                   required
                 />
               </div>
 
-              {/* Password */}
-              <div className="mb-4 relative">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium mb-2"
-                  style={{
-                    color: "white",
-                    fontFamily: "calibri, sans-serif",
-                  }}
-                >
-                  Mot de passe
+              <div className="form-control mb-4">
+                <label className="label text-white">
+                  <span>Mot de passe</span>
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
-                    id="password"
+                    placeholder="Mot de passe"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-3 pr-12 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    style={{
-                      borderRadius: "9px",
-                      fontFamily: "calibri, sans-serif",
-                      color: "black",
-                    }}
-                    placeholder="Mot de passe"
+                    className="input input-bordered input-primary w-full"
                     required
                   />
-                  <Image
-                    src={showPassword ? "/hide-password.png" : "/display-password.png"}
-                    alt={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  <button
+                    type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute top-1/2 right-3 w-6 h-6 transform -translate-y-1/2 cursor-pointer"
-                    width={20}
-                    height={20}
-                  />
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                  >
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
                 </div>
               </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="mb-4 text-red-500 text-center" style={{ fontFamily: "calibri, sans-serif" }}>
-                  {error}
-                </div>
-              )}
-
-              {/* Remember Me */}
-              <div className="mb-6 flex items-center">
-                <input
-                  type="checkbox"
-                  id="rememberMe"
-                  className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400"
-                />
-                <label
-                  htmlFor="rememberMe"
-                  className="ml-2 text-sm"
-                  style={{
-                    color: "white", // Texte en blanc
-                    fontFamily: "calibri, sans-serif", // Police Calibri
-                  }}
-                >
-                  Se souvenir de moi
+              <div className="form-control flex items-center mb-6">
+                <label className="label cursor-pointer text-white space-x-2">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-primary"
+                  />
+                  <span>Se souvenir de moi</span>
                 </label>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-                style={{
-                  backgroundColor: "white", // Bouton en blanc
-                  color: "black", // Texte en noir
-                  borderRadius: "100px", // Border-radius du bouton
-                  fontFamily: "calibri, sans-serif", // Police Calibri
-                  marginTop: "40px",
-                  fontWeight: "bold",
-                }}
+                className={`btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100 ${
+                  loading ? "loading" : ""
+                }`}
                 disabled={loading}
               >
-                {loading ? "Chargement..." : "Se connecter"}
+                {loading ? "Connexion en cours..." : "Se connecter"}
               </button>
             </form>
 
-            {/* Links */}
             <div className="mt-6 text-center">
-              <a
-                href="#"
-                className="text-sm underline hover:text-blue-300"
-                style={{
-                  color: "white", // Texte en blanc
-                  fontFamily: "calibri, sans-serif", // Police Calibri
-                }}
+              <Link
+                href="/mot-de-passe-oublie"
+                className="text-sm underline text-white hover:text-blue-300"
               >
                 Mot de passe oublié ?
-              </a>
-              <p
-                className="text-sm mt-2"
-                style={{
-                  color: "white", // Texte en blanc
-                  fontFamily: "calibri, sans-serif", // Police Calibri
-                }}
-              >
+              </Link>
+              <p className="text-sm mt-2 text-white">
                 Pas encore inscrit ?{" "}
-                <Link href="/inscription" className="text-sm underline hover:text-blue-300">
+                <button
+                  onClick={redirectToSignup}
+                  className="underline hover:text-blue-300"
+                >
                   Inscription
-                </Link>
+                </button>
               </p>
             </div>
           </div>

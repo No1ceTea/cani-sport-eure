@@ -32,7 +32,7 @@ export default function NavigationBar() {
         onClick={toggleMenu}
       >
         <div
-          className={`fixed top-0 right-0 w-64 h-full bg-blue-900 text-white p-6 z-50 transform transition-transform duration-300 ${
+          className={`fixed top-0 right-0 w-64 h-full bg-blue-900 text-white p-6 z-50 transform transition-transform duration-500 ${
             isOpen ? "translate-x-0" : "translate-x-full"
           }`}
           onClick={(e) => e.stopPropagation()}
