@@ -13,26 +13,37 @@ export default function Gallery() {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        // 🛠 Tenter d'afficher tous les fichiers stockés
-        const { data, error } = await supabase.storage.from(bucketName).list("");
-        console.log("📂 Réponse Supabase :", data, error);
+        console.log("📡 Début de fetchImages()");
 
-        if (error) throw error;
+        const { data, error } = await supabase.storage
+          .from(bucketName)
+          .list("", { limit: 100 });
 
-        // 📌 Vérifie si les fichiers sont bien retournés
-        if (!data || data.length === 0) {
-          console.warn("⚠️ Aucun fichier trouvé dans le bucket.");
+        if (error) {
+          console.error("❌ Erreur lors du .list() :", error);
           return;
         }
 
-        // 🔍 Étape 2 : Construire les URLs des images
-        const imageUrls = data
-          .filter((file) => file.name.match(/\.(png|jpg|jpeg|webp)$/i)) // Filtrer les images
-          .map((file) => {
-            const publicUrl = supabase.storage.from(bucketName).getPublicUrl(file.name).data.publicUrl;
-            console.log(`🖼️ URL générée pour ${file.name}:`, publicUrl);
-            return publicUrl;
-          });
+        if (!data || data.length === 0) {
+          console.warn("⚠️ Aucun fichier trouvé dans le bucket :", bucketName);
+          return;
+        }
+
+        console.log("📝 Fichiers trouvés :", data.map((file) => file.name));
+
+        // Filtrer les fichiers pour exclure celui qui a le lien spécifique
+        const excludedUrl = "https://rgnnrsrdrrfzvjtfevim.supabase.co/storage/v1/object/public/photo/.emptyFolderPlaceholder";
+
+        const filteredData = data.filter((file) => {
+          const fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucketName}/${file.name}`;
+          return fileUrl !== excludedUrl; // Exclure l'image avec ce lien
+        });
+
+        const imageUrls = filteredData.map((file) => {
+          const generatedUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucketName}/${file.name}`;
+          console.log(`✅ URL générée : ${generatedUrl}`);
+          return generatedUrl;
+        });
 
         setImages(imageUrls);
       } catch (err) {
