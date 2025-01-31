@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import supabase from "@/lib/supabaseClient"; // Fichier de configuration Supabase
+import supabase from "@/lib/supabaseClient";
 import Image from "next/image";
 import NavigationBar from "../components/NavigationBar";
 
@@ -15,6 +15,20 @@ const GalleryPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isPc, setIsPc] = useState(false);
+
+  // Vérifier si on est sur PC
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPc(window.innerWidth > 768); // Par exemple, écran supérieur à 768px est considéré comme PC
+    };
+
+    handleResize(); // Vérifier lors du chargement initial
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Fonction pour récupérer les images depuis Supabase
   useEffect(() => {
@@ -26,12 +40,11 @@ const GalleryPage = () => {
         return;
       }
 
-      // Construire les URLs publiques et récupérer les dates de création
       const imageUrls = data
         .filter((file) => file.name.endsWith(".png") || file.name.endsWith(".jpg") || file.name.endsWith(".jpeg"))
         .map((file) => ({
           url: supabase.storage.from("photo").getPublicUrl(file.name).data.publicUrl || "",
-          createdAt: file.created_at || "", // Assurez-vous que `created_at` est présent
+          createdAt: file.created_at || "",
         }));
 
       setImages(imageUrls);
@@ -40,14 +53,10 @@ const GalleryPage = () => {
     fetchImages();
   }, []);
 
-  // Fonction de filtrage par texte et par dates
   const filteredImages = images.filter((image) => {
     const matchesSearch = searchTerm === "" || image.url.toLowerCase().includes(searchTerm.toLowerCase());
-
     const imageDate = new Date(image.createdAt);
     const matchesStartDate = startDate === "" || imageDate >= new Date(startDate);
-
-    // Fin de la journée pour la date de fin
     const endDateObj = endDate ? new Date(endDate + "T23:59:59") : null;
     const matchesEndDate = endDate === "" || (endDateObj && imageDate <= endDateObj);
 
@@ -59,9 +68,9 @@ const GalleryPage = () => {
       className="min-h-screen pr-8 pl-8"
       style={{
         backgroundImage: "url('/fond.png')",
-        backgroundSize: "cover", // Assure que l'image couvre tout l'écran
+        backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
-        backgroundPosition: "center", // Centrer l'image de fond
+        backgroundPosition: "center",
         backgroundColor: "white",
       }}
     >
@@ -75,15 +84,15 @@ const GalleryPage = () => {
       >
         Galerie de photo
       </h1>
+
       {/* Filtres de recherche */}
       <div className="flex flex-wrap gap-4 mb-8">
-        {/* Barre de recherche */}
         <div
           className="flex items-center px-4 py-2 border w-full sm:w-auto"
           style={{
             backgroundColor: "white",
             borderRadius: "25px",
-            border: "2px solid #001f5c", // darkBlue
+            border: "2px solid #001f5c",
           }}
         >
           <input
@@ -98,28 +107,26 @@ const GalleryPage = () => {
           </span>
         </div>
 
-        {/* Filtre de date - Du */}
         <div
           className="flex items-center px-4 py-2 border w-full sm:w-auto"
           style={{
             backgroundColor: "white",
             borderRadius: "8px",
-            border: "2px solid #001f5c", // darkBlue
-            color:"black",
+            border: "2px solid #001f5c",
+            color: "black",
           }}
         >
           <label className="mr-2 font-calibri text-black">Du</label>
           <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="outline-none" />
         </div>
 
-        {/* Filtre de date - Au */}
         <div
           className="flex items-center px-4 py-2 border w-full sm:w-auto"
           style={{
             backgroundColor: "white",
             borderRadius: "8px",
-            border: "2px solid #001f5c", // darkBlue
-            color:"black",
+            border: "2px solid #001f5c",
+            color: "black",
           }}
         >
           <label className="mr-2 font-calibri text-black">Au</label>
@@ -128,16 +135,10 @@ const GalleryPage = () => {
       </div>
 
       {/* Galerie des images */}
-      <div
-        className="columns-1 sm:columns-2 lg:columns-3 gap-4"
-        style={{
-          paddingLeft: "2rem",
-          paddingRight: "2rem",
-        }}
-      >
+      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4" style={{ paddingLeft: "2rem", paddingRight: "2rem" }}>
         {filteredImages.length > 0 ? (
           filteredImages.map((image, index) => (
-            <div key={index} className="mb-4">
+            <div key={index} className="mb-4 cursor-pointer" onClick={() => isPc && setSelectedImage(image.url)}>
               <Image
                 src={image.url}
                 alt={`Gallery image ${index}`}
@@ -151,6 +152,33 @@ const GalleryPage = () => {
           <p className="text-gray-500 font-calibri">Aucune image disponible.</p>
         )}
       </div>
+
+      {/* Lightbox / Modale */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative">
+            <Image
+              src={selectedImage}
+              alt="Image en grand"
+              width={800} // Dimensions pour la version grand écran
+              height={800}
+              className="rounded-lg"
+            />
+            <button
+              className="absolute top-2 right-2 text-white bg-black rounded-full p-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage(null);
+              }}
+            >
+              ❌
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
