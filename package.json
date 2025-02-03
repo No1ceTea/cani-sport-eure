@@ -14,7 +14,7 @@
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.48.1",
-    "@tailwindcss/postcss": "^4.0.1",
+    "@tailwindcss/postcss": "^4.0.3",
     "@vercel/analytics": "^1.4.1",
     "commitizen": "^4.3.1",
     "daisyui": "^4.12.23",
