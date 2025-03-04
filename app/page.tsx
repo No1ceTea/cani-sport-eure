@@ -1,22 +1,20 @@
 "use client";
 
-import HeroSection from "./components/HeroSection";
-import PresentationSection from "./components/PresentationSection";
-import NavigationBar from "./components/NavigationBar"
+import TitleSection from "./accueil/TitleSection";
+import Grid_5 from "./components/Grid_5";
 
 export default function HomePage() {
   return (
     <main
       className="bg-cover bg-center"
     >
-      {/* Navigation bar */}
-      <NavigationBar />
+      {}
+      <TitleSection />
 
-      {/* Section Hero */}
-      <HeroSection />
+      {}
+      <Grid_5 />
 
-      {/* Section Présentation */}
-      <PresentationSection />
+
     </main>
   );
 }
