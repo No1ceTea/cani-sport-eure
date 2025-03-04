@@ -73,8 +73,8 @@ export default function NavigationBar() {
               Articles
             </a>
 
-            <Link href="/creation-profil" className="text-lg hover:underline">
-              profil test
+            <Link href="/creation-chien" className="text-lg hover:underline">
+              chien test
             </Link>
             <Link href="/connexion" className="text-lg hover:underline">
               Se connecter
