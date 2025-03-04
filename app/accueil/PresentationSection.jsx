@@ -2,7 +2,7 @@ import Image from "next/image"
 
 export default function Presentation() {
   return (
-    <section className="bg-blue-900 text-white py-16 px-6 sm:px-16">
+    <section id="presentation" className="bg-blue-900 text-white py-16 px-6 sm:px-16">
       {/* Grid principal */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 container mx-auto">
         
