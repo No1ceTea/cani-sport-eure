@@ -26,7 +26,7 @@ serve(async (req) => {
       return null;
     };
 
-    const passwordError = validatePassword(password);npx supabase functions logs validate-signup --project=ton_project_id
+    const passwordError = validatePassword(password);
 
     if (passwordError) {
       return new Response(JSON.stringify({ error: passwordError }), { status: 400 });
