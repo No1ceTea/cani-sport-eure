@@ -1,12 +1,17 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// @ts-ignore
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 // Initialisation du client Supabase
 const supabase = createClient(
+  // @ts-ignore
   Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  // @ts-ignore
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")! // ⚠️ Clé sensible : uniquement côté serveur !
 );
 
+// @ts-ignore
 serve(async (req) => {
   try {
     const { email, password, first_name, last_name } = await req.json();
@@ -27,25 +32,14 @@ serve(async (req) => {
     };
 
     const passwordError = validatePassword(password);
-
     if (passwordError) {
       return new Response(JSON.stringify({ error: passwordError }), { status: 400 });
     }
 
-    // 🔍 Vérification si l'email existe déjà via Admin API
-    const { data: users, error: userError } = await supabase.auth.admin.listUsers();
+    // 🔍 Vérification si l'email existe déjà
+    const { data: existingUser, error: userError } = await supabase.auth.admin.getUserByEmail(email);
 
-    if (userError) {
-      return new Response(JSON.stringify({ error: "Erreur serveur. Réessayez plus tard." }), { status: 500 });
-    }
-
-    const emailExists = users.users.some((user) => user.email === email);
-
-    if (emailExists) {
-      return new Response(JSON.stringify({ error: "Cet email est déjà utilisé." }), { status: 400 });
-    }
-
-    if (userError && userError.code !== "PGRST116") {
+    if (userError && userError.message !== "User not found") {
       return new Response(JSON.stringify({ error: "Erreur serveur. Réessayez plus tard." }), { status: 500 });
     }
 
@@ -54,7 +48,7 @@ serve(async (req) => {
     }
 
     // 🔄 Création de l'utilisateur
-    const { error } = await supabase.auth.admin.createUser({
+    const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
       user_metadata: { first_name, last_name },
