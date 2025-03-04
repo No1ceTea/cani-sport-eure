@@ -96,7 +96,7 @@ const AlbumsPage = () => {
       style={{
         fontSize: "36px",
         fontFamily: "opendyslexic, sans-serif",
-      }}>Galerie d'albums</h1>
+      }}>Galerie d&apos;albums</h1>
 
       {/* Filtres */}
       <div className="flex flex-wrap gap-4 mb-8">
