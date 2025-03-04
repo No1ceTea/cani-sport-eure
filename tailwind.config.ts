@@ -12,6 +12,7 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
         blue_primary: "#1E3A8A",
+        blue_primary_hover : "#1D3989",
         black_stroke: "#050403",
       },
       fontFamily: {
@@ -28,8 +29,7 @@ export default {
     themes: [
       {
         mytheme: {
-          primary: "#1E3A8A",
-          black_stroke: "#050403",
+          "primary": "#1E3A8A",
         },
       },
     ],

@@ -45,11 +45,11 @@ const TitleSection = () => {
         <Link href="#presentation" passHref>
           <button className="primary_button flex items-center">
             <span className="mr-3">Nous découvrir</span>
-            {/* Utilisation du SVG "next.svg" à la place de l'icône précédente */}
+            {/* Remplacement du SVG par le GIF */}
             <Image
-              src="/next.svg"
-              alt="NextJS Icon"
-              className="w-6 h-6"
+              src="/icons/angle-double-down-anim.gif"
+              alt="Animation Descente"
+              className="w-6 h-6 filter invert"
               width={24}
               height={24}
               priority
