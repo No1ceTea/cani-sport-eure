@@ -1,3 +1,5 @@
+"use client";
+
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next"
 import "./globals.css"
