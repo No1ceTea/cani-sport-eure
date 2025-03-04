@@ -12,7 +12,6 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({ email, password, first_name, last_name }),
     });
-    
 
     const data = await response.json();
 
@@ -22,6 +21,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Inscription réussie !" }, { status: 200 });
   } catch (error) {
+    console.error("Erreur dans l'API /api/signup :", error); // 🔍 Log de l'erreur pour debug
     return NextResponse.json({ error: "Erreur lors de l'inscription." }, { status: 500 });
   }
 }

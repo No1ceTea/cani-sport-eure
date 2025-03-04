@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import NavigationBar from "../components/NavigationBar";
-import Image from "next/image";
 
 export default function Inscription() {
-  const supabase = createClientComponentClient();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
