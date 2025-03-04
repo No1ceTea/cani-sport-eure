@@ -25,7 +25,7 @@ export default function PetProfileForm() {
   const handleSubmit = async () => {
     const { data, error } = await supabase.from("chiens").upsert([form]);
     if (error) {
-      console.error("Erreur lors de l'enregistrement :", error);
+      console.error("Erreur lors de l'enregistrement :", error.message);
     } else {
       console.log("Données enregistrées :", data);
     }
