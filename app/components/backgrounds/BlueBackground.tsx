@@ -9,24 +9,29 @@ interface EncadreProps {
 
 const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps) => {
   // Largeur et hauteur dynamiques de l’image
-  const computedWidth = width === "full" ? window.innerWidth : width;
-  const computedHeight = height;
+  const computedWidth = width === "full" ? "100vw" : `${width}px`;
+  const computedHeight = `${height}px`;
 
   // Calcul dynamique des tailles pour respecter les proportions observées
-  const imgWidthBD = computedHeight;  // Largeur de Fond_BD = hauteur de l'encadré
-  const imgHeightBD = computedWidth;  // Hauteur de Fond_BD = largeur de l'encadré
+  const imgWidthBD = height;  // Largeur de Fond_BD = hauteur de l'encadré
+  const imgHeightBD = width === "full" ? window.innerWidth : width; // Hauteur de Fond_BD = largeur de l'encadré
 
   return (
     <div
       className="relative border-2 border-gray-300 bg-gray-100 p-4 rounded-lg shadow-md overflow-hidden"
-      style={{ width: computedWidth, height: computedHeight }}
+      style={{
+        width: computedWidth,
+        height: computedHeight,
+        maxWidth: "100%", // Empêche le dépassement de l’écran
+        overflowX: "hidden", // Désactive tout débordement horizontal
+      }}
     >
       {/* === Fond_TL (Haut-Gauche) - NE PAS TOUCHER === */}
       <div
         className="absolute top-0 left-0"
         style={{
-          width: `${computedHeight}px`,
-          height: `${computedWidth}px`,
+          width: computedHeight,
+          height: imgHeightBD,
           transform: "rotate(-90deg) translate(-100%, 0%)",
           transformOrigin: "top left",
         }}
@@ -39,14 +44,14 @@ const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps
         />
       </div>
 
-      {/* === Fond_BD (Bas-Droit) - Correction de l’ancrage === */}
+      {/* === Fond_BD (Bas-Droit) - Correction du rescale === */}
       <div
         className="absolute bottom-0 right-0"
         style={{
-          width: `${imgWidthBD}px`,  // Fond_BD suit les dimensions comme dans les exemples
-          height: `${imgHeightBD}px`,
-          transform: "rotate(90deg) translate(0%, 100%)", // Ajustement clé
-          transformOrigin: "bottom right"
+          width: imgWidthBD,  
+          height: imgHeightBD,
+          transform: "rotate(90deg) translate(0%, 100%)",
+          transformOrigin: "bottom right",
         }}
       >
         <Image
