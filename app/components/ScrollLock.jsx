@@ -11,7 +11,7 @@ const ScrollLock = () => {
     const currentPath = `${pathname}${window.location.hash}`; // Ajoute le hash à l'URL
 
     // Liste des pages où le scroll doit être bloqué
-    const lockScrollPaths = ["/", "/#accueil"];
+    const lockScrollPaths = ["/", "/#", "/#accueil"];
 
     if (lockScrollPaths.includes(currentPath)) {
       document.body.style.overflow = "hidden"; // Bloque le scroll

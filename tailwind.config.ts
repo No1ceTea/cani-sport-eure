@@ -13,6 +13,7 @@ export default {
         foreground: "var(--foreground)",
         blue_primary: "#1E3A8A",
         blue_primary_hover : "#1D3989",
+        yellow_primary : "#FED100",
         black_stroke: "#050403",
       },
       fontFamily: {
