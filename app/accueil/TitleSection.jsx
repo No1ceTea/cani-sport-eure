@@ -3,8 +3,6 @@
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 
-import Sidebar from "../components/sidebars/Sidebar";
-
 const TitleSection = () => {
   const router = useRouter();
   const pathname = usePathname(); // Récupère l'URL actuelle sans le hash
@@ -69,7 +67,6 @@ const TitleSection = () => {
         </button>
       </div>
 
-      <Sidebar></Sidebar>
     </section>
   );
 };

@@ -13,8 +13,8 @@ const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps
   const computedHeight = `${height}px`;
 
   // Calcul dynamique des tailles pour respecter les proportions observées
-  const imgWidthBD = height;  // Largeur de Fond_BD = hauteur de l'encadré
-  const imgHeightBD = width === "full" ? window.innerWidth : width; // Hauteur de Fond_BD = largeur de l'encadré
+  const imgWidthBD = height;  
+  const imgHeightBD = width === "full" ? window.innerWidth : width;
 
   return (
     <div
@@ -22,8 +22,10 @@ const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps
       style={{
         width: computedWidth,
         height: computedHeight,
-        maxWidth: "100%", // Empêche le dépassement de l’écran
-        overflowX: "hidden", // Désactive tout débordement horizontal
+        maxWidth: "100%",
+        overflowX: "hidden",
+        zIndex: 1, // Assure que le composant ne dépasse pas la side-bar
+        position: "relative",
       }}
     >
       {/* === Fond_TL (Haut-Gauche) - NE PAS TOUCHER === */}
@@ -34,6 +36,7 @@ const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps
           height: imgHeightBD,
           transform: "rotate(-90deg) translate(-100%, 0%)",
           transformOrigin: "top left",
+          zIndex: -1, // Force l'image en arrière-plan
         }}
       >
         <Image
@@ -52,6 +55,7 @@ const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps
           height: imgHeightBD,
           transform: "rotate(90deg) translate(0%, 100%)",
           transformOrigin: "bottom right",
+          zIndex: -1, // Force l'image en arrière-plan
         }}
       >
         <Image
