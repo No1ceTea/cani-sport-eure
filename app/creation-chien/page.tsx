@@ -10,8 +10,8 @@ export default function PetProfileForm() {
     prenom: "",
     age: 0,
     race: "",
-    dateNaissance: "",
-    numeroPuce: "",
+    date_de_naissance: "",
+    numero_puce: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,12 +32,12 @@ export default function PetProfileForm() {
   };
 
   const handleDelete = async () => {
-    const { error } = await supabase.from("chiens").delete().eq("numeroPuce", form.numeroPuce);
+    const { error } = await supabase.from("chiens").delete().eq("numeroPuce", form.numero_puce);
     if (error) {
       console.error("Erreur lors de la suppression :", error);
     } else {
       console.log("Profil supprimé");
-      setForm({ prenom: "", age: 0, race: "", dateNaissance: "", numeroPuce: "" });
+      setForm({ prenom: "", age: 0, race: "", date_de_naissance: "", numero_puce: "" });
     }
   };
 
@@ -68,11 +68,11 @@ export default function PetProfileForm() {
           </div>
           <div className="flex items-center">
             <label className="text-sm w-40">Date de naissance</label>
-            <input type="date" name="dateNaissance" value={form.dateNaissance} onChange={handleChange} className="flex-1 p-2 text-black rounded" />
+            <input type="date" name="dateNaissance" value={form.date_de_naissance} onChange={handleChange} className="flex-1 p-2 text-black rounded" />
           </div>
           <div className="flex items-center">
             <label className="text-sm w-40">Numéro de puce</label>
-            <input name="numeroPuce" value={form.numeroPuce} onChange={handleChange} className="flex-1 p-2 text-black rounded" />
+            <input name="numeroPuce" value={form.numero_puce} onChange={handleChange} className="flex-1 p-2 text-black rounded" />
           </div>
         </div>
         <div className="flex justify-between items-center mt-4">
