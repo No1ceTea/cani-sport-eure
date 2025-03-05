@@ -13,7 +13,10 @@ export async function GET() {
     const { data, error } = await supabase.auth.admin.listUsers();
 
     if (error) {
-      return NextResponse.json({ error: "Erreur lors de la récupération des utilisateurs." }, { status: 500 });
+      return NextResponse.json(
+        { error: "Erreur lors de la récupération des utilisateurs." },
+        { status: 500 }
+      );
     }
 
     // 🔍 Extraction des infos nécessaires
@@ -22,6 +25,8 @@ export async function GET() {
       email: user.email,
       first_name: user.user_metadata?.first_name || "",
       last_name: user.user_metadata?.last_name || "",
+      birthdate: user.user_metadata?.birthdate || "",
+      license_number: user.user_metadata?.license_number || "",
       administrateur: user.user_metadata?.administrateur || false,
       statut_inscription: user.user_metadata?.statut_inscription || "en attente",
     }));
@@ -32,29 +37,41 @@ export async function GET() {
   }
 }
 
-// 🔹 Mise à jour du statut d'inscription (PUT)
+// 🔹 Mise à jour des informations d'un utilisateur (PUT)
 export async function PUT(req: Request) {
   try {
-    const { id, statut_inscription } = await req.json();
+    const { id, first_name, last_name, email, birthdate, license_number, statut_inscription } = await req.json();
 
-    if (!id || !statut_inscription) {
-      return NextResponse.json({ error: "ID et statut_inscription sont requis." }, { status: 400 });
+    // ✅ Vérifications des champs obligatoires
+    if (!id) {
+      return NextResponse.json({ error: "L'ID de l'utilisateur est requis." }, { status: 400 });
     }
 
-    if (!["inscrit", "refusé"].includes(statut_inscription)) {
-      return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
+    if (!email || !first_name || !last_name) {
+      return NextResponse.json({ error: "Email, prénom et nom sont obligatoires." }, { status: 400 });
+    }
+
+    if (statut_inscription && !["inscrit", "refusé", "en attente"].includes(statut_inscription)) {
+      return NextResponse.json({ error: "Statut d'inscription invalide." }, { status: 400 });
     }
 
     // 🔄 Mise à jour dans Supabase
     const { error } = await supabase.auth.admin.updateUserById(id, {
-      user_metadata: { statut_inscription },
+      email,
+      user_metadata: {
+        first_name,
+        last_name,
+        birthdate: birthdate || "", // Gérer une éventuelle valeur null
+        license_number: license_number || "",
+        statut_inscription: statut_inscription || "en attente",
+      },
     });
 
     if (error) {
       return NextResponse.json({ error: "Erreur Supabase : " + error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ message: "Statut mis à jour avec succès." }, { status: 200 });
+    return NextResponse.json({ message: "Utilisateur mis à jour avec succès." }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
   }
