@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 
+import Sidebar from "../components/sidebars/Sidebar";
+
 const TitleSection = () => {
   const router = useRouter();
   const pathname = usePathname(); // Récupère l'URL actuelle sans le hash
@@ -27,7 +29,8 @@ const TitleSection = () => {
       className="h-screen bg-cover bg-center px-6 sm:px-16 relative grid grid-cols-5"
       style={{ backgroundImage: "url('/montagne.jpeg')" }}
     >
-      {/* LOGO ET SIDEBAR */}
+      
+      {/* LOGO */}
       <div className="col-span-5 flex justify-between items-center p-4 absolute top-0 left-0 w-full">
         <Image
           src="/logo-noir-SansFond.png"
@@ -36,7 +39,6 @@ const TitleSection = () => {
           height={50}
           className="object-contain"
         />
-        <button className="primary_button shadow-lg">☰</button>
       </div>
 
       {/* CONTENU PRINCIPAL */}
@@ -66,6 +68,8 @@ const TitleSection = () => {
           />
         </button>
       </div>
+      
+      <Sidebar></Sidebar>
     </section>
   );
 };
