@@ -2,7 +2,7 @@ import Image from "next/image"
 
 export default function Presentation() {
   return (
-    <section id="presentation" className="bg-blue-900 text-white py-16 px-6 sm:px-16">
+    <section id="presentation" className="bg-white text-black py-16 px-6 sm:px-16">
       {/* Grid principal */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 container mx-auto">
         
@@ -18,14 +18,14 @@ export default function Presentation() {
           {/* Image mise en avant avec titre */}
           <div className="relative rounded-3xl overflow-hidden mb-8">
             <div className="absolute top-4 left-4 z-10">
-              <h3 className="bg-blue-800 text-white px-6 py-2 rounded-lg text-xl">Nos Activités</h3>
+              <h3 className="bg-blue-800 text-white px-6 py-2 rounded-lg text-xl add_border">Nos Activités</h3>
             </div>
             <Image
               src="/montagne.jpeg"
               alt="Person running with dog"
               width={600}
               height={400}
-              className="w-full object-cover rounded-3xl"
+              className="w-full object-cover rounded-3xl add_border"
             />
           </div>
 

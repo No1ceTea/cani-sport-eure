@@ -14,3 +14,7 @@ body {
 .primary_bg {
   @apply bg-blue_primary;
 }
+
+.add_border {
+  @apply border-2 border-black_stroke
+}
