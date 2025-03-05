@@ -6,7 +6,7 @@ import AgendaSection from "./accueil/AgendaSection";
 import Sponsor from "./accueil/Sponsor";
 
 import ScrollLock from "./components/ScrollLock";
-import Grid_5 from "./components/Grid_5";
+import Sidebar from "./components/sidebars/Sidebar";
 
 export default function HomePage() {
   return (
@@ -20,9 +20,7 @@ export default function HomePage() {
       <AgendaSection />
       <Sponsor />
 
-      {/* Grille de développement */}
-      <Grid_5 />
-
+      <Sidebar />
     </main>
   );
 }
