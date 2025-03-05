@@ -23,22 +23,32 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg transform ${
+        className={`fixed top-0 right-0 h-full w-64 bg-gray-800 shadow-lg transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300`}
       >
+        {/* Bouton de fermeture */}
         <button
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
+          className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl"
           onClick={() => setIsOpen(false)}
         >
           ✕
         </button>
-        <div className="p-5">
-          <h2 className="text-lg font-bold">Menu</h2>
-          <ul className="mt-4 space-y-2">
-            <li><a href="#" className="block text-gray-700 hover:text-blue-500">Accueil</a></li>
-            <li><a href="#" className="block text-gray-700 hover:text-blue-500">À propos</a></li>
-            <li><a href="#" className="block text-gray-700 hover:text-blue-500">Contact</a></li>
+
+        {/* Contenu de la sidebar */}
+        <div className="flex flex-col items-center mt-16 space-y-4">
+          <ul className="text-white text-lg font-semibold tracking-wide space-y-4">
+            <li><a href="#" className="hover:text-gray-300">Le Club</a></li>
+            <li><a href="#" className="hover:text-gray-300">Actualités</a></li>
+            <li><a href="#" className="hover:text-gray-300">Événements</a></li>
+            <li><a href="#" className="hover:text-gray-300">Articles</a></li>
+            <li><a href="#" className="hover:text-gray-300">Documents</a></li>
+            <li><a href="#" className="hover:text-gray-300">Tableau de bord</a></li>
+            <li><a href="#" className="hover:text-gray-300">Boutique</a></li>
+            <li><a href="#" className="hover:text-gray-300">Réglages</a></li>
+            <li><a href="#" className="hover:text-gray-300">Mon profil</a></li>
+            <li><a href="#" className="hover:text-gray-300">Admin</a></li>
+            <li><a href="#" className="hover:text-red-400">Se déconnecter</a></li>
           </ul>
         </div>
       </div>
