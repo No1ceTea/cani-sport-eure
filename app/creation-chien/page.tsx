@@ -68,11 +68,11 @@ export default function PetProfileForm() {
           </div>
           <div className="flex items-center">
             <label className="text-sm w-40">Date de naissance</label>
-            <input type="date" name="dateNaissance" value={form.date_de_naissance} onChange={handleChange} className="flex-1 p-2 text-black rounded" />
+            <input type="date" name="date_de_naissance" value={form.date_de_naissance} onChange={handleChange} className="flex-1 p-2 text-black rounded" />
           </div>
           <div className="flex items-center">
             <label className="text-sm w-40">Numéro de puce</label>
-            <input name="numeroPuce" value={form.numero_puce} onChange={handleChange} className="flex-1 p-2 text-black rounded" />
+            <input name="numero_puce" value={form.numero_puce} onChange={handleChange} className="flex-1 p-2 text-black rounded" />
           </div>
         </div>
         <div className="flex justify-between items-center mt-4">
