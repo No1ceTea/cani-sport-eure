@@ -27,7 +27,7 @@ const TitleSection = () => {
     <section
       id="accueil"
       className="h-screen bg-cover bg-center px-6 sm:px-16 relative grid grid-cols-5"
-      style={{ backgroundImage: "url('/montagne.jpeg')" }}
+      style={{ backgroundImage: "url('/photos/MainPage_bg.jpg')" }}
     >
       
       {/* LOGO */}
