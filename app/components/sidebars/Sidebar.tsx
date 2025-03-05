@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,32 +8,38 @@ const Sidebar = () => {
     <>
       {/* Bouton flottant avec SVG */}
       <button
-        className="fixed top-4 right-4 primary_button shadow-lg transition p-2"
+        className="fixed top-4 right-4 primary_button shadow-lg transition p-2 z-99"
         onClick={() => setIsOpen(!isOpen)}
       >
         <img src="/icons/align-right.svg" alt="Menu" className="w-6 h-6" />
       </button>
 
-      {/* Overlay */}
+      {/* Overlay avec une teinte bleu foncé et plus opaque */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-50"
+          className="fixed inset-0 bg-blue_primary opacity-30 z-90"
           onClick={() => setIsOpen(false)}
         ></div>
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar avec le plus haut `z-index` pour être toujours visible */}
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-gray-800 shadow-lg transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300`}
+        } transition-transform duration-300 z-99`}
       >
-        {/* Bouton de fermeture */}
+        {/* Bouton de fermeture avec SVG */}
         <button
-          className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl"
+          className="absolute top-4 right-4 p-2 drop-shadow-lg"
           onClick={() => setIsOpen(false)}
         >
-          ✕
+          <Image
+            src="/icons/cross.svg"
+            alt="Fermer"
+            width={24}
+            height={24}
+            className="filter invert"
+          />
         </button>
 
         {/* Contenu de la sidebar */}
@@ -48,7 +55,7 @@ const Sidebar = () => {
             <li><a href="#" className="hover:text-gray-300">Réglages</a></li>
             <li><a href="#" className="hover:text-gray-300">Mon profil</a></li>
             <li><a href="#" className="hover:text-gray-300">Admin</a></li>
-            <li><a href="#" className="hover:text-red-400">Se déconnecter</a></li>
+            <li><a href="#" className="hover:text-yellow_primary">Se déconnecter</a></li>
           </ul>
         </div>
       </div>
