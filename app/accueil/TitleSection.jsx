@@ -43,10 +43,10 @@ const TitleSection = () => {
 
       {/* CONTENU PRINCIPAL */}
       <div className="col-span-3 flex flex-col justify-center pl-6 sm:pl-16">
-        <h1 className="text-white font-bold text-4xl sm:text-6xl font-opendyslexic drop-shadow-lg text-left">
+        <h1 className="primary_title text-4xl sm:text-6xl text-left">
           CANI-SPORTS EURE
         </h1>
-        <p className="text-white mt-4 max-w-lg text-sm sm:text-lg font-calibri drop-shadow-md text-center">
+        <p className="primary_text mt-4 max-w-lg text-center">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </p>
       </div>
@@ -68,7 +68,7 @@ const TitleSection = () => {
           />
         </button>
       </div>
-      
+
       <Sidebar></Sidebar>
     </section>
   );

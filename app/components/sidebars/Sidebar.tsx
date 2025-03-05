@@ -37,7 +37,7 @@ const Sidebar = () => {
 
         {/* Contenu de la sidebar */}
         <div className="flex flex-col items-center mt-16 space-y-4">
-          <ul className="text-white text-lg font-semibold tracking-wide space-y-4">
+          <ul className="primary_title tracking-wide space-y-4">
             <li><a href="#" className="hover:text-gray-300">Le Club</a></li>
             <li><a href="#" className="hover:text-gray-300">Actualités</a></li>
             <li><a href="#" className="hover:text-gray-300">Événements</a></li>
