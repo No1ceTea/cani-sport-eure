@@ -56,7 +56,24 @@ export default function LoginPage() {
     if (error) {
       setError(translateError(error.message));
     } else if (data?.session) {
-      router.push("/"); // Redirection vers la page d'accueil
+      // 🔹 Récupération des infos utilisateur pour vérifier son rôle
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+
+      if (userError) {
+        setError("Erreur lors de la récupération du profil.");
+        return;
+      }
+
+      // 🔹 Vérification du champ `administrateur` et stockage dans un cookie
+      const isAdmin = userData?.user?.user_metadata?.administrateur === true;
+      document.cookie = `administrateur=${isAdmin}; path=/`;
+
+      // 🔹 Redirection selon le rôle
+      if (isAdmin) {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/client/dashboard");
+      }
     }
   };
 
@@ -130,16 +147,6 @@ export default function LoginPage() {
                     {showPassword ? "🙈" : "👁️"}
                   </button>
                 </div>
-              </div>
-
-              <div className="form-control flex items-center mb-6">
-                <label className="label cursor-pointer text-white space-x-2">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-primary"
-                  />
-                  <span>Se souvenir de moi</span>
-                </label>
               </div>
 
               <button
