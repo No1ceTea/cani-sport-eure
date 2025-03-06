@@ -50,6 +50,23 @@ export default function Agenda() {
         <h2 className="text-xl font-bold">Grand encadré 1000x1200</h2>
         <p>Test avec un encadré énorme.</p>
       </BlueBackground>
+
+
+      <div className="w-100 z-1" style={{height:'400px'}}>
+        <BlueBackground maxSize></BlueBackground>
+      </div>
+
+      <BlueBackground>
+        <h2>Encadré classique</h2>
+      </BlueBackground>
+
+      <BlueBackground width="full" height={600}>
+        <h2>Encadré pleine largeur</h2>
+      </BlueBackground>
+
+      <BlueBackground width={500} height={400}>
+        <h2>Encadré 500x400</h2>
+      </BlueBackground>
     </div>
   );
 }

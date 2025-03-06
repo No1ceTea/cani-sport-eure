@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
+import BlueBackground from "../backgrounds/BlueBackground";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,7 @@ const Sidebar = () => {
       {/* Overlay pour l'effet de fondu avec un z-index élevé */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-blue_primary opacity-30 z-[9998]"
+          className="fixed inset-0 bg-blue_primary opacity-30 z-[9997]"
           onClick={() => setIsOpen(false)}
         ></div>
       )}
@@ -28,6 +29,11 @@ const Sidebar = () => {
           isOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 z-[9999]`}
       >
+        <div style={{width:"100%", height:"100%"}}>
+          <BlueBackground maxSize></BlueBackground>
+        </div>
+        
+
         {/* Bouton de fermeture avec un z-index encore haut */}
         <button
           className="absolute top-4 right-4 p-2 drop-shadow-lg z-[9999]"
@@ -43,7 +49,7 @@ const Sidebar = () => {
         </button>
 
         {/* Contenu de la sidebar */}
-        <div className="flex flex-col items-center mt-16 space-y-4">
+        <div className="flex flex-col items-center mt-16 space-y-4 z-[9999]">
           <ul className="primary_title tracking-wide space-y-4 text-center">
             <li><a href="#" className="hover:text-gray-300">Le Club</a></li>
             <li><a href="#" className="hover:text-gray-300">Actualités</a></li>
