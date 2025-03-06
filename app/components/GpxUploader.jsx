@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { DOMParser } from "@xmldom/xmldom";
-import * as turf from "@turf/turf";
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
@@ -55,70 +54,93 @@ const GpxUploader = () => {
       setMessage("❌ Aucun fichier sélectionné.");
       return;
     }
-
-    if (!uploadDate) {
-      setMessage("❌ Veuillez sélectionner une date et une heure.");
-      return;
-    }
-
+  
     setUploading(true);
     setMessage("📡 Upload en cours...");
-
+  
     const sanitizedFileName = sanitizeFileName(file.name);
     const filePath = `gpx-files/${sanitizedFileName}`;
-
-    // 📌 Étape 1 : Uploader le fichier dans Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+  
+    // 📌 Étape 1 : Upload du fichier GPX dans Supabase Storage
+    const { data, error: uploadError } = await supabase.storage
       .from("gpx-files")
       .upload(filePath, file, { upsert: true });
-
+  
     if (uploadError) {
       console.error("❌ Erreur d'upload :", uploadError);
       setMessage("❌ Erreur lors de l'upload.");
       setUploading(false);
       return;
     }
+  
+    console.log("✅ Fichier GPX uploadé :", data);
+  
+    // 📌 Étape 2 : Récupération de l'URL publique du fichier
+    // 📌 Récupération de l'URL publique après l'upload
+    const { data: publicUrlData } = await supabase
+      .storage
+      .from("gpx-files")
+      .getPublicUrl(filePath);
 
-    console.log("✅ Fichier GPX uploadé :", uploadData);
+    const publicUrl = publicUrlData.publicUrl || `https://rgnnrsrdrfzvjtfevim.supabase.co/storage/v1/object/public/${filePath}`; 
 
-    // 📌 Étape 2 : Lire et extraire les coordonnées
+    console.log("🌍 URL publique du fichier GPX :", publicUrl);
+
+  
+    // 📌 Étape 3 : Génération de la date et heure actuelle
+    const dateToInsert = uploadDate ? new Date(uploadDate).toISOString() : new Date().toISOString();
+
+  
+    // 📌 Étape 4 : Lire et extraire les coordonnées GPS du fichier GPX
     const coordinates = await parseGpxFile(file);
     if (coordinates.length === 0) {
       setMessage("❌ Erreur : Le fichier GPX est vide ou invalide.");
       setUploading(false);
       return;
     }
-
-    // 📌 Étape 3 : Insérer les données dans la base avec `sport` et `date_time`
+  
+    // 📌 Étape 5 : Conversion des coordonnées en WKT (Well-Known Text)
     const wktLineString = `LINESTRINGZ(${coordinates.map(([lon, lat, ele]) => `${lon} ${lat} ${ele || 0}`).join(", ")})`;
-
+  
     console.log("🚀 Données envoyées à Supabase :", {
       name: sanitizedFileName,
-      sport: sport, // Ajout du sport
-      date_time: uploadDate, // 📌 Ajout de la date et l'heure
+      sport: sport,
+      date_time: dateToInsert,
+      file_url: publicUrl,
       geom: `SRID=4326;${wktLineString}`
     });
-
+  
+    console.log("📝 Données envoyées à Supabase :", {
+      name: sanitizedFileName,
+      sport: sport,
+      date_time: dateToInsert,
+      file_url: publicUrl, // ✅ Vérification avant insertion
+      geom: `SRID=4326;${wktLineString}`
+    });
+    
+    // 📌 Étape 6 : Insérer les données en base avec `file_url`, `date_time`, et `sport`
     const { error: dbError } = await supabase
       .from("gpx_tracks")
       .insert([
         {
           name: sanitizedFileName,
           sport: sport,
-          date_time: uploadDate, // 📌 Ajout du champ date_time
-          geom: `SRID=4326;${wktLineString}`
+          date_time: dateToInsert, // ✅ Ajout de la date et heure en UTC
+          file_url: publicUrl, // ✅ Ajout de l'URL publique du fichier
+          geom: `SRID=4326;${wktLineString}` // ✅ Ajout du tracé GPS
         }
       ]);
-
+  
     if (dbError) {
       console.error("❌ Erreur d'insertion en base :", dbError);
       setMessage("❌ Erreur d'insertion en base.");
     } else {
       setMessage("✅ Fichier GPX ajouté avec succès !");
     }
-
+  
     setUploading(false);
   };
+  
 
   return (
     <div>
