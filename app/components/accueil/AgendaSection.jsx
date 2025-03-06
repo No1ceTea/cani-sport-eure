@@ -28,7 +28,7 @@ export default function Agenda() {
       </BlueBackground>
 
       {/* 5️⃣ Composant full-width avec une grande hauteur */}
-      <BlueBackground width="full" height={700}>
+      <BlueBackground width="full" height={700} scaleFactor={1}>
         <h2 className="text-xl font-bold">Encadré pleine largeur (100vw) x 700px</h2>
         <p>Test de la largeur maximale.</p>
       </BlueBackground>

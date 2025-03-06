@@ -7,9 +7,13 @@ interface EncadreProps {
   width?: number | "full"; // Largeur dynamique (full = 100vw)
   height?: number;         // Hauteur dynamique
   maxSize?: boolean;       // Forcer largeur/hauteur maximales
+  scaleFactor?: number;    // Coefficient de rescale des images (doit être > 0)
 }
 
-const BlueBackground = ({ children, width, height, maxSize = false }: EncadreProps) => {
+const BlueBackground = ({ children, width, height, maxSize = false, scaleFactor = 1 }: EncadreProps) => {
+  // Vérification pour éviter les valeurs invalides
+  const validScaleFactor = scaleFactor > 0 ? scaleFactor : 1;
+
   // Gestion des dimensions
   const computedWidth = width ? (width === "full" ? "100vw" : `${width}px`) : maxSize ? "100%" : "auto";
   const computedHeight = height ? `${height}px` : maxSize ? "100%" : "auto";
@@ -30,8 +34,8 @@ const BlueBackground = ({ children, width, height, maxSize = false }: EncadrePro
       <div
         className="absolute top-0 left-0"
         style={{
-          width: "100%",
-          height: "100%",
+          width: `${100 * validScaleFactor}%`,
+          height: `${100 * validScaleFactor}%`,
           zIndex: -1,
           position: "absolute",
         }}
@@ -49,8 +53,8 @@ const BlueBackground = ({ children, width, height, maxSize = false }: EncadrePro
       <div
         className="absolute bottom-0 right-0"
         style={{
-          width: "100%",
-          height: "100%",
+          width: `${100 * validScaleFactor}%`,
+          height: `${100 * validScaleFactor}%`,
           zIndex: -1,
           position: "absolute",
         }}
