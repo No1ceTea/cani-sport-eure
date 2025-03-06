@@ -45,8 +45,8 @@ const TitleSection = () => {
           CANI-SPORTS EURE
         </h1>
         <p className="primary_text mt-4 max-w-lg text-center">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        </p>
+        Notre objectif est de promouvoir le cani-cross, le cani-trail, la randonnée avec chiens et d'autres disciplines adaptées aux duos humain-chien.
+                </p>
       </div>
 
       {/* ESPACE VIDE POUR AÉRATION */}

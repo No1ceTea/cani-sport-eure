@@ -12,7 +12,7 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
         blue_primary: "#1E3A8A",
-        blue_primary_hover : "#1D3989",
+        blue_primary_hover : "#3355CC",
         yellow_primary : "#FED100",
         black_stroke: "#050403",
       },
