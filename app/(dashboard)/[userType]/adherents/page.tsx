@@ -50,6 +50,25 @@ export default function ListeAdherents() {
     }
   }
 
+  async function deleteUser(userId: string) {
+    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
+    if (!confirmation) return;
+  
+    const res = await fetch("/api/users", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId }),
+    });
+  
+    if (res.ok) {
+      setUsers((prev) => prev.filter((user) => user.id !== userId));
+      alert("Utilisateur supprimé avec succès !");
+    } else {
+      const errorData = await res.json();
+      alert("Erreur lors de la suppression : " + errorData.error);
+    }
+  }
+
   return (
     <div className="flex">
       {/* Sidebar */}
@@ -101,11 +120,11 @@ export default function ListeAdherents() {
                     )}
                   </td>
                   <td className="flex gap-2">
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => setSelectedUser(user)}
-                    >
+                    <button className="btn btn-secondary" onClick={() => setSelectedUser(user)}>
                       Modifier
+                    </button>
+                    <button className="btn btn-error" onClick={() => deleteUser(user.id)}>
+                      Supprimer
                     </button>
                   </td>
                 </tr>
@@ -118,7 +137,7 @@ export default function ListeAdherents() {
       {selectedUser && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Modifier l'utilisateur</h2>
+            <h2 className="text-xl font-bold mb-4">Modifier l&apos;utilisateur</h2>
 
             {/* Nom */}
             <h2 className="text-l font-bold mb-2">Nom :</h2>
@@ -179,7 +198,7 @@ export default function ListeAdherents() {
             <div className="flex items-center gap-2 mb-2">
               <input
                 type="checkbox"
-                className="checkbox"
+                className="checkbox checkbox-primary"
                 checked={selectedUser.administrateur}
                 onChange={(e) =>
                   setSelectedUser({ ...selectedUser, administrateur: e.target.checked })
@@ -189,7 +208,7 @@ export default function ListeAdherents() {
             </div>
 
             {/* Statut d'inscription (select) */}
-            <h2 className="text-l font-bold mb-2">Statut d'inscription :</h2>
+            <h2 className="text-l font-bold mb-2">Statut d&apos;inscription :</h2>
             <select
               className="select select-bordered w-full mb-2"
               value={selectedUser.statut_inscription}

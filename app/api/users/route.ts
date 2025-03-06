@@ -19,7 +19,6 @@ export async function GET() {
       );
     }
 
-    // 🔍 Extraction des infos nécessaires
     const users = data.users.map((user) => ({
       id: user.id,
       email: user.email,
@@ -42,7 +41,6 @@ export async function PUT(req: Request) {
   try {
     const { id, first_name, last_name, email, birthdate, license_number, statut_inscription } = await req.json();
 
-    // ✅ Vérifications des champs obligatoires
     if (!id) {
       return NextResponse.json({ error: "L'ID de l'utilisateur est requis." }, { status: 400 });
     }
@@ -55,13 +53,12 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Statut d'inscription invalide." }, { status: 400 });
     }
 
-    // 🔄 Mise à jour dans Supabase
     const { error } = await supabase.auth.admin.updateUserById(id, {
       email,
       user_metadata: {
         first_name,
         last_name,
-        birthdate: birthdate || "", // Gérer une éventuelle valeur null
+        birthdate: birthdate || "",
         license_number: license_number || "",
         statut_inscription: statut_inscription || "en attente",
       },
@@ -73,6 +70,32 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ message: "Utilisateur mis à jour avec succès." }, { status: 200 });
   } catch (error) {
+    return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
+  }
+}
+
+// 🔹 Suppression d'un utilisateur (DELETE)
+export async function DELETE(req: Request) {
+  try {
+    const body = await req.json();
+    console.log("Requête DELETE reçue avec :", body);
+
+    const { id } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "L'ID de l'utilisateur est requis." }, { status: 400 });
+    }
+
+    const { error } = await supabase.auth.admin.deleteUser(id);
+
+    if (error) {
+      console.error("Erreur Supabase :", error);
+      return NextResponse.json({ error: "Erreur Supabase : " + error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: "Utilisateur supprimé avec succès." }, { status: 200 });
+  } catch (error) {
+    console.error("Erreur serveur :", error);
     return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
   }
 }

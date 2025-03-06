@@ -112,7 +112,7 @@ export default function DashboardPage() {
 
           {/* Nombre d'événements */}
           <div className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-lg font-bold mb-3">Nombre d'événements</h3>
+            <h3 className="text-lg font-bold mb-3">Nombre d&apos;événements</h3>
             <div className="flex items-center space-x-3">
               <div className="h-4 w-4 bg-blue-500"></div>
               <span>Externe</span>
