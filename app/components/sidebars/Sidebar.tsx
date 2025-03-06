@@ -23,33 +23,34 @@ const Sidebar = () => {
         ></div>
       )}
 
-      {/* Sidebar avec un z-index ultra haut */}
+      {/* Sidebar avec une bordure uniquement à gauche */}
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-gray-800 shadow-lg transform ${
+        className={`fixed top-0 right-0 h-full w-64 shadow-lg transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 z-[9999]`}
+        } transition-transform duration-300 z-[9999] border-l-2 border-black`}
       >
-        <div style={{width:"100%", height:"100%"}}>
-          <BlueBackground maxSize></BlueBackground>
+        {/* Fond de la sidebar */}
+        <div className="absolute inset-0 z-[9998]">
+          <BlueBackground maxSize />
         </div>
-        
 
-        {/* Bouton de fermeture avec un z-index encore haut */}
-        <button
-          className="absolute top-4 right-4 p-2 drop-shadow-lg z-[9999]"
-          onClick={() => setIsOpen(false)}
-        >
-          <Image
-            src="/icons/cross.svg"
-            alt="Fermer"
-            width={24}
-            height={24}
-            className="filter invert"
-          />
-        </button>
+        {/* Contenu de la sidebar, doit être positionné au-dessus */}
+        <div className="relative z-[9999] flex flex-col items-center mt-16 space-y-4">
+          {/* Bouton de fermeture bien calé en haut à droite, de manière responsive */}
+          <button
+            className="absolute top-0 right-0 translate-y-[-90%] p-2 drop-shadow-lg"
+            onClick={() => setIsOpen(false)}
+          >
+            <Image
+              src="/icons/cross.svg"
+              alt="Fermer"
+              width={24}
+              height={24}
+              className="filter invert"
+            />
+          </button>
 
-        {/* Contenu de la sidebar */}
-        <div className="flex flex-col items-center mt-16 space-y-4 z-[9999]">
+          {/* Liste du menu */}
           <ul className="primary_title tracking-wide space-y-4 text-center">
             <li><a href="#" className="hover:text-gray-300">Le Club</a></li>
             <li><a href="#" className="hover:text-gray-300">Actualités</a></li>

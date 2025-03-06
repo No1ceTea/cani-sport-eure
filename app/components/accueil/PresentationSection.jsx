@@ -29,7 +29,7 @@ export default function Presentation() {
             />
           </div>
 
-          <h2 className="text-2xl font-bold mb-6">Nos valeurs et objectifs</h2>
+          <h2 className="text-2xl font-bold mb-6 primary_title_black">Nos valeurs et objectifs</h2>
           <p className="text-lg leading-relaxed">
             Nous organisons des événements sportifs et des rencontres pour partager notre passion avec d&apos;autres
             passionnés. Rejoignez-nous et découvrez une communauté engagée et dynamique !
