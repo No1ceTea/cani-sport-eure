@@ -1,11 +1,9 @@
 "use client";
 
-import TitleSection from "./accueil/TitleSection";
-import PresentationSection from "./accueil/PresentationSection";
-import AgendaSection from "./accueil/AgendaSection";
-import Sponsor from "./accueil/Sponsor";
+import TitleSection from "./components/accueil/TitleSection";
+import PresentationSection from "./components/accueil/PresentationSection";
+import Sponsor from "./components/accueil/Sponsor";
 
-import ScrollLock from "./components/ScrollLock";
 import Sidebar from "./components/sidebars/Sidebar";
 
 export default function HomePage() {
@@ -13,11 +11,9 @@ export default function HomePage() {
     <main
       className="bg-cover bg-center"
     >
-      <ScrollLock />
-      
+
       <TitleSection />
       <PresentationSection />
-      <AgendaSection />
       <Sponsor />
 
       <Sidebar />

@@ -11,7 +11,7 @@ const Sidebar = () => {
         className="fixed top-4 right-4 primary_button shadow-lg transition p-2 z-[9999]"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Image src="/icons/align-right.svg" alt="Menu" className="w-6 h-6" />
+        <Image src="/icons/align-right.svg" alt="Menu" className="w-6 h-6" width={100} height={100}/>
       </button>
 
       {/* Overlay pour l'effet de fondu avec un z-index élevé */}

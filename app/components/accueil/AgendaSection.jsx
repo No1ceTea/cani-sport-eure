@@ -1,4 +1,4 @@
-import BlueBackground from "../components/backgrounds/BlueBackground";
+import BlueBackground from "../backgrounds/BlueBackground";
 
 export default function Agenda() {
   return (
