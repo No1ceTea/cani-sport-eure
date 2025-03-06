@@ -6,31 +6,31 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Bouton flottant avec SVG */}
+      {/* Bouton flottant avec un z-index très haut */}
       <button
-        className="fixed top-4 right-4 primary_button shadow-lg transition p-2 z-99"
+        className="fixed top-4 right-4 primary_button shadow-lg transition p-2 z-[9999]"
         onClick={() => setIsOpen(!isOpen)}
       >
         <img src="/icons/align-right.svg" alt="Menu" className="w-6 h-6" />
       </button>
 
-      {/* Overlay avec une teinte bleu foncé et plus opaque */}
+      {/* Overlay pour l'effet de fondu avec un z-index élevé */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-blue_primary opacity-30 z-90"
+          className="fixed inset-0 bg-blue_primary opacity-30 z-[9998]"
           onClick={() => setIsOpen(false)}
         ></div>
       )}
 
-      {/* Sidebar avec le plus haut `z-index` pour être toujours visible */}
+      {/* Sidebar avec un z-index ultra haut */}
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-gray-800 shadow-lg transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 z-99`}
+        } transition-transform duration-300 z-[9999]`}
       >
-        {/* Bouton de fermeture avec SVG */}
+        {/* Bouton de fermeture avec un z-index encore haut */}
         <button
-          className="absolute top-4 right-4 p-2 drop-shadow-lg"
+          className="absolute top-4 right-4 p-2 drop-shadow-lg z-[9999]"
           onClick={() => setIsOpen(false)}
         >
           <Image

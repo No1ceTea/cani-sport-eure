@@ -18,7 +18,7 @@ const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps
 
   return (
     <div
-      className="relative border-2 border-gray-300 bg-gray-100 p-4 rounded-lg shadow-md overflow-hidden"
+      className="relative border-2 border-gray-300 bg-gray-100 p-4 rounded-lg shadow-md overflow-hidden z-1"
       style={{
         width: computedWidth,
         height: computedHeight,
@@ -28,9 +28,9 @@ const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps
         position: "relative",
       }}
     >
-      {/* === Fond_TL (Haut-Gauche) - NE PAS TOUCHER === */}
+      {/* === Fond_TL (Haut-Gauche) === */}
       <div
-        className="absolute top-0 left-0"
+        className="absolute top-0 left-0 z-2"
         style={{
           width: computedHeight,
           height: imgHeightBD,
@@ -47,9 +47,9 @@ const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps
         />
       </div>
 
-      {/* === Fond_BD (Bas-Droit) - Correction du rescale === */}
+      {/* === Fond_BD (Bas-Droit) === */}
       <div
-        className="absolute bottom-0 right-0"
+        className="absolute bottom-0 right-0 z-2"
         style={{
           width: imgWidthBD,  
           height: imgHeightBD,
