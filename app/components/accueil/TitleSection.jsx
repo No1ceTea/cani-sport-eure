@@ -45,10 +45,10 @@ const TitleSection = () => {
           CANI-SPORTS EURE
         </h1>
         <p className="primary_text mt-4 max-w-lg text-center">
-        Notre objectif est de promouvoir le cani-cross, le cani-trail, la randonnée avec chiens et d'autres disciplines adaptées aux duos humain-chien.
-                </p>
+        Notre objectif est de promouvoir le cani-cross, le cani-trail, la randonnée avec chiens et d&apos;autres disciplines adaptées aux duos humain-chien.
+        </p>
       </div>
-
+    
       {/* ESPACE VIDE POUR AÉRATION */}
       <div className="col-span-1"></div>
 
