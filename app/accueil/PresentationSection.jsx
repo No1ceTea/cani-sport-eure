@@ -12,7 +12,7 @@ export default function Presentation() {
 
           <p className="mb-8 text-lg leading-relaxed">
             Nous sommes une association passionnée par les sports canins. Notre objectif est de promouvoir le cani-cross,
-            le cani-trail, la randonnée avec chiens et d'autres disciplines adaptées aux duos humain-chien.
+            le cani-trail, la randonnée avec chiens et d&apos;autres disciplines adaptées aux duos humain-chien.
           </p>
 
           {/* Image mise en avant avec titre */}
@@ -31,7 +31,7 @@ export default function Presentation() {
 
           <h2 className="text-2xl font-bold mb-6">Nos valeurs et objectifs</h2>
           <p className="text-lg leading-relaxed">
-            Nous organisons des événements sportifs et des rencontres pour partager notre passion avec d'autres
+            Nous organisons des événements sportifs et des rencontres pour partager notre passion avec d&apos;autres
             passionnés. Rejoignez-nous et découvrez une communauté engagée et dynamique !
           </p>
         </div>
