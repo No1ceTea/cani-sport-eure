@@ -10,8 +10,8 @@ type FormData = {
   prenom: string;
   age: number;
   email: string;
-  dateNaissance: Date;
-  dateRenouvellement: Date;
+  date_de_naissance: Date;
+  date_renouvellement: Date;
   license: string;
   chiens: string[];
   photo: File | null;
@@ -37,7 +37,7 @@ export default function ProfileForm() {
 
         // Requête pour récupérer les données de l'utilisateur
         const { data, error } = await supabase
-          .from("profiles")
+          .from("profils")
           .select("*")
           .eq("id", userId)
           .single();
@@ -52,8 +52,8 @@ export default function ProfileForm() {
         setValue("prenom", data.prenom);
         setValue("age", data.age);
         setValue("email", data.email);
-        setValue("dateNaissance", data.dateNaissance);
-        setValue("dateRenouvellement", data.dateRenouvellement);
+        setValue("date_de_naissance", data.date_de_naissance);
+        setValue("date_renouvellement", data.date_renouvellement);
         setValue("license", data.license);
         setChiens(data.chiens || []);
         setPhoto(data.photoUrl ? new File([], data.photoUrl) : null);
@@ -98,8 +98,8 @@ export default function ProfileForm() {
           prenom: data.prenom,
           age: data.age,
           email: data.email,
-          date_de_naissance: data.dateNaissance,
-          date_renouvellement: data.dateRenouvellement,
+          date_de_naissance: data.date_de_naissance,
+          date_renouvellement: data.date_renouvellement,
           license: data.license,
           chiens: data.chiens,
           //photoUrl: photoUrl, // Ajouter l'URL de la photo si elle a été mise à jour
@@ -171,7 +171,7 @@ export default function ProfileForm() {
             <div className="relative flex-1">
               <input
                 type="date"
-                {...register("dateNaissance")}
+                {...register("date_de_naissance")}
                 className="input-field"
               />
             </div>
@@ -183,7 +183,7 @@ export default function ProfileForm() {
             <div className="relative flex-1">
               <input
                 type="date"
-                {...register("dateRenouvellement")}
+                {...register("date_renouvellement")}
                 className="input-field"
               />
             </div>
@@ -211,7 +211,7 @@ export default function ProfileForm() {
               <button
                 type="button"
                 onClick={addChien}
-                className="bg-white text-blue-700 px-3 py-1 rounded-full text-sm"
+                className="bg-blue text-white-700 px-3 py-1 rounded-full text-sm"
               >
                 +
               </button>
@@ -222,7 +222,7 @@ export default function ProfileForm() {
         {/* Bouton d'enregistrement */}
         <button
           type="submit"
-          className="mt-4 w-full bg-white text-blue-700 py-2 rounded-lg font-bold"
+          className="mt-4 w-1/2 bg-white text-black py-1 px-4 rounded-full font-bold text-sm block mx-auto"
         >
           Enregistrer les modifications
         </button>
@@ -234,7 +234,7 @@ export default function ProfileForm() {
           width: 100%;
           padding: 10px;
           border-radius: 8px;
-          border: none;
+          border: 1px solid black;
           color: black;
         }
         .relative {
@@ -247,6 +247,10 @@ export default function ProfileForm() {
           transform: translateY(-50%);
           width: 20px;
           height: 20px;
+        }
+        
+        .mt-4 w-full bg-white text-blue-700 py-2 rounded-lg font-bold {
+          border radius : 50px;
         }
       `}</style>
     </div>
