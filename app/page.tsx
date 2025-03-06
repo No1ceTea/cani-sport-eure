@@ -1,22 +1,22 @@
 "use client";
 
-import HeroSection from "./components/HeroSection";
-import PresentationSection from "./components/PresentationSection";
-import NavigationBar from "./components/NavigationBar"
+import TitleSection from "./components/accueil/TitleSection";
+import PresentationSection from "./components/accueil/PresentationSection";
+import Sponsor from "./components/accueil/Sponsor";
+
+import Sidebar from "./components/sidebars/Sidebar";
 
 export default function HomePage() {
   return (
     <main
       className="bg-cover bg-center"
     >
-      {/* Navigation bar */}
-      <NavigationBar />
 
-      {/* Section Hero */}
-      <HeroSection />
-
-      {/* Section Présentation */}
+      <TitleSection />
       <PresentationSection />
+      <Sponsor />
+
+      <Sidebar />
     </main>
   );
 }

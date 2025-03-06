@@ -58,12 +58,17 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: "Cet email est déjà utilisé." }), { status: 400 });
     }
 
-    // 🔄 Création de l'utilisateur avec administrateur par défaut à false
+    // 🔄 Création de l'utilisateur avec administrateur par défaut à false et statut_inscription à "en attente"
     console.log("🛠 Création de l'utilisateur :", email);
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      user_metadata: { first_name, last_name, administrateur: false }, // 👈 Ajout du champ administrateur
+      user_metadata: { 
+        first_name, 
+        last_name, 
+        administrateur: false, 
+        statut_inscription: "en attente" // ✅ Ajout du champ
+      },
       email_confirm: true,
     });
 
