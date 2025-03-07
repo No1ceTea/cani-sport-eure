@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import MapWithStats from "../components/MapWithStats";
 import Upload from "../components/GpxUploader";
+import Filter from "../components/SportFilter";
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
@@ -15,6 +16,7 @@ const SortiesPage = () => {
   const [tracks, setTracks] = useState<
     { id: string; name: string; sport: string; date_time: string; file_url: string }[]
   >([]);
+  const [selectedSport, setSelectedSport] = useState<string | null>(null); // ✅ Ajout du sport sélectionné
 
   useEffect(() => {
     const fetchTracks = async () => {
@@ -40,11 +42,28 @@ const SortiesPage = () => {
 
   if (tracks.length === 0) return <p>Chargement...</p>;
 
+  // 📌 Fonction de mise à jour du sport sélectionné depuis le filtre
+  const handleSportFilter = (sport: string | null) => {
+    setSelectedSport(sport);
+  };
+
+  // 📌 Filtrage des tracks en fonction du sport sélectionné
+  const filteredTracks = selectedSport
+    ? tracks.filter((track) => track.sport === selectedSport)
+    : tracks;
+
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
-      <h1 style={{ fontSize: "24px", marginBottom: "20px", fontWeight: "bold" }}>
-        Liste des sorties canines
-      </h1>
+      <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
+      style={{
+        fontSize: "36px",
+        fontFamily: "opendyslexic, sans-serif",
+      }}>Liste des sorties canines</h1>
+
+      {/* 📌 Ajout du filtre avec gestion du sport sélectionné */}
+      <div style={{marginBottom: "40px"}}>
+      <Filter selectedSport={selectedSport} onSportChange={handleSportFilter} />
+      </div>
 
       {/* 📌 GRILLE EN 3 COLONNES */}
       <div
@@ -58,11 +77,11 @@ const SortiesPage = () => {
           margin: "auto",
         }}
       >
-        {tracks.map((track) => (
+        {filteredTracks.map((track) => (
           <div
             key={track.id}
             style={{
-              width: "280px", // ✅ Réduction de la largeur des cartes
+              width: "280px",
               margin: "auto",
             }}
           >
@@ -70,8 +89,6 @@ const SortiesPage = () => {
           </div>
         ))}
       </div>
-
-      <Upload />
     </div>
   );
 };

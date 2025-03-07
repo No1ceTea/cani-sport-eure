@@ -95,10 +95,10 @@ const MapWithStats = ({ trackData }) => {
         </div>
       </div>
 
-      <h2 style={{ margin: "10px", fontWeight: "bold", fontSize: "14px" }}>{trackData.name}</h2>
+      <h2 style={{ marginLeft: "20px", fontWeight: "bold", fontSize: "14px", marginTop: "20px",  marginBottom: "10px" }}>{trackData.name}</h2>
 
       {trackData.file_url && (
-        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginLeft: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginLeft: "20px" }}>
           <Image src="/download.png" alt="Télécharger GPX" width={18} height={18} />
           <a href={trackData.file_url} download={trackData.name} style={{ fontSize: "12px" }}>
             Télécharger GPX
@@ -106,9 +106,9 @@ const MapWithStats = ({ trackData }) => {
         </div>
       )}
 
-      <div style={{ padding: "10px" }}>
+      <div style={{ marginLeft: "20px" }}>
         {/* ✅ Alignement des icônes et textes */}
-        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "5px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "5px", marginTop:"5px" }}>
           <Image src="/distance.svg" alt="Distance" width={18} height={18} />
           <p>
             <strong>Distance :</strong> {(totalDistance / 1000).toFixed(2)} km
@@ -129,7 +129,7 @@ const MapWithStats = ({ trackData }) => {
           </p>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "5px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "15px" }}>
           <Image src="/calendar.png" alt="Date" width={15} height={15} />
           <p>
             <strong>Date et Heure :</strong> {new Date(trackData.date_time).toLocaleString()}
@@ -137,7 +137,7 @@ const MapWithStats = ({ trackData }) => {
         </div>
       </div>
 
-      <div style={{ width: "100%", backgroundColor: "#3D9CB8", color: "white", textAlign: "left", padding: "8px", fontSize: "12px", fontWeight: "bold" }}>
+      <div style={{ width: "100%", backgroundColor: "#3D9CB8", color: "white", textAlign: "left", padding: "8px", fontSize: "12px", fontWeight: "bold", paddingLeft:"20px" }}>
         {trackData.sport || "Sport non défini"}
       </div>
     </div>
