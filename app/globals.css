@@ -26,3 +26,11 @@ body {
 .add_border {
   @apply border-2 border-black_stroke;
 }
+
+.primary_title_black {
+  @apply text-black font-bold font-opendyslexic drop-shadow-lg;
+}
+
+.primary_text_black {
+  @apply text-black text-sm sm:text-lg font-calibri drop-shadow-md text-center;
+}

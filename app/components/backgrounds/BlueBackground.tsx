@@ -1,72 +1,74 @@
 import { ReactNode } from "react";
 import Image from "next/image";
 
+// Définition du type EncadreProps
 interface EncadreProps {
-  children: ReactNode;
-  width?: number | "full"; // Largeur dynamique
+  children?: ReactNode;
+  width?: number | "full"; // Largeur dynamique (full = 100vw)
   height?: number;         // Hauteur dynamique
+  maxSize?: boolean;       // Forcer largeur/hauteur maximales
+  scaleFactor?: number;    // Coefficient de rescale des images (doit être > 0)
 }
 
-const BlueBackground = ({ children, width = "full", height = 200 }: EncadreProps) => {
-  // Largeur et hauteur dynamiques de l’image
-  const computedWidth = width === "full" ? "100vw" : `${width}px`;
-  const computedHeight = `${height}px`;
+const BlueBackground = ({ children, width, height, maxSize = false, scaleFactor = 1 }: EncadreProps) => {
+  // Vérification pour éviter les valeurs invalides
+  const validScaleFactor = scaleFactor > 0 ? scaleFactor : 1;
 
-  // Calcul dynamique des tailles pour respecter les proportions observées
-  const imgWidthBD = height;  
-  const imgHeightBD = width === "full" ? window.innerWidth : width;
+  // Gestion des dimensions
+  const computedWidth = width ? (width === "full" ? "100vw" : `${width}px`) : maxSize ? "100%" : "auto";
+  const computedHeight = height ? `${height}px` : maxSize ? "100%" : "auto";
 
   return (
     <div
-      className="relative border-2 border-gray-300 bg-gray-100 p-4 rounded-lg shadow-md overflow-hidden z-1"
+      className="relative overflow-hidden bg-blue_primary p-4"
       style={{
         width: computedWidth,
         height: computedHeight,
-        maxWidth: "100%",
-        overflowX: "hidden",
-        zIndex: 1, // Assure que le composant ne dépasse pas la side-bar
+        maxWidth: "100%", 
+        maxHeight: "100%",
         position: "relative",
+        zIndex: 1,
       }}
     >
       {/* === Fond_TL (Haut-Gauche) === */}
       <div
-        className="absolute top-0 left-0 z-2"
+        className="absolute top-0 left-0"
         style={{
-          width: computedHeight,
-          height: imgHeightBD,
-          transform: "rotate(-90deg) translate(-100%, 0%)",
-          transformOrigin: "top left",
-          zIndex: -1, // Force l'image en arrière-plan
+          width: `${100 * validScaleFactor}%`,
+          height: `${100 * validScaleFactor}%`,
+          zIndex: -1,
+          position: "absolute",
         }}
       >
-        <Image
-          src="/fond.png"
-          alt="Fond_TL"
+        <Image 
+          src="/fond.png" 
+          alt="Fond_TL" 
           layout="fill"
           objectFit="cover"
+          style={{ opacity: 0.8 }} // Ajuster l'opacité si besoin
         />
       </div>
 
       {/* === Fond_BD (Bas-Droit) === */}
       <div
-        className="absolute bottom-0 right-0 z-2"
+        className="absolute bottom-0 right-0"
         style={{
-          width: imgWidthBD,  
-          height: imgHeightBD,
-          transform: "rotate(90deg) translate(0%, 100%)",
-          transformOrigin: "bottom right",
-          zIndex: -1, // Force l'image en arrière-plan
+          width: `${100 * validScaleFactor}%`,
+          height: `${100 * validScaleFactor}%`,
+          zIndex: -1,
+          position: "absolute",
         }}
       >
-        <Image
-          src="/fond.png"
-          alt="Fond_BD"
+        <Image 
+          src="/fond.png" 
+          alt="Fond_BD" 
           layout="fill"
           objectFit="cover"
+          style={{ opacity: 0.8, transform: "rotate(180deg)" }} // Rotation pour bien s'adapter
         />
       </div>
 
-      {/* Contenu au-dessus */}
+      {/* Contenu au-dessus des images */}
       <div className="relative z-10">{children}</div>
     </div>
   );
