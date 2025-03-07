@@ -1,8 +1,12 @@
 "use client";
 
-import TitleSection from "./components/accueil/TitleSection";
-import PresentationSection from "./components/accueil/PresentationSection";
-import Sponsor from "./components/accueil/Sponsor";
+import Title from "./components/accueil/TitleSection";
+import Presentation from "./components/accueil/PresentationSection";
+import Agenda from "./components/accueil/AgendaSection";
+import Sponsor from "./components/accueil/SponsorSection";
+import Evenements from "./components/accueil/EvenementsSection";
+import Articles from "./components/accueil/ArticlesSection";
+import Resultats from "./components/accueil/ResultatsSection";
 
 import Sidebar from "./components/sidebars/Sidebar";
 
@@ -12,10 +16,13 @@ export default function HomePage() {
       className="bg-cover bg-center"
     >
 
-      <TitleSection />
-      <PresentationSection />
-
+      <Title />
+      <Presentation />
+      <Agenda />
       <Sponsor />
+      <Evenements />
+      <Articles />
+      <Resultats />
 
       <Sidebar />
     </main>
