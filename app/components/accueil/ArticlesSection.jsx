@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function Sponsor() {
   return (
     <section id="sponsors" className="bg-white text-black py-16 px-6 sm:px-16">
