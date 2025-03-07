@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SidebarAdmin from "../../../components/SidebarAdmin";
+import SidebarAdmin from "../../../../components/SidebarAdmin";
 
 interface User {
   id: string;
