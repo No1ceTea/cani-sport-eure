@@ -86,6 +86,10 @@ export default function CatalogueSorties() {
           ))}
         </tbody>
       </table>
+      {/* Bouton flottant d'ajout */}
+      <button className="fixed bottom-8 left-8 bg-yellow-500 text-black rounded-lg w-16 h-16 flex items-center justify-center text-3xl shadow-xl hover:bg-yellow-600">
+        +
+      </button>
     </div>
   );
 }
