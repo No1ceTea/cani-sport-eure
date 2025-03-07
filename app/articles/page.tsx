@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArticleCard, SearchBar, DateFilter } from "../components/ArticlesComponents";
+import AddArticleModal from "../components/AddArticleModal";
+import EditArticleModal from "../components/EditArticleModal"; // Importation du modal de modification
+import supabase from "../../lib/supabaseClient"; // Importation de Supabase
 
 interface Article {
   id: string;
@@ -26,22 +29,59 @@ const ArticlesPage: React.FC = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // État pour le modal de modification
+  const [currentArticleId, setCurrentArticleId] = useState<string | null>(null); // État pour l'ID de l'article en cours de modification
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase
+      .from("publication")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Erreur lors de la suppression de l'article:", error);
+      alert("Erreur lors de la suppression de l'article.");
+    } else {
+      setArticles((prevArticles) => prevArticles.filter((article) => article.id !== id));
+      console.log(`Supprimer l'article avec l'id: ${id}`);
+    }
+  };
+
+  const handleEdit = (id: string) => {
+    setCurrentArticleId(id);
+    setIsEditModalOpen(true);
+    console.log(`Modifier l'article avec l'id: ${id}`);
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setCurrentArticleId(null);
+  };
 
   useEffect(() => {
     let filteredArticles = mockArticles;
 
     if (searchQuery) {
-      filteredArticles = filteredArticles.filter(article =>
+      filteredArticles = filteredArticles.filter((article) =>
         article.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (startDate) {
-      filteredArticles = filteredArticles.filter(article => article.date >= startDate);
+      filteredArticles = filteredArticles.filter((article) => article.date >= startDate);
     }
 
     if (endDate) {
-      filteredArticles = filteredArticles.filter(article => article.date <= endDate);
+      filteredArticles = filteredArticles.filter((article) => article.date <= endDate);
     }
 
     setArticles(filteredArticles);
@@ -56,10 +96,29 @@ const ArticlesPage: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {articles.map((article) => (
-          <div key={article.id} onClick={() => router.push(`/articles/${article.id}`)} className="cursor-pointer">
-            <ArticleCard article={article} />
+          <div key={article.id} className="cursor-pointer">
+            <ArticleCard article={article} onDelete={handleDelete} onEdit={handleEdit} />
           </div>
         ))}
+      </div>
+      <div className="p-6">
+        <button
+          onClick={handleOpenModal}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Ajouter un article
+        </button>
+        <AddArticleModal 
+          isOpen={isModalOpen} 
+          onClose={handleCloseModal} 
+        />
+        {currentArticleId && (
+          <EditArticleModal
+            isOpen={isEditModalOpen}
+            onClose={handleCloseEditModal}
+            articleId={currentArticleId}
+          />
+        )}
       </div>
     </div>
   );
