@@ -17,6 +17,7 @@
     "@tailwindcss/postcss": "^4.0.9",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
+    "@xmldom/xmldom": "^0.9.8",
     "commitizen": "^4.3.1",
     "daisyui": "^4.12.24",
     "image-size": "^1.2.0",
