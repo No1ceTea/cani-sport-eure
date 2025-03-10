@@ -39,7 +39,7 @@ export async function GET() {
 // 🔹 Mise à jour des informations d'un utilisateur (PUT)
 export async function PUT(req: Request) {
   try {
-    const { id, first_name, last_name, email, birthdate, license_number, statut_inscription } = await req.json();
+    const { id, first_name, last_name, email, birthdate, license_number, statut_inscription, administrateur } = await req.json();
 
     if (!id) {
       return NextResponse.json({ error: "L'ID de l'utilisateur est requis." }, { status: 400 });
@@ -53,6 +53,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Statut d'inscription invalide." }, { status: 400 });
     }
 
+    // 🔹 Mise à jour de l'utilisateur dans Supabase
     const { error } = await supabase.auth.admin.updateUserById(id, {
       email,
       user_metadata: {
@@ -61,6 +62,7 @@ export async function PUT(req: Request) {
         birthdate: birthdate || "",
         license_number: license_number || "",
         statut_inscription: statut_inscription || "en attente",
+        administrateur: administrateur || false, // Ajout de la gestion de l'admin ici ✅
       },
     });
 
@@ -73,6 +75,7 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
   }
 }
+
 
 // 🔹 Suppression d'un utilisateur (DELETE)
 export async function DELETE(req: Request) {
