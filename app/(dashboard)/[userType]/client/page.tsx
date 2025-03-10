@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient"; // Assure-toi d'importer le client Supabase
 
-const ClientDashboardPage: React.FC = () => {
+export default function ClientDashboardPage() {
   const router = useRouter();
   const pathname = usePathname();
   const [userType, setUserType] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState("Événement 1");
+  const [isLoading, setIsLoading] = useState(true);
 
   // Données fictives
   const results = [
@@ -17,17 +19,37 @@ const ClientDashboardPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    const cookies = document.cookie.split("; ");
-    const adminCookie = cookies.find((row) => row.startsWith("administrateur="));
-    const isAdmin = adminCookie ? adminCookie.split("=")[1] === "true" : false;
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/login"); // Rediriger l'utilisateur non connecté vers la page de connexion
+        return;
+      }
 
-    setUserType(isAdmin ? "admin" : "client");
+      // Vérifier le rôle de l'utilisateur
+      const { user } = session;
+      const isAdmin = user?.user_metadata?.administrateur;
 
-    // 🔹 Empêcher un utilisateur non connecté d'accéder
-    if (!document.cookie.includes("sb:token")) {
-      router.push("/connexion");
-    }
+      if (isAdmin) {
+        setUserType("admin");
+      } else {
+        setUserType("client");
+      }
+
+      // Redirection en cas d'accès non autorisé à la page /admin
+      if (pathname.includes("/admin") && !isAdmin) {
+        router.push("/unauthorized");
+      }
+
+      setIsLoading(false); // Fin du chargement
+    };
+
+    checkUser();
   }, [router, pathname]);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Affiche un écran de chargement pendant la vérification
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -38,7 +60,7 @@ const ClientDashboardPage: React.FC = () => {
         <div className="bg-white shadow-lg rounded-lg p-4 col-span-1">
           <div className="border-b pb-2 flex space-x-4">
             <button className="font-bold border-b-2 border-blue-500">Mes derniers résultats</button>
-            <button className="text-gray-500">Voir tout mes résultats</button>
+            <button className="text-gray-500">Voir tous mes résultats</button>
           </div>
           <table className="table w-full mt-4">
             <thead className="bg-blue-600 text-white">
@@ -93,6 +115,4 @@ const ClientDashboardPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default ClientDashboardPage;
+}
