@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-export default function DashboardPage() {
+const ClientDashboardPage: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [userType, setUserType] = useState<string | null>(null);
@@ -15,18 +15,18 @@ export default function DashboardPage() {
 
     setUserType(isAdmin ? "admin" : "client");
 
-    // 🔹 Empêcher un client d'accéder au /admin/dashboard
-    if (pathname.includes("/admin") && !isAdmin) {
-      router.push("/unauthorized");
+    // 🔹 Empêcher un utilisateur non connecté d'accéder
+    if (!document.cookie.includes("sb:token")) {
+      router.push("/connexion");
     }
   }, [router, pathname]);
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">
-        {userType === "admin" ? "Dashboard Administrateur" : "Dashboard Client"}
-      </h1>
-      <p>Bienvenue sur votre espace {userType}.</p>
+      <h1>Dashboard Client</h1>
+      <p>Vous êtes sur la page dashboard client.</p>
     </div>
   );
-}
+};
+
+export default ClientDashboardPage;

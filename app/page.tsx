@@ -1,22 +1,30 @@
 "use client";
 
-import HeroSection from "./components/HeroSection";
-import PresentationSection from "./components/PresentationSection";
-import NavigationBar from "./components/NavigationBar"
+import Title from "./components/accueil/TitleSection";
+import Presentation from "./components/accueil/PresentationSection";
+import Agenda from "./components/accueil/AgendaSection";
+import Sponsor from "./components/accueil/SponsorSection";
+import Evenements from "./components/accueil/EvenementsSection";
+import Articles from "./components/accueil/ArticlesSection";
+import Resultats from "./components/accueil/ResultatsSection";
+
+import Sidebar from "./components/sidebars/Sidebar";
 
 export default function HomePage() {
   return (
     <main
       className="bg-cover bg-center"
     >
-      {/* Navigation bar */}
-      <NavigationBar />
 
-      {/* Section Hero */}
-      <HeroSection />
+      <Title />
+      <Presentation />
+      <Agenda />
+      <Sponsor />
+      <Evenements />
+      <Articles />
+      <Resultats />
 
-      {/* Section Présentation */}
-      <PresentationSection />
+      <Sidebar />
     </main>
   );
 }
