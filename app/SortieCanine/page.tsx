@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 // import MapWithStats from "../components/MapWithStats";
@@ -57,7 +56,10 @@ const SortiesPage = () => {
     : tracks;
 
   return (
+          
     <div style={{ padding: "20px", textAlign: "center" }}>
+
+
       <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
       style={{
         fontSize: "36px",
