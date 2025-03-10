@@ -58,12 +58,17 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: "Cet email est déjà utilisé." }), { status: 400 });
     }
 
-    // 🔄 Création de l'utilisateur avec administrateur par défaut à false
+    // 🔄 Création de l'utilisateur avec administrateur par défaut à false et statut_inscription à "en attente"
     console.log("🛠 Création de l'utilisateur :", email);
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      user_metadata: { first_name, last_name, administrateur: false }, // 👈 Ajout du champ administrateur
+      user_metadata: { 
+        first_name, 
+        last_name, 
+        administrateur: false, 
+        statut_inscription: "en attente" // ✅ Ajout du champ
+      },
       email_confirm: true,
     });
 
@@ -72,8 +77,10 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: error.message }), { status: 400 });
     }
 
-    console.log("✅ Utilisateur créé avec succès !");
-    return new Response(JSON.stringify({ message: "Inscription réussie !" }), { status: 200 });
+    console.log("✅ Utilisateur créé avec succès :", data.user?.id);
+
+    // ✅ Retourner l'ID utilisateur
+    return new Response(JSON.stringify({ message: "Inscription réussie !", userId: data.user?.id }), { status: 200 });
 
   } catch (err) {
     console.error("❌ Erreur serveur dans Supabase Function :", err);

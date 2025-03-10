@@ -70,9 +70,9 @@ export default function LoginPage() {
 
       // 🔹 Redirection selon le rôle
       if (isAdmin) {
-        router.push("/admin/dashboard");
+        router.push("/dashboard/admin");
       } else {
-        router.push("/client/dashboard");
+        router.push("/dashboard/client");
       }
     }
   };
