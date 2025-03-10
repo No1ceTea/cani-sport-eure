@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { FaTrash, FaEye, FaEdit } from "react-icons/fa";
 import { createClient } from "@supabase/supabase-js";
+import ModalAdd from "../components/ModalAdd";
+import ModalEdit from "../components/ModalEdit";
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
@@ -10,8 +12,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+
 export default function CatalogueSorties() {
   const [data, setData] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false); // ✅ Déplacement ici
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSortie, setSelectedSortie] = useState(null);
 
   // 📌 Charger les sorties depuis Supabase
   useEffect(() => {
@@ -21,7 +27,6 @@ export default function CatalogueSorties() {
       if (error) {
         console.error("❌ Erreur de récupération :", error);
       } else {
-        // 📌 Transformer les données pour affichage
         const formattedData = data.map((sortie) => ({
           id: sortie.id,
           titre: sortie.name,
@@ -53,6 +58,12 @@ export default function CatalogueSorties() {
     }
   };
 
+  // 📌 Fonction pour ouvrir le modal d'édition avec les données de la sortie sélectionnée
+  const handleEditClick = (sortie) => {
+    setSelectedSortie(sortie);
+    setIsEditModalOpen(true);
+  };
+  
   return (
     <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
       <table className="w-full border border-gray-300 text-gray-700">
@@ -78,7 +89,7 @@ export default function CatalogueSorties() {
                 <button onClick={() => handleDelete(sortie.id)} className="text-red-500 hover:text-red-700">
                   <FaTrash />
                 </button>
-                <button className="text-green-500 hover:text-green-700">
+                <button onClick={() => handleEditClick(sortie)} className="text-green-500 hover:text-green-700">
                   <FaEdit />
                 </button>
               </td>
@@ -86,10 +97,13 @@ export default function CatalogueSorties() {
           ))}
         </tbody>
       </table>
+      
       {/* Bouton flottant d'ajout */}
-      <button className="fixed bottom-8 left-8 bg-yellow-500 text-black rounded-lg w-16 h-16 flex items-center justify-center text-3xl shadow-xl hover:bg-yellow-600">
-        +
-      </button>
+      <button onClick={() => setIsModalOpen(true)}>Ajouter une sortie</button>
+
+      {/* Affichage du modal */}
+      <ModalAdd isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ModalEdit isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} sortie={selectedSortie} />
     </div>
   );
 }
