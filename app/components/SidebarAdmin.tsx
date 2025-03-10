@@ -8,15 +8,18 @@ export default function SidebarAdmin() {
   const router = useRouter();
 
   const handleLogout = () => {
-    deleteCookie("sb:token"); // 🔹 Supprime le cookie de session (remplace "sb:token" si nécessaire)
-    router.push("/"); // 🔹 Redirige vers la page d'accueil
+    document.cookie = "sb:token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie = "administrateur=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+  
+    // 🔹 Redirige vers la page d'accueil et recharge la page
+    router.push("/");
   };
 
   const menuItems = [
-    { name: "Dashboard", path: "/" },
+    { name: "Dashboard", path: "/dashboard/admin" },
     { name: "Événements", path: "/evenements" },
     { name: "Agenda", path: "/agenda" },
-    { name: "Adhérents", path: "/admin/adherents" },
+    { name: "Adhérents", path: "/dashboard/admin/adherents" },
     { name: "Résultats", path: "/resultats" },
     { name: "Articles", path: "/articles" },
     { name: "Stockage", path: "/stockage" },
