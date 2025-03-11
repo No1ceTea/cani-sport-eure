@@ -62,7 +62,7 @@ const Sidebar = () => {
             <li><a href="#" className="hover:text-gray-300">Réglages</a></li>
             <li><a href="#" className="hover:text-gray-300">Mon profil</a></li>
             <li><a href="#" className="hover:text-gray-300">Admin</a></li>
-            <li><a href="#" className="hover:text-yellow_primary">Se déconnecter</a></li>
+            <li><a href="/connexion" className="hover:text-yellow_primary">Se déconnecter</a></li>
           </ul>
         </div>
       </div>
