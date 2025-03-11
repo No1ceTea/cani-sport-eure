@@ -115,7 +115,13 @@ export default function Document() {
   return (
     <div className="flex">
       <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
-        
+      
+      <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
+      style={{
+        fontSize: "36px",
+        fontFamily: "opendyslexic, sans-serif",
+      }}>Documents</h1>
+
         {/* 📌 Navigation (Fil d'Ariane) et Actions alignées à droite */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2 text-gray-700 text-lg">
@@ -188,15 +194,8 @@ export default function Document() {
           </tbody>
         </table>
 
-
-
-        {/* Bouton d'ajout de fichier */}
-        <button onClick={() => setIsModalOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4">
-          Ajouter un fichier
-        </button>
-
-                {/* Modal d'ajout de dossier */}
-                {isFolderModalOpen && (
+        {/* Modal d'ajout de dossier */}
+        {isFolderModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg relative">
               <button onClick={() => setIsFolderModalOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">

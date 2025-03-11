@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaTrash, FaPlus, FaFolder, FaImage, FaChevronRight, FaTimes } from "react-icons/fa";
+import { FaTrash, FaFolder, FaChevronRight } from "react-icons/fa";
 import { createClient } from "@supabase/supabase-js";
 import Sidebar from "../components/SidebarAdmin";
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 // ✅ Définition des types
@@ -34,36 +34,35 @@ interface Photo {
 export default function AlbumManager() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
   const [albumPath, setAlbumPath] = useState<{ id: string | null; name: string }[]>([
     { id: null, name: "Albums Photos" },
   ]);
-  const [newAlbumName, setNewAlbumName] = useState("");
-  const [newAlbumDescription, setNewAlbumDescription] = useState("");
 
   useEffect(() => {
     const fetchAlbumsAndPhotos = async () => {
-      let query = supabase.from("club_albums").select("*");
-      
-      if (albumPath.length > 1) {
-        query = query.eq("parent_id", albumPath[albumPath.length - 1].id);
-      } else {
-        query = query.is("parent_id", null);
-      }
-      
-      const { data: albumsData, error: albumError } = await query;
+      console.log("📌 Chargement des albums et photos...");
+
+      // 📌 Récupération des albums
+      const { data: albumsData, error: albumError } = await supabase
+        .from("club_albums")
+        .select("*")
+        .eq("parent_id", albumPath[albumPath.length - 1].id || null); // Correction ici pour filtrer par parent_id
+
       if (albumError) {
         console.error("❌ Erreur de récupération des albums :", albumError);
       } else {
-        setAlbums(albumsData.map((album) => ({
-          id: album.id,
-          name: album.name,
-          createdAt: new Date(album.created_at).toLocaleString(),
-          updatedAt: album.updated_at ? new Date(album.updated_at).toLocaleString() : "-",
-          description: album.description,
-          parent_id: album.parent_id,
-          is_album: album.is_album,
-        })));
+        console.log("✅ Albums récupérés :", albumsData);
+        setAlbums(
+          albumsData.map((album) => ({
+            id: album.id,
+            name: album.name,
+            createdAt: album.created_at ? new Date(album.created_at).toLocaleString() : "-",
+            updatedAt: album.updated_at ? new Date(album.updated_at).toLocaleString() : "-",
+            description: album.description,
+            parent_id: album.parent_id,
+            is_album: album.is_album,
+          }))
+        );
       }
 
       // 📌 Récupération des photos
@@ -71,27 +70,32 @@ export default function AlbumManager() {
         .from("club_photos")
         .select("*")
         .eq("album_id", albumPath[albumPath.length - 1].id || null);
-      
+
       if (photoError) {
         console.error("❌ Erreur de récupération des photos :", photoError);
       } else {
-        setPhotos(photosData.map((photo) => ({
-          id: photo.id,
-          name: photo.name,
-          url: photo.file_url,
-          size: (photo.size / 1024).toFixed(2) + " KB",
-          createdAt: new Date(photo.created_at).toLocaleString(),
-          album_id: photo.album_id,
-        })));
+        console.log("✅ Photos récupérées :", photosData);
+        setPhotos(
+          photosData.map((photo) => ({
+            id: photo.id,
+            name: photo.name,
+            url: photo.file_url,
+            size: photo.size ? (photo.size / 1024).toFixed(2) + " KB" : "-",
+            createdAt: photo.created_at ? new Date(photo.created_at).toLocaleString() : "-",
+            album_id: photo.album_id,
+          }))
+        );
       }
     };
 
     fetchAlbumsAndPhotos();
   }, [albumPath]);
 
+  // 📌 Supprimer un album ou une photo
   const handleDelete = async (id: string, isAlbum: boolean) => {
     const table = isAlbum ? "club_albums" : "club_photos";
     const { error } = await supabase.from(table).delete().match({ id });
+
     if (error) {
       console.error("❌ Erreur de suppression :", error);
     } else {
@@ -103,10 +107,12 @@ export default function AlbumManager() {
     }
   };
 
+  // 📌 Naviguer dans un album
   const handleAlbumClick = (albumId: string, albumName: string) => {
     setAlbumPath([...albumPath, { id: albumId, name: albumName }]);
   };
 
+  // 📌 Revenir en arrière dans les albums
   const handleBreadcrumbClick = (index: number) => {
     setAlbumPath(albumPath.slice(0, index + 1));
   };
@@ -138,6 +144,7 @@ export default function AlbumManager() {
             </tr>
           </thead>
           <tbody>
+            {/* 📌 Affichage des albums */}
             {albums.map((album) => (
               <tr key={album.id} className="border-b text-md hover:bg-gray-50 cursor-pointer" onDoubleClick={() => handleAlbumClick(album.id, album.name)}>
                 <td className="p-4 flex items-center gap-2">
@@ -152,8 +159,24 @@ export default function AlbumManager() {
                 </td>
               </tr>
             ))}
+            {/* 📌 Affichage des photos */}
+            {photos.map((photo) => (
+              <tr key={photo.id} className="border-b text-md hover:bg-gray-50">
+                <td className="p-4 flex items-center gap-2">
+                  <img src={photo.url} alt={photo.name} className="w-10 h-10" />
+                  {photo.name}
+                </td>
+                <td className="p-4">{photo.createdAt}</td>
+                <td className="p-4 flex justify-center gap-4">
+                  <button onClick={() => handleDelete(photo.id, false)} className="text-red-500 hover:text-red-700">
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
+
       </div>
     </div>
   );

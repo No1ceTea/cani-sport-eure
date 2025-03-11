@@ -34,6 +34,10 @@ export default function DocumentManager() {
   ]);
   const [newFolderName, setNewFolderName] = useState("");
 
+  // 🚨 État pour gérer les erreurs de permissions
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
   useEffect(() => {
     const fetchFiles = async () => {
       let query = supabase.from("club_documents").select("*");
@@ -70,6 +74,11 @@ export default function DocumentManager() {
 
   // 📌 Supprimer un fichier/dossier
   const handleDelete = async (id: string) => {
+    if (!isAdmin) {
+      setIsErrorModalOpen(true);
+      return;
+    }
+
     const { error } = await supabase.from("club_documents").delete().match({ id });
 
     if (error) {
@@ -77,6 +86,14 @@ export default function DocumentManager() {
     } else {
       setFiles(files.filter((file) => file.id !== id));
     }
+  };
+
+  const handleUploadClick = () => {
+    if (!isAdmin) {
+      setIsErrorModalOpen(true);
+      return;
+    }
+    setIsModalOpen(true);
   };
 
   // 📌 Naviguer dans un dossier
@@ -90,6 +107,11 @@ export default function DocumentManager() {
   };
 
   const handleAddFolder = async () => {
+    if (!isAdmin) {
+      setIsErrorModalOpen(true);
+      return;
+    }
+
     if (!newFolderName.trim()) return;
 
     const { data, error } = await supabase
@@ -98,7 +120,7 @@ export default function DocumentManager() {
         {
           name: newFolderName,
           is_folder: true,
-          parent_id: folderPath[folderPath.length - 1].id, // Ajout au dossier courant
+          parent_id: folderPath[folderPath.length - 1].id,
           created_at: new Date().toISOString(),
         },
       ])
@@ -141,7 +163,7 @@ export default function DocumentManager() {
             <button onClick={() => setIsFolderModalOpen(true)} className="text-green-600 flex items-center gap-2">
               <FaPlus /> Ajouter un dossier
             </button>
-            <button onClick={() => setIsModalOpen(true)} className="text-blue-600 flex items-center gap-2">
+            <button onClick={handleUploadClick} className="text-blue-600 flex items-center gap-2">
               <FaUpload /> Upload un fichier
             </button>
           </div>
@@ -200,8 +222,8 @@ export default function DocumentManager() {
           Ajouter un fichier
         </button>
 
-                {/* Modal d'ajout de dossier */}
-                {isFolderModalOpen && (
+          {/* Modal d'ajout de dossier */}
+          {isFolderModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg relative">
               <button onClick={() => setIsFolderModalOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
@@ -210,6 +232,17 @@ export default function DocumentManager() {
               <h2 className="text-lg font-bold mb-4">Créer un dossier</h2>
               <input type="text" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} className="border p-2 w-full" placeholder="Nom du dossier" />
               <button onClick={handleAddFolder} className="bg-green-600 text-white px-4 py-2 mt-4 rounded-lg">Créer</button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal d'erreur */}
+        {isErrorModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg">
+              <h2 className="text-lg font-bold mb-4 text-red-600">Accès refusé</h2>
+              <p>Vous n'avez pas les droits administrateurs pour réaliser cette action.</p>
+              <button onClick={() => setIsErrorModalOpen(false)} className="bg-gray-600 text-white px-4 py-2 mt-4 rounded-lg">OK</button>
             </div>
           </div>
         )}
