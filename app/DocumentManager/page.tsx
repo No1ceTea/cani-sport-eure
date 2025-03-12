@@ -5,12 +5,9 @@ import { FaTrash, FaEye, FaUpload, FaSort, FaFolderOpen, FaFolder, FaChevronRigh
 import { createClient } from "@supabase/supabase-js";
 import ModalAddDocument from "../components/ModalAddDocument";
 import Sidebar from "../components/SidebarAdmin";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-// 📌 Connexion à Supabase
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = createClientComponentClient();
 
 // ✅ Définition du type des fichiers et dossiers
 interface DocumentFile {
@@ -37,6 +34,13 @@ export default function DocumentManager() {
   // 🚨 État pour gérer les erreurs de permissions
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // 🔹 Récupérer `isAdmin` depuis sessionStorage (évite requête Supabase)
+    const storedIsAdmin = sessionStorage.getItem("isAdmin");
+    setIsAdmin(storedIsAdmin === "true");
+    console.log(storedIsAdmin)
+  }, []);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -74,22 +78,30 @@ export default function DocumentManager() {
 
   // 📌 Supprimer un fichier/dossier
   const handleDelete = async (id: string) => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session) {
+      console.error("⚠️ Aucun utilisateur connecté !");
+      setIsErrorModalOpen(true);
+      return;
+    }
+  
     if (!isAdmin) {
       setIsErrorModalOpen(true);
       return;
     }
-
+  
     const { error } = await supabase.from("club_documents").delete().match({ id });
-
+  
     if (error) {
       console.error("❌ Erreur de suppression :", error);
     } else {
       setFiles(files.filter((file) => file.id !== id));
     }
   };
+  
 
   const handleUploadClick = () => {
-    if (!isAdmin) {
+    if (isAdmin === false) {
       setIsErrorModalOpen(true);
       return;
     }
@@ -107,7 +119,7 @@ export default function DocumentManager() {
   };
 
   const handleAddFolder = async () => {
-    if (!isAdmin) {
+    if (isAdmin === false) {
       setIsErrorModalOpen(true);
       return;
     }
@@ -134,6 +146,7 @@ export default function DocumentManager() {
       setNewFolderName("");
     }
   };
+  
 
   return (
     <div className="flex">
