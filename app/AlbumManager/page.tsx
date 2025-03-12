@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaTrash, FaFolder, FaChevronRight } from "react-icons/fa";
+import { FaTrash, FaFolder, FaChevronRight, FaTimes, FaPlus, FaUpload} from "react-icons/fa";
 import { createClient } from "@supabase/supabase-js";
 import Sidebar from "../components/SidebarAdmin";
 import Image from "next/image";
@@ -38,6 +38,9 @@ export default function AlbumManager() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
+  const [newAlbumName, setNewAlbumName] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const fetchAlbumsAndPhotos = async () => {
@@ -108,21 +111,84 @@ export default function AlbumManager() {
     setAlbumPath(albumPath.slice(0, index + 1));
   };
 
+  // 📌 Ajout d'un nouvel album
+  const handleAddAlbum = async () => {
+    if (!newAlbumName.trim()) return;
+
+    const albumPathName = albumPath[albumPath.length - 1].id || "";
+
+    const { error } = await supabase.storage.from("photo").upload(`${albumPathName}/${newAlbumName}/.emptyFolderPlaceholder`, new Blob([""]));
+
+    if (error) {
+      console.error("❌ Erreur d'ajout de l'album :", error);
+    } else {
+      setAlbums([...albums, { id: newAlbumName, name: newAlbumName, createdAt: "-" }]);
+      setIsAlbumModalOpen(false);
+      setNewAlbumName("");
+    }
+  };
+
+
+  const handleUploadPhotos = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) return;
+
+    setUploading(true);
+    const albumPathName = albumPath[albumPath.length - 1].id || "";
+
+    for (const file of event.target.files) {
+      const filePath = `${albumPathName}/${file.name}`;
+
+      const { error } = await supabase.storage.from("photo").upload(filePath, file);
+
+      if (error) {
+        console.error(`❌ Erreur d'upload du fichier ${file.name} :`, error);
+      } else {
+        const publicUrl = supabase.storage.from("photo").getPublicUrl(filePath).data.publicUrl;
+
+        setPhotos((prevPhotos) => [
+          ...prevPhotos,
+          {
+            id: file.name,
+            name: file.name,
+            url: publicUrl,
+            size: (file.size / 1024).toFixed(2) + " KB",
+            createdAt: new Date().toLocaleString(),
+            album_id: albumPathName,
+          },
+        ]);
+      }
+    }
+
+    setUploading(false);
+  };
+
   return (
     <div className="flex">
       <Sidebar />
       <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
 
-        {/* 📌 Navigation (Fil d'Ariane) */}
-        <div className="flex items-center gap-2 mb-4 text-gray-700 text-lg">
-          {albumPath.map((album, index) => (
-            <span key={album.id || "root"} className="flex items-center">
-              {index > 0 && <FaChevronRight className="mx-2 text-gray-500" />}
-              <button onClick={() => handleBreadcrumbClick(index)} className="hover:underline">
-                {album.name}
-              </button>
-            </span>
-          ))}
+        {/* 📌 Navigation & Actions */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2 text-gray-700 text-lg">
+            {albumPath.map((album, index) => (
+              <span key={album.id || "root"} className="flex items-center">
+                {index > 0 && <FaChevronRight className="mx-2 text-gray-500" />}
+                <button onClick={() => setAlbumPath(albumPath.slice(0, index + 1))} className="hover:underline">
+                  {album.name}
+                </button>
+              </span>
+            ))}
+          </div>
+
+          <div className="flex gap-4">
+            <button onClick={() => setIsAlbumModalOpen(true)} className="text-green-600 flex items-center gap-2">
+              <FaPlus /> Ajouter un album
+            </button>
+            <label className="text-blue-600 flex items-center gap-2 cursor-pointer">
+              <FaUpload /> Ajouter des photos
+              <input type="file" multiple onChange={handleUploadPhotos} className="hidden" />
+            </label>
+          </div>
         </div>
 
         {loading ? (
@@ -189,6 +255,20 @@ export default function AlbumManager() {
         {previewImage && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onClick={() => setPreviewImage(null)}>
             <Image src={previewImage} alt="Aperçu de l'image" width={800} height={800} className="max-w-screen-lg max-h-screen-lg rounded-lg" />
+          </div>
+        )}
+
+         {/* 📌 Modal d'ajout d'album */}
+         {isAlbumModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg relative">
+              <button onClick={() => setIsAlbumModalOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+                <FaTimes />
+              </button>
+              <h2 className="text-lg font-bold mb-4">Créer un album</h2>
+              <input type="text" value={newAlbumName} onChange={(e) => setNewAlbumName(e.target.value)} className="border p-2 w-full" placeholder="Nom de l'album" />
+              <button onClick={handleAddAlbum} className="bg-green-600 text-white px-4 py-2 mt-4 rounded-lg">Créer</button>
+            </div>
           </div>
         )}
       </div>
