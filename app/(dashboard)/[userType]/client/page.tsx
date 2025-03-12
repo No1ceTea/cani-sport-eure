@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient"; // Assure-toi d'importer le client Supabase
+import supabase from "@/lib/supabaseClient"; // Assure-toi d'importer le client Supabase
 
 export default function ClientDashboardPage() {
   const router = useRouter();
