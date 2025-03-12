@@ -41,7 +41,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
 
     checkUserRole();
-  }, []);
+  }, [router, supabase.auth]);
 
   if (isLoading) return <p>Chargement...</p>;
   if (!isAuthorized) return null; // Évite un affichage inutile

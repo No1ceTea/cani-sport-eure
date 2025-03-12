@@ -42,7 +42,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     };
 
     checkUserRole();
-  }, []);
+  }, [router, supabase.auth]);
 
   if (isLoading) return <p>Chargement...</p>;
   if (!isAuthorized) return null; // 🔹 Évite l'affichage du contenu avant redirection
