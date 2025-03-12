@@ -36,7 +36,7 @@ export default function DashboardPage() {
     };
 
     checkUserRole();
-  }, [router, pathname]);
+  }, [router, pathname, supabase.auth]);
 
   return (
     <div className="flex h-screen bg-gray-100">
