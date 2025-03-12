@@ -45,37 +45,35 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
+  
     setLoading(false);
-
+  
     if (error) {
       setError(translateError(error.message));
-    } else if (data?.session) {
-      // 🔹 Récupération des infos utilisateur pour vérifier son rôle
+      return;
+    }
+  
+    if (data?.session) {
+      // 🔹 Vérification immédiate après connexion
       const { data: userData, error: userError } = await supabase.auth.getUser();
-
-      if (userError) {
+  
+      if (userError || !userData?.user) {
         setError("Erreur lors de la récupération du profil.");
         return;
       }
-
-      // 🔹 Vérification du champ `administrateur` et stockage dans un cookie
-      const isAdmin = userData?.user?.user_metadata?.administrateur === true;
-      document.cookie = `administrateur=${isAdmin}; path=/`;
-
-      // 🔹 Redirection selon le rôle
-      if (isAdmin) {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/client/dashboard");
-      }
+  
+      const isAdmin = userData.user.user_metadata?.administrateur === true;
+      sessionStorage.setItem("isAdmin", isAdmin ? "true" : "false");
+  
+      router.push(isAdmin ? "/dashboard/admin" : "/dashboard/client");
     }
   };
+  
 
   const redirectToSignup = () => {
     router.push("/inscription"); // Redirection vers la page d'inscription

@@ -77,8 +77,10 @@ serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: error.message }), { status: 400 });
     }
 
-    console.log("✅ Utilisateur créé avec succès !");
-    return new Response(JSON.stringify({ message: "Inscription réussie !" }), { status: 200 });
+    console.log("✅ Utilisateur créé avec succès :", data.user?.id);
+
+    // ✅ Retourner l'ID utilisateur
+    return new Response(JSON.stringify({ message: "Inscription réussie !", userId: data.user?.id }), { status: 200 });
 
   } catch (err) {
     console.error("❌ Erreur serveur dans Supabase Function :", err);
