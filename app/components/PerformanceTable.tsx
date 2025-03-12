@@ -1,35 +1,42 @@
+interface Performance {
+  adherent: string;
+  lieu: string;
+  distance: string;
+  classement: string;
+  date: string;
+}
 
-  interface PerformanceData {
-    adhérent: string;
-    lieu: string;
-    distance: string;
-    classement: string;
-    date: string;
-  }
+interface PerformanceTableProps {
+  data: Performance[];
+  className?: string;
+}
 
-  interface PerformanceTableProps {
-    data: PerformanceData[];
-  }
-
-  export function PerformanceTable({ data }: PerformanceTableProps) {
-    return (
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h2 className="text-lg font-bold">Performance par adhérent</h2>
-        <table className="w-full mt-2 border-collapse">
-          <thead>
-            <tr className="bg-gray-200">
-              <th>Adhérent</th><th>Lieu</th><th>Distance</th><th>Classement</th><th>Date</th>
+export default function PerformanceTable({ data, className = "" }: PerformanceTableProps) {
+  return (
+    <div className={`shadow-lg rounded-xl bg-white p-4 ${className}`}>
+      <h3 className="text-lg font-semibold mb-2">Performance par adhérent</h3>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-blue-600 text-white">
+            <th className="p-2">Adhérent</th>
+            <th className="p-2">Lieu</th>
+            <th className="p-2">Distance</th>
+            <th className="p-2">Classement</th>
+            <th className="p-2">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index} className="border-b">
+              <td className="p-2">{item.adherent}</td>
+              <td className="p-2">{item.lieu}</td>
+              <td className="p-2">{item.distance}</td>
+              <td className="p-2">{item.classement}</td>
+              <td className="p-2">{item.date}</td>
             </tr>
-          </thead>
-          <tbody>
-            {data.map((row, index) => (
-              <tr key={index} className="border-t">
-                <td>{row.adhérent}</td><td>{row.lieu}</td><td>{row.distance}</td><td>{row.classement}</td><td>{row.date}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-  
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

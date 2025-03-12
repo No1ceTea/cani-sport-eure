@@ -3,14 +3,14 @@
 
 import supabase from "../../lib/supabaseClient";
 import { useEffect, useState } from 'react';
-import { ResultsTable } from '../components/ResultsTable';
-import {PerformanceTable }from '../components/PerformanceTable';
-import {StatisticsCard } from '../components/StatisticsCard';
-
+import  ResultsTable  from '../components/ResultsTable';
+import PerformanceTable from '../components/PerformanceTable';
+import StatisticsCard  from '../components/StatisticsCard';
 
 
 interface Result {
-  adhérent: string;
+  id: number;
+  adherent: string;
   competition: string;
   lieu: string;
   distance: string;
@@ -20,7 +20,7 @@ interface Result {
 
 interface Performance {
   id: number;
-  adhérent: string;
+  adherent: string;
   lieu: string;
   distance: string;
   classement: string;
@@ -41,7 +41,8 @@ interface Event {
 
 interface StatisticsCardProps {
   title: string;
-  value: string | number;
+  value: number | string;
+  className?: string;
 }
 
 export default function Dashboard() {
@@ -77,14 +78,14 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <ResultsTable data={results} />
-      <PerformanceTable data={performance} />
-      <StatisticsCard title="Nombre de participants par événement" value={stats.participants} />
-      <StatisticsCard title="Nombre de kilomètres parcourus" value={stats.km} />
-      <StatisticsCard title="Nombre d'événements" value={stats.events} />
-      <StatisticsCard title="Événements internes" value={`${stats.internalPercentage} %`} />
-      <StatisticsCard title="Événements externes" value={`${stats.externalPercentage} %`} />
+    <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-gray-100 min-h-screen">
+      <ResultsTable data={results} className="shadow-lg rounded-2xl bg-white p-4" />
+      <PerformanceTable data={performance} className="shadow-lg rounded-2xl bg-white p-4" />
+      <StatisticsCard title="Nombre de participants par événement" value={stats.participants} className="shadow-lg rounded-2xl bg-white p-4" />
+      <StatisticsCard title="Nombre de kilomètres parcourus" value={stats.km} className="shadow-lg rounded-2xl bg-white p-4" />
+      <StatisticsCard title="Nombre d'événements" value={stats.events} className="shadow-lg rounded-2xl bg-white p-4" />
+      <StatisticsCard title="Événements internes" value={`${stats.internalPercentage} %`} className="shadow-lg rounded-2xl bg-white p-4" />
+      <StatisticsCard title="Événements externes" value={`${stats.externalPercentage} %`} className="shadow-lg rounded-2xl bg-white p-4" />
     </div>
   );
 }

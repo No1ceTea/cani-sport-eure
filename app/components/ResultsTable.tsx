@@ -1,5 +1,5 @@
 interface Result {
-  adhérent: string;
+  adherent: string;
   competition: string;
   lieu: string;
   distance: string;
@@ -9,28 +9,37 @@ interface Result {
 
 interface ResultsTableProps {
   data: Result[];
+  className?: string;
 }
 
-export function ResultsTable({ data }: ResultsTableProps) {
-    return (
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h2 className="text-lg font-bold">Résultats du club</h2>
-        <table className="w-full mt-2 border-collapse">
-          <thead>
-            <tr className="bg-gray-200">
-              <th>Adhérents</th><th>Compétition</th><th>Lieu</th><th>Distance</th><th>Classement</th><th>Date</th>
+export default function ResultsTable({ data, className = "" }: ResultsTableProps) {
+  return (
+    <div className={`shadow-lg rounded-xl bg-white p-4 ${className}`}>
+      <h3 className="text-lg font-semibold mb-2">Résultats du club</h3>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-blue-600 text-white">
+            <th className="p-2">Adhérent</th>
+            <th className="p-2">Compétition</th>
+            <th className="p-2">Lieu</th>
+            <th className="p-2">Distance</th>
+            <th className="p-2">Classement</th>
+            <th className="p-2">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index} className="border-b">
+              <td className="p-2">{item.adherent}</td>
+              <td className="p-2">{item.competition}</td>
+              <td className="p-2">{item.lieu}</td>
+              <td className="p-2">{item.distance}</td>
+              <td className="p-2">{item.classement}</td>
+              <td className="p-2">{item.date}</td>
             </tr>
-          </thead>
-          <tbody>
-            {data.map((row, index) => (
-              <tr key={index} className="border-t">
-                <td>{row.adhérent}</td><td>{row.competition}</td><td>{row.lieu}</td><td>{row.distance}</td><td>{row.classement}</td><td>{row.date}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-  
- 
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
