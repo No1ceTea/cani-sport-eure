@@ -1,70 +1,51 @@
 "use client";
-
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-const ClientDashboardPage: React.FC = () => {
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const supabase = createClientComponentClient();
-  const [userType, setUserType] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    const checkUser = async () => {
-      // 🔹 Vérifie si l'utilisateur est connecté
+    const checkUserRole = async () => {
       const { data: userSession } = await supabase.auth.getSession();
-  
+
       if (!userSession.session) {
-        console.log("🔴 Utilisateur non connecté, redirection vers /connexion");
-        router.replace("/connexion");
+        console.log("🔴 Pas de session, redirection vers connexion.");
+        router.replace("/connexion"); // 🔹 Remplace l'historique pour éviter le retour en arrière
         return;
       }
-  
-      // 🔹 Récupère les données utilisateur
+
       const { data: userData, error } = await supabase.auth.getUser();
-  
+
       if (error || !userData?.user) {
         console.log("❌ Erreur lors de la récupération de l'utilisateur :", error);
         router.replace("/connexion");
         return;
       }
-  
-      console.log("🔍 Données de l'utilisateur :", userData.user.user_metadata);
-  
-      // ✅ Stocke l'UUID de l'utilisateur
-      setUserId(userData.user.id);
-  
+
+      console.log("🔍 Données de l'utilisateur récupérées :", userData.user.user_metadata);
+
       const isAdmin = userData.user.user_metadata?.administrateur === true;
-  
+
       if (isAdmin) {
         console.log("🔴 Admin détecté, redirection vers /dashboard/admin");
         router.replace("/dashboard/admin");
       } else {
         console.log("✅ Utilisateur adhérent détecté, accès autorisé !");
-        setUserType("client");
+        setIsAuthorized(true);
+        setIsLoading(false);
       }
-      
-      console.log(userData.user.id)
-
-      setIsLoading(false);
     };
-  
-    checkUser();
+
+    checkUserRole();
   }, []);
-  
 
   if (isLoading) return <p>Chargement...</p>;
-  if (!userType) return null; // 🔹 Évite l'affichage du contenu avant redirection
+  if (!isAuthorized) return null; // 🔹 Évite l'affichage du contenu avant redirection
 
-  return (
-    <div>
-      <h1>Dashboard Client</h1>
-      <p>Vous êtes sur la page dashboard client.</p>
-    </div>
-  );
-};
-
-export default ClientDashboardPage;
+  return <>{children}</>;
+}
