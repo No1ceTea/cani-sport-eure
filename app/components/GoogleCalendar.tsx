@@ -50,7 +50,7 @@ export default function GoogleCalendar() {
             console.warn("Aucun événement trouvé !");
           }
         })
-        .catch((error) => {
+        .catch((error: unknown) => {
           console.error("Erreur lors de la récupération des événements :", error);
         });
     }

@@ -1,4 +1,4 @@
-import GoogleCalendar from "./GoogleCalendar";
+import GoogleCalendar from "../components/GoogleCalendar";
 
 export default function AgendaPage() {
   return (

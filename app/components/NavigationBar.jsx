@@ -75,6 +75,9 @@ export default function NavigationBar() {
             <Link href="/connexion" className="text-lg hover:underline">
               Se connecter
             </Link>
+            <Link href="/Agenda" className="text-lg hover:underline">
+              CALENDRIER
+            </Link>
           </nav>
         </div>
       </div>
