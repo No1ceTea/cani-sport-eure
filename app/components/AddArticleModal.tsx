@@ -110,7 +110,7 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             className="bg-blue-700 text-white py-2 px-6 rounded"
             onClick={handleSubmit}
           >
-            Créer l'article
+            Créer l&apos;article
           </button>
         </div>
       </div>
