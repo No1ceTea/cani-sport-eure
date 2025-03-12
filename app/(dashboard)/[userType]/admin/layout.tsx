@@ -11,34 +11,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const checkUserRole = async () => {
-      const { data: userSession } = await supabase.auth.getSession();
+      console.log("🔍 Vérification de la session...");
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-      if (!userSession.session) {
-        router.push("/connexion"); // 🔹 Redirige si pas de session
-        return;
-      }
-
-      const { data: userData, error } = await supabase.auth.getUser();
-      if (error || !userData?.user) {
+      if (sessionError || !sessionData.session) {
+        console.log("❌ Pas de session, redirection vers connexion.");
         router.push("/connexion");
         return;
       }
 
-      // 🔹 Vérifie si c'est bien un ADMIN
-      const isAdmin = userData.user.user_metadata?.administrateur === true;
-      if (!isAdmin) {
-        router.push("/dashboard/client"); // 🔹 Redirige un adhérent
-      } else {
-        setIsAuthorized(true);
-        setIsLoading(false);
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user) {
+        console.log("❌ Erreur de récupération de l'utilisateur, redirection.");
+        router.push("/connexion");
+        return;
       }
+
+      const isAdmin = userData.user.user_metadata?.administrateur === true;
+      console.log("🟢 Rôle utilisateur récupéré :", userData.user.user_metadata);
+
+      if (!isAdmin) {
+        console.log("🔴 Utilisateur NON ADMIN, redirection vers client.");
+        router.push("/dashboard/client");
+        return;
+      }
+
+      setIsAuthorized(true);
+      setIsLoading(false);
     };
 
     checkUserRole();
   }, []);
 
   if (isLoading) return <p>Chargement...</p>;
-  if (!isAuthorized) return null; // Évite l'affichage avant redirection
+  if (!isAuthorized) return null; // Évite un affichage inutile
 
   return <>{children}</>;
 }
