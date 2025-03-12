@@ -36,7 +36,8 @@
     "react-leaflet": "^5.0.0",
     "turf": "^3.0.14",
     "uuid": "^11.1.0",
-    "xml2js": "^0.6.2"
+    "xml2js": "^0.6.2",
+    "react-hook-form": "^7.54.2"
   },
   "devDependencies": {
     "@types/node": "^22",
