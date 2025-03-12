@@ -3,15 +3,20 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+    console.error("Supabase URL ou Anon Key manquants.");
+    // Vous pouvez arrêter l'exécution ici si nécessaire
+}
+
+const supabase = createClient(supabaseUrl!, supabaseAnonKey!);
 
 interface Profile {
     nom: string;
     prenom: string;
-    age: string;
+    age: number;
     email: string;
     dateNaissance: string;
     dateRenouvellement: string;
@@ -27,15 +32,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     const [profile, setProfile] = useState<Profile>({
         nom: "",
         prenom: "",
-        age: "",
+        age: 0,
         email: "",
-        dateNaissance: "",
-        dateRenouvellement: "",
+        dateNaissance: "1970-01-01",  // Date par défaut valide
+        dateRenouvellement: "1970-01-01",  // Date par défaut valide
         license: "",
         photoUrl: ""
     });
     const [file, setFile] = useState<File | null>(null);
-    
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [notification, setNotification] = useState<string | null>(null);
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -65,6 +72,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFile(e.target.files[0]);
+            const previewUrl = URL.createObjectURL(e.target.files[0]);
+            setPhotoPreview(previewUrl);  // Prévisualisation de l'image
         }
     };
 
@@ -95,17 +104,19 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                 .eq("id", userId);
             
             if (error) throw error;
-            alert("Profil mis à jour avec succès !");
+            setNotification("Profil mis à jour avec succès !");
         } catch (error) {
             console.error("Erreur lors de la mise à jour", error);
+            setNotification("Erreur lors de la mise à jour du profil.");
         }
     };
 
     return (
         <div className="profile-container">
+            {notification && <div className="notification">{notification}</div>}
             <h2 className="profile-title">Profil</h2>
             <div className="profile-card">
-                <img src={profile.photoUrl || "/default-avatar.png"} alt="Photo de profil" className="profile-photo" />
+                {photoPreview && <img src={photoPreview} alt="Prévisualisation" className="preview-photo" />}
                 <input type="file" onChange={handleFileChange} className="file-input" />
                 <form onSubmit={handleSubmit} className="profile-form">
                     <input type="text" name="nom" value={profile.nom} onChange={handleChange} placeholder="Nom" className="input-field" />
