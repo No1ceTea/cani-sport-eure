@@ -60,7 +60,6 @@ const GalleryPage = () => {
     const endDateObj = endDate ? new Date(endDate + "T23:59:59") : null;
     const matchesEndDate = endDate === "" || (endDateObj && imageDate <= endDateObj);
 
-    const articles: Article[] = [ /* liste des articles */ ];
 
 const handleDelete = (id: string) => {
   console.log(`Supprimer l'article avec l'id: ${id}`);
