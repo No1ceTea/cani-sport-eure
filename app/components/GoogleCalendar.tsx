@@ -28,7 +28,7 @@ export default function GoogleCalendar() {
           scope: SCOPES,
         })
         .then(() => {
-          const authInstance = gapi.auth2.getAuthInstance();
+          const authInstance: gapi.auth2.GoogleAuth = gapi.auth2.getAuthInstance();
           setIsSignedIn(authInstance.isSignedIn.get());
 
           authInstance.isSignedIn.listen((signedIn: boolean) => {
@@ -38,15 +38,21 @@ export default function GoogleCalendar() {
 
           if (authInstance.isSignedIn.get()) fetchEvents();
         })
-        .catch((error) => {
+        .catch((error: any) => {
           console.error("Erreur d'initialisation de l'API :", error);
         });
     }
 
-    gapi.load("client:auth2", initClient);
+    gapi.load("client:auth2,calendar", initClient);
   }, []);
 
   const fetchEvents = () => {
+    interface EventsResponse {
+      result: {
+        items: CalendarEvent[];
+      };
+    }
+
     gapi.client.calendar.events
       .list({
         calendarId: CALENDAR_ID,
@@ -56,14 +62,14 @@ export default function GoogleCalendar() {
         maxResults: 10,
         orderBy: "startTime",
       })
-      .then((response: any) => {
+      .then((response: EventsResponse) => {
         if (response.result.items) {
           setEvents(response.result.items);
         } else {
           console.warn("Aucun événement trouvé !");
         }
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error("Erreur lors de la récupération des événements :", error);
       });
   };
