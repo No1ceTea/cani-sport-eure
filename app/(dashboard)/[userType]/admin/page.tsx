@@ -3,24 +3,39 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import SidebarAdmin from "../../../components/SidebarAdmin";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default function DashboardPage() {
   const router = useRouter();
   const pathname = usePathname();
   const [userType, setUserType] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState("Nom événements");
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
-    const cookies = document.cookie.split("; ");
-    const adminCookie = cookies.find((row) => row.startsWith("administrateur="));
-    const isAdmin = adminCookie ? adminCookie.split("=")[1] === "true" : false;
+    const checkUserRole = async () => {
+      console.log("🔍 Vérification du rôle sur la page admin...");
 
-    setUserType(isAdmin ? "admin" : "client");
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user) {
+        console.log("❌ Erreur de récupération de l'utilisateur, redirection.");
+        router.push("/connexion");
+        return;
+      }
 
-    // 🔹 Empêcher un client d'accéder au /admin/dashboard
-    if (pathname.includes("/admin") && !isAdmin) {
-      router.push("/unauthorized");
-    }
+      const isAdmin = userData.user.user_metadata?.administrateur === true;
+      console.log("🟢 Rôle utilisateur :", userData.user.user_metadata);
+
+      if (!isAdmin) {
+        console.log("🔴 Redirection de l'utilisateur NON ADMIN vers /unauthorized");
+        router.push("/unauthorized");
+        return;
+      }
+
+      setUserType("admin"); // Mise à jour correcte
+    };
+
+    checkUserRole();
   }, [router, pathname]);
 
   return (
