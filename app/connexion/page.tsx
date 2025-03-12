@@ -45,20 +45,35 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
+  
     setLoading(false);
-
+  
     if (error) {
       setError(translateError(error.message));
-    } else if (data?.session) {
-      router.push("/"); // Redirection vers la page d'accueil
+      return;
+    }
+  
+    if (data?.session) {
+      // 🔹 Vérification immédiate après connexion
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+  
+      if (userError || !userData?.user) {
+        setError("Erreur lors de la récupération du profil.");
+        return;
+      }
+  
+      const isAdmin = userData.user.user_metadata?.administrateur === true;
+      sessionStorage.setItem("isAdmin", isAdmin ? "true" : "false");
+  
+      router.push(isAdmin ? "/dashboard/admin" : "/dashboard/client");
     }
   };
+  
 
   const redirectToSignup = () => {
     router.push("/inscription"); // Redirection vers la page d'inscription
@@ -130,16 +145,6 @@ export default function LoginPage() {
                     {showPassword ? "🙈" : "👁️"}
                   </button>
                 </div>
-              </div>
-
-              <div className="form-control flex items-center mb-6">
-                <label className="label cursor-pointer text-white space-x-2">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-primary"
-                  />
-                  <span>Se souvenir de moi</span>
-                </label>
               </div>
 
               <button
