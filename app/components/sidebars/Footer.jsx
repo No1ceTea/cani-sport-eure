@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="py-10 px-5">
           <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-start text-center md:text-left">
             
-            {/* Colonne de gauche */}
+            {/* Colonne de gauche : Logo centré */}
             <div className="flex items-center justify-center">
               <img 
                 src="/Logo-ContourBlanc-SansFond.png" 
@@ -46,19 +46,19 @@ export default function Footer() {
                 </div>
               </div>
 
-              {/* Section Réseaux Sociaux */}
-              <div className="primary_text mt-6 flex space-x-6 pb-6">
-                <a href="https://instagram.com/canisports_eure" target="_blank" rel="noopener noreferrer">
+              {/* Section Réseaux Sociaux - Aligner icônes et texte sur la même ligne */}
+              <div className="primary_text mt-6 flex space-x-10 pb-6">
+                <a href="https://instagram.com/canisports_eure" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
                   <img src="/logos/instagram.svg" alt="Instagram" className="h-6" />
-                  @CS27
+                  <span>@canisports_eure</span>
                 </a>
-                <a href="mailto:cani.sports.eure@gmail.com">
+                <a href="mailto:cani.sports.eure@gmail.com" className="flex items-center space-x-2">
                   <img src="/icons/email.svg" alt="Email" className="h-6" />
-                  cs27@gmail.com
+                  <span>cani.sports.eure@gmail.com</span>
                 </a>
-                <a href="https://facebook.com/canisports.eure" target="_blank" rel="noopener noreferrer">
+                <a href="https://facebook.com/canisports.eure" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
                   <img src="/logos/facebook.svg" alt="Facebook" className="h-6" />
-                  /CS-27
+                  <span>CanisportsEure</span>
                 </a>
               </div>
 
@@ -69,7 +69,7 @@ export default function Footer() {
               <p className="text-sm">© Cani Sports - Eure, Tous droits réservés</p>
             </div>
 
-            {/* Colonne de droite */}
+            {/* Colonne de droite (vide pour équilibrer le design) */}
             <div></div>
           </div>
         </div>
