@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import NavigationBar from "../components/NavigationBar";
+
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
 
 export default function LoginPage() {
   const supabase = createClientComponentClient();
@@ -81,10 +83,9 @@ export default function LoginPage() {
 
   return (
     <div>
-      <NavigationBar />
       <div
         className="flex items-center justify-center h-screen bg-cover bg-center"
-        style={{ backgroundImage: "url('/montagne.jpeg')" }}
+        style={{ backgroundImage: "url('/photos/MainPage_bg.jpg')" }}
       >
         <div className="flex flex-col md:flex-row items-center justify-center gap-32">
           {isClient && (
@@ -178,6 +179,8 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      <Sidebar />
+      <Footer />
     </div>
   );
 }
