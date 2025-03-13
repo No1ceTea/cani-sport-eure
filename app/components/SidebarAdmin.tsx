@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from "cookies-next";
+import BlueBackground from "./backgrounds/BlueBackground";
 
 export default function SidebarAdmin() {
   const router = useRouter();
@@ -23,28 +24,32 @@ export default function SidebarAdmin() {
     { name: "Résultats", path: "/resultats" },
     { name: "Articles", path: "/articles" },
     { name: "Stockage", path: "/DocumentManager" },
-    { name: "Album", path: "/album" },
+    { name: "Album", path: "/AlbumManager" },
     { name: "Catalogue de sorties", path: "/catalogue" },
   ];
 
   return (
-    <aside className="w-64 bg-blue-900 text-white p-5 h-screen flex flex-col">
-      <h2 className="text-2xl font-bold mb-6">Tableau de bord</h2>
-      <nav className="space-y-4 flex-1">
-        {menuItems.map(({ name, path }) => (
-          <Link key={name} href={path} className="block hover:underline">
-            {name}
-          </Link>
-        ))}
-      </nav>
-      
-      {/* 🔹 Bouton Déconnexion en bas */}
-      <button
-        onClick={handleLogout}
-        className="mt-4 p-2 bg-red-600 hover:bg-red-700 text-white rounded w-full"
-      >
-        Déconnexion
-      </button>
-    </aside>
+    <div>
+      <BlueBackground>
+        <aside className="w-64 text-white p-5 h-screen flex flex-col">
+          <h2 className="text-2xl font-bold mb-6">Tableau de bord</h2>
+          <nav className="space-y-4 flex-1">
+            {menuItems.map(({ name, path }) => (
+              <Link key={name} href={path} className="block hover:underline">
+                {name}
+              </Link>
+            ))}
+          </nav>
+          
+          {/* 🔹 Bouton Déconnexion en bas */}
+          <button
+            onClick={handleLogout}
+            className="mt-4 p-2 bg-red-600 hover:bg-red-700 text-white rounded w-full"
+          >
+            Déconnexion
+          </button>
+        </aside>
+      </BlueBackground>
+      </div>
   );
 }

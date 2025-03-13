@@ -5,6 +5,8 @@ import { FaTrash, FaEye, FaUpload, FaSort, FaFolderOpen, FaFolder, FaChevronRigh
 import { createClient } from "@supabase/supabase-js";
 import ModalAddDocument from "../components/ModalAddDocument";
 import Image from 'next/image';
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
@@ -114,7 +116,7 @@ export default function Document() {
   };
 
   return (
-    <div className="flex">
+    <div className="">
       <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
       
       <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
@@ -209,6 +211,8 @@ export default function Document() {
         {/* Affichage du modal */}
         {/* <ModalAddDocument isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> */}
       </div>
+      <Sidebar/>
+      <Footer/>
     </div>
   );
 }
