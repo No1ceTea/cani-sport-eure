@@ -128,6 +128,49 @@ export default function AlbumManager() {
     }
   };
 
+  const handleDeletePhoto = async (photo: Photo) => {
+    if (!confirm(`Supprimer la photo ${photo.name} ?`)) return;
+  
+    const { error } = await supabase.storage.from("photo").remove([`${photo.album_id}/${photo.name}`]);
+  
+    if (error) {
+      console.error("❌ Erreur de suppression :", error);
+      alert("Erreur de suppression !");
+    } else {
+      setPhotos(photos.filter((p) => p.id !== photo.id));
+    }
+  };
+  
+  const handleDeleteAlbum = async (album: Album) => {
+    if (!confirm(`Supprimer l'album ${album.name} et tout son contenu ?`)) return;
+  
+    // 📌 1. Récupérer les fichiers de l'album
+    const { data, error } = await supabase.storage.from("photo").list(album.id);
+  
+    if (error) {
+      console.error("❌ Erreur de récupération des fichiers :", error);
+      alert("Erreur lors de la suppression !");
+      return;
+    }
+  
+    // 📌 2. Supprimer tous les fichiers de l'album
+    if (data.length > 0) {
+      const filesToDelete = data.map((file) => `${album.id}/${file.name}`);
+      await supabase.storage.from("photo").remove(filesToDelete);
+    }
+  
+    // 📌 3. Supprimer le dossier en supprimant le fichier placeholder
+    const { error: deleteError } = await supabase.storage.from("photo").remove([`${album.id}/.emptyFolderPlaceholder`]);
+  
+    if (deleteError) {
+      console.error("❌ Erreur de suppression de l'album :", deleteError);
+      alert("Erreur lors de la suppression !");
+    } else {
+      setAlbums(albums.filter((a) => a.id !== album.id));
+    }
+  };
+  
+
 
   const handleUploadPhotos = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
@@ -220,9 +263,9 @@ export default function AlbumManager() {
                     </td>
                     <td className="p-4">{album.createdAt}</td>
                     <td className="p-4 flex justify-center gap-4">
-                      <button className="text-red-500 hover:text-red-700">
-                        <FaTrash />
-                      </button>
+                    <button onClick={() => handleDeleteAlbum(album)} className="text-red-500 hover:text-red-700">
+                      <FaTrash />
+                    </button>
                     </td>
                   </tr>
                 ))}
@@ -241,9 +284,9 @@ export default function AlbumManager() {
                     </td>
                     <td className="p-4">{photo.createdAt}</td>
                     <td className="p-4 flex justify-center gap-4">
-                      <button className="text-red-500 hover:text-red-700">
-                        <FaTrash />
-                      </button>
+                    <button onClick={() => handleDeletePhoto(photo)} className="text-red-500 hover:text-red-700">
+                      <FaTrash />
+                    </button>
                     </td>
                   </tr>
                 ))}
