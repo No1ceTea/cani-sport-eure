@@ -1,11 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { v4 as uuidv4 } from "uuid"; // Importation de la fonction uuidv4
-import supabase from "../../lib/supabaseClient";
-// Par exemple dans App.tsx ou index.tsx
-import './AddEvent.css'; // Assurez-vous d'utiliser le bon chemin en fonction de l'emplacement de votre fichier CSS
-
-
+import { v4 as uuidv4 } from "uuid";
+import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import "./AddEvent.css"; // Assurez-vous du bon chemin
 
 interface ModalProps {
   isOpen: boolean;
@@ -15,15 +13,42 @@ interface ModalProps {
 const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState<File | null>(null); // État pour l'image
-  const [date, setDate] = useState<string>(""); // État pour la date
-  const [isExternal, setIsExternal] = useState<boolean>(false); // État pour gérer le switch interne/externe
+  const [image, setImage] = useState<File | null>(null);
+  const [date, setDate] = useState("");
+  const [isExternal, setIsExternal] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const supabase = createClientComponentClient();
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (!sessionData.session) {
+        console.log("🔴 Utilisateur non connecté");
+        return;
+      }
+
+      const { data: userData, error } = await supabase.auth.getUser();
+      if (error || !userData?.user) {
+        console.error("❌ Erreur récupération utilisateur :", error);
+        return;
+      }
+
+      setUserId(userData.user.id);
+      setIsLoading(false);
+    };
+
+    checkUser();
+  }, []); // Suppression de `supabase` des dépendances
 
   if (!isOpen) return null;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
-    if (file) setImage(file);
+    setImage(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,48 +56,40 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
     let imageUrl = "";
 
-    // Si une image est sélectionnée, on la télécharge
     if (image) {
-      const uniqueFileName = `${uuidv4()}-${image.name}`; // Génération d'un nom unique pour l'image
-
+      const uniqueFileName = `${uuidv4()}-${image.name}`;
       const { data, error } = await supabase.storage
-        .from("images") // Nom du bucket dans Supabase
-        .upload(`publications/${uniqueFileName}`, image); // Utilisation du nom unique pour l'image
+        .from("images")
+        .upload(`evenements/${uniqueFileName}`, image);
 
       if (error) {
-        console.error("Erreur lors du téléchargement de l'image:", error.message);
+        console.error("Erreur upload image:", error.message);
         alert("Erreur lors du téléchargement de l'image.");
         return;
       }
 
-      // Si l'image est téléchargée avec succès, on obtient l'URL publique
-      imageUrl = data?.path ? supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl : "";
+      imageUrl = data?.path
+        ? supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl
+        : "";
     }
 
-    // Définir idType et idAuteur
-    const idType = 1; // Remplacer avec la valeur appropriée
-    const idAuteur = 1; // Remplacer avec la valeur appropriée
-
-    // Insérer l'article dans la base de données, avec ou sans image
-    const { data, error } = await supabase
-      .from("publication")
-      .insert([
-        {
-          titre: title,
-          contenu: content,
-          date_publication: date, // Ajout de la date
-          statut: isExternal ? "Externe" : "Interne", // Ajout de la valeur du switch
-          image_url: imageUrl, // On ajoute l'URL de l'image à la publication
-        },
-      ]);
+    const { error } = await supabase.from("evenements").insert([
+      {
+        titre: title,
+        contenu: content,
+        date,
+        type: isExternal ? "Externe" : "Interne",
+        image_url: imageUrl,
+        id_profil: userId,
+      },
+    ]);
 
     if (error) {
-      console.error("Erreur lors de la création de l'article:", error); // Affichage complet de l'erreur
-      alert("Erreur lors de la création de l'article.");
+      console.error("Erreur lors de la création de l'événement:", error);
+      alert("Erreur lors de la création de l'événement.");
     } else {
-      console.log("Article créé avec succès:", data);
-      alert("Article créé avec succès!");
-      onClose(); // Fermer la modal
+      alert("Événement créé avec succès!");
+      onClose();
     }
   };
 
@@ -86,7 +103,6 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
         <div>
-          {/* Align Title and Date on the Same Line */}
           <div className="mb-3 flex items-center justify-between">
             <div className="w-[65%]">
               <label className="block text-gray-700 mb-1">Titre</label>
@@ -119,7 +135,6 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Switch for internal/external */}
           <div className="mb-3 flex items-center">
             <label className="block text-gray-700 mb-1 mr-2">Statut</label>
             <label className="switch">
@@ -134,18 +149,11 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="flex items-center justify-start">
-            <input
-              type="file"
-              className="border p-2"
-              onChange={handleImageChange}
-            />
+            <input type="file" className="border p-2" onChange={handleImageChange} />
           </div>
         </div>
         <div className="flex justify-center pb-4">
-          <button
-            className="bg-blue-700 text-white py-2 px-6 rounded"
-            onClick={handleSubmit}
-          >
+          <button className="bg-blue-700 text-white py-2 px-6 rounded" onClick={handleSubmit}>
             Créer un événement
           </button>
         </div>

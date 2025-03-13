@@ -1,127 +1,123 @@
-"use client";
-
 import { useState } from "react";
 import Image from "next/image";
-import { Trash2, Edit } from "lucide-react";
-import EditEventModal from "./EditEventModal"; // Importation du modal de modification
-import supabase from "../../lib/supabaseClient"; // Importation de Supabase
+import { FaEdit, FaTrash } from "react-icons/fa";
+import EditEventModal from "./EditEventModal";
+import supabase from "../../lib/supabaseClient";
+
+interface Auteur {
+  nom: string;
+  avatar_url: string;
+}
 
 interface Event {
   id: number;
   titre: string;
   contenu: string;
-  datePublication: string;
+  date: string;
+  created_at : string ;
+
   image_url: string;
-  auteur: {
-    nom: string;
-    avatar_url: string;
-  };
+  type: string;
+  auteur: Auteur;
 }
 
 interface EventCardProps {
   event: Event;
 }
 
+// Fonction pour calculer le temps écoulé depuis la publication
+const timeSince = (date: string) => {
+
+  console.log("date", date);
+  const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+  if (seconds < 60) return `Il y a ${seconds} secondes`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `Il y a ${minutes} minutes`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Il y a ${hours} heures`;
+  const days = Math.floor(hours / 24);
+  return `Il y a ${days} jours`;
+};
+
 const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-  const handleOpenEditModal = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-  };
-
-  const handleOpenDeleteConfirm = () => {
-    setIsDeleteConfirmOpen(true);
-  };
-
-  const handleCloseDeleteConfirm = () => {
-    setIsDeleteConfirmOpen(false);
-  };
+  const handleOpenEditModal = () => setIsEditModalOpen(true);
+  const handleCloseEditModal = () => setIsEditModalOpen(false);
+  const handleOpenDeleteConfirm = () => setIsDeleteConfirmOpen(true);
+  const handleCloseDeleteConfirm = () => setIsDeleteConfirmOpen(false);
 
   const handleDelete = async () => {
-    const { error } = await supabase
-      .from("events")
-      .delete()
-      .eq("id", event.id);
-
+    const { error } = await supabase.from("evenements").delete().eq("id", event.id);
     if (error) {
       console.error("Erreur lors de la suppression de l'événement:", error);
       alert("Erreur lors de la suppression de l'événement.");
     } else {
       alert("Événement supprimé avec succès!");
       handleCloseDeleteConfirm();
-      // Vous pouvez ajouter une logique supplémentaire ici pour mettre à jour l'état parent si nécessaire
     }
   };
 
+  // Utilisation de la fonction `timeSince` pour formater la date
+  const formattedDate = timeSince(event.created_at);
+
   return (
-    <div className="relative border rounded-lg p-4 shadow-lg bg-white">
-      {/* Icônes en haut à droite */}
-      <div className="absolute top-2 right-2 flex space-x-2">
-        <button className="text-gray-500 hover:text-red-500" onClick={handleOpenDeleteConfirm}>
-          <Trash2 size={18} />
-        </button>
-        <button className="text-gray-500 hover:text-blue-500" onClick={handleOpenEditModal}>
-          <Edit size={18} />
-        </button>
+    <div className="bg-white shadow-lg rounded-lg p-4 border relative">
+      {/* Boutons Modifier/Supprimer */}
+      <div className="absolute top-3 right-3 flex space-x-2 text-gray-600">
+        <FaTrash className="cursor-pointer hover:text-red-500" onClick={handleOpenDeleteConfirm} />
+        <FaEdit className="cursor-pointer hover:text-blue-500" onClick={handleOpenEditModal} />
       </div>
 
-      {/* Avatar et infos auteur */}
-      <div className="flex items-center space-x-3">
+      {/* Auteur */}
+      <div className="flex items-center mb-3">
         <Image
           src={event.auteur.avatar_url}
-          alt="Avatar"
+          alt="Photo de l'auteur"
           width={40}
           height={40}
-          className="rounded-full"
+          className="rounded-full border"
         />
-        <div>
-          <p className="font-bold">{event.auteur.nom}</p>
-          <p className="text-sm text-gray-500">{event.datePublication}</p>
+        <div className="ml-3">
+          <p className="font-semibold">{event.auteur.nom}</p>
+          <p className="text-xs text-gray-500">{formattedDate}</p>
+          <p className="text-xs font-medium text-blue-700">{event.type}</p>
         </div>
       </div>
 
-      {/* Contenu de l'événement */}
-      <h2 className="text-xl font-semibold mt-2">{event.titre}</h2>
-      <p className="text-gray-700">{event.contenu}</p>
+      {/* Date de publication */}
+      <p className="text-lg font-semibold mb-2">{new Date(event.date).toLocaleDateString()}</p>
+
+      {/* Contenu */}
+      <h3 className="font-bold text-lg">{event.titre}</h3>
+      <p className="text-gray-700 mb-3">{event.contenu}</p>
 
       {/* Image de l'événement */}
-      <Image
-        src={event.image_url}
-        alt="Event Image"
-        width={600}
-        height={300}
-        className="mt-2 rounded-lg"
-      />
+      {event.image_url && (
+        <Image
+          src={event.image_url}
+          alt={event.titre}
+          width={500}
+          height={250}
+          className="rounded-lg"
+        />
+      )}
 
       {/* Modal de modification */}
-      <EditEventModal
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        articleId={event.id.toString()}
-      />
+      <EditEventModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} articleId={event.id.toString()} />
 
       {/* Pop-up de confirmation de suppression */}
       {isDeleteConfirmOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Voulez-vous vraiment supprimer cet article ?</h2>
+            <h2 className="text-xl font-semibold mb-4">Voulez-vous vraiment supprimer cet événement ?</h2>
             <div className="flex justify-end space-x-4">
-              <button
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
-                onClick={handleCloseDeleteConfirm}
-              >
+              <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded" onClick={handleCloseDeleteConfirm}>
                 Annuler
               </button>
-              <button
-                className="bg-red-600 text-white px-4 py-2 rounded"
-                onClick={handleDelete}
-              >
-                Supprimer l’article
+              <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleDelete}>
+                Supprimer
               </button>
             </div>
           </div>

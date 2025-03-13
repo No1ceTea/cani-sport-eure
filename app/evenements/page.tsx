@@ -1,60 +1,61 @@
 "use client";
 
-import { useState } from 'react';
-import EventCard from '../components/EventCard';
-import AddEventModal from '../components/AddEventModal';
+import { useEffect, useState } from "react";
+import EventCard from "../components/EventCard";
+import AddEventModal from "../components/AddEventModal";
+import supabase from "../../lib/supabaseClient";
 
-const fakeEvents = [
-  {
-    id: 1,
-    titre: "Canicross en forêt 🌲",
-    contenu: "Rejoignez-nous pour une session de canicross dans les bois ! 🐕‍🦺",
-    datePublication: "Publié le 1 mars 2025",
-    type: "Course",
-    auteur: {
-      nom: "Marie Dupont",
-      avatar_url: "https://i.pravatar.cc/300?img=5",
-    },
-    image_url: "https://source.unsplash.com/600x300/?dog,run",
-  },
-  {
-    id: 2,
-    titre: "Atelier initiation CanivTT 🚴‍♂️",
-    contenu: "Découvrez les bases du cani-VTT avec nos experts.",
-    datePublication: "Publié le 2 mars 2025",
-    type: "Atelier",
-    auteur: {
-      nom: "Lucas Martin",
-      avatar_url: "https://i.pravatar.cc/300?img=8",
-    },
-    image_url: "https://source.unsplash.com/600x300/?mountain,bike",
-  },
-  {
-    id: 3,
-    titre: "Séance d'entraînement 🏋️‍♂️",
-    contenu: "Séance spéciale pour améliorer la vitesse et l'endurance.",
-    datePublication: "Publié le 3 mars 2025",
-    type: "Entraînement",
-    auteur: {
-      nom: "Sophie Lambert",
-      avatar_url: "https://i.pravatar.cc/300?img=12",
-    },
-    image_url: "https://source.unsplash.com/600x300/?fitness,dog",
-  },
-];
-
-interface ModalProps {
-  isOpen: boolean;
-  closeModal: () => void;
+interface Event {
+  id: number;
+  titre: string;
+  contenu: string;
+  date: string;
+  created_at : string ;
+  image_url: string;
+  id_profil: number;
+  auteur: {
+    nom: string;
+    avatar_url: string;
+  };
 }
 
-
-
 const EventsPage = () => {
+  const [events, setEvents] = useState<Event[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const { data, error } = await supabase.from("evenements").select("*");
+
+      if (error) {
+        console.error("Erreur lors de la récupération des événements:", error);
+        return;
+      }
+
+      // Récupérer les informations des auteurs pour chaque événement
+      const eventsWithProfiles = await Promise.all(
+        data.map(async (event) => {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profils")
+            .select("nom, photo_profil")
+            .eq("id", event.id_profil)
+            .single();
+
+          return {
+            ...event,
+            auteur: {
+              nom: profileData?.nom || "Auteur inconnu",
+              avatar_url: profileData?.photo_profil || "/default-avatar.png",
+            },
+          };
+        })
+      );
+
+      setEvents(eventsWithProfiles);
+    };
+
+    fetchEvents();
+  }, []); // Dépendances vides pour ne s'exécuter qu'une seule fois
 
   return (
     <div className="flex relative">
@@ -69,14 +70,14 @@ const EventsPage = () => {
         </ul>
         <button
           className="mt-6 bg-yellow-400 text-black p-2 rounded flex items-center justify-center w-full"
-          onClick={openModal}
+          onClick={() => setIsModalOpen(true)}
         >
           ➕ Ajouter événement
         </button>
       </aside>
 
       {/* Contenu Principal */}
-      <div className={`flex-1 p-6 ${isModalOpen ? 'pointer-events-none opacity-50' : ''}`}>
+      <div className={`flex-1 p-6 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Liste des Événements</h1>
           <div className="relative">
@@ -91,14 +92,14 @@ const EventsPage = () => {
 
         {/* Grid des événements */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {fakeEvents.map((event) => (
+          {events.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>
       </div>
 
       {/* Modal */}
-      <AddEventModal isOpen={isModalOpen} onClose={closeModal} />
+      <AddEventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };
