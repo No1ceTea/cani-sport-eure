@@ -59,44 +59,44 @@ const SortiesPage = () => {
     : tracks;
 
   return (
-          
-    <div style={{ padding: "20px", textAlign: "center" }}>
-
-
-      <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
-      style={{
-        fontSize: "36px",
-        fontFamily: "opendyslexic, sans-serif",
-      }}>Liste des sorties canines</h1>
-
-      {/* 📌 Ajout du filtre avec gestion du sport sélectionné */}
-      <div style={{marginBottom: "40px"}}>
-      <Filter selectedSport={selectedSport} onSportChange={handleSportFilter} />
-      </div>
-
-      {/* 📌 GRILLE EN 3 COLONNES */}
-      <div
+    
+    <div className="">
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)", // ✅ 3 colonnes fixes
-          gap: "15px", // ✅ Réduction de l'espacement
-          justifyContent: "center",
-          alignItems: "center",
-          maxWidth: "1000px", // ✅ Ajustement de la largeur max
-          margin: "auto",
-        }}
-      >
-        {filteredTracks.map((track) => (
-          <div
-            key={track.id}
-            style={{
-              width: "280px",
-              margin: "auto",
-            }}
-          >
-            <MapWithStats trackData={track} />
-          </div>
-        ))}
+          fontSize: "36px",
+          fontFamily: "opendyslexic, sans-serif",
+        }}>Liste des sorties canines</h1>
+
+        {/* 📌 Ajout du filtre avec gestion du sport sélectionné */}
+        <div style={{marginBottom: "40px"}}>
+        <Filter selectedSport={selectedSport} onSportChange={handleSportFilter} />
+        </div>
+
+        {/* 📌 GRILLE EN 3 COLONNES */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)", // ✅ 3 colonnes fixes
+            gap: "15px", // ✅ Réduction de l'espacement
+            justifyContent: "center",
+            alignItems: "center",
+            maxWidth: "1000px", // ✅ Ajustement de la largeur max
+            margin: "auto",
+          }}
+        >
+          {filteredTracks.map((track) => (
+            <div
+              key={track.id}
+              style={{
+                width: "280px",
+                margin: "auto",
+              }}
+            >
+              <MapWithStats trackData={track} />
+            </div>
+          ))}
+        </div>
       </div>
       <Sidebar />
       <Footer />

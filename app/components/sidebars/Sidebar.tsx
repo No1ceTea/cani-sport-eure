@@ -71,13 +71,13 @@ export default function Sidebar({ session = null }: SidebarProps) {
               </a>
             </li>
             <li>
-              <a href="/evenements" className="hover:text-gray-300">
-                Événements
+              <a href="/articles" className="hover:text-gray-300">
+                Articles
               </a>
             </li>
             <li>
-              <a href="/articles" className="hover:text-gray-300">
-                Articles
+              <a href="/evenements" className="hover:text-gray-300">
+                Événements
               </a>
             </li>
             <li>
