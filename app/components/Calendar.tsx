@@ -1,12 +1,12 @@
 "use client";
 
 import "moment/locale/fr";
-moment.locale("fr");
 import { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
+moment.locale("fr");
 const localizer = momentLocalizer(moment);
 
 interface EventData {
@@ -18,24 +18,31 @@ interface EventData {
 
 export default function MyCalendar() {
   const [events, setEvents] = useState<EventData[]>([]);
+  const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
+  const [updatedTitle, setUpdatedTitle] = useState("");
 
   useEffect(() => {
-    fetch("/api/calendar")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setEvents(
-            data.map((event: any) => ({
-              id: event.id,
-              title: event.summary,
-              start: new Date(event.start.dateTime || event.start.date),
-              end: new Date(event.end.dateTime || event.end.date),
-            }))
-          );
-        }
-      })
-      .catch((err) => console.error("Erreur API Calendar:", err));
+    fetchEvents();
   }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch("/api/calendar");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setEvents(
+          data.map((event: any) => ({
+            id: event.id,
+            title: event.summary,
+            start: new Date(event.start.dateTime || event.start.date),
+            end: new Date(event.end.dateTime || event.end.date),
+          }))
+        );
+      }
+    } catch (err) {
+      console.error("Erreur API Calendar:", err);
+    }
+  };
 
   const handleSelectSlot = async ({ start, end }: { start: Date; end: Date }) => {
     const title = prompt("Nom de l'événement ?");
@@ -50,7 +57,7 @@ export default function MyCalendar() {
     });
 
     if (res.ok) {
-      setEvents([...events, { id: Math.random().toString(), ...newEvent }]);
+      fetchEvents();
     } else {
       alert("Erreur lors de l'ajout de l'événement.");
     }
@@ -62,7 +69,7 @@ export default function MyCalendar() {
     const res = await fetch("/api/calendar", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: eventId }), // ✅ Envoie bien l'ID de l'événement
+      body: JSON.stringify({ id: eventId }),
     });
 
     if (res.ok) {
@@ -71,6 +78,36 @@ export default function MyCalendar() {
       alert("Erreur lors de la suppression.");
     }
   };
+
+  const handleEdit = (event: EventData) => {
+    setEditingEvent(event);
+    setUpdatedTitle(event.title);
+  };
+
+  const handleUpdate = async () => {
+    if (!editingEvent) return;
+  
+    const updatedEvent = {
+      summary: updatedTitle,
+      start: { dateTime: editingEvent.start.toISOString() },
+      end: { dateTime: editingEvent.end.toISOString() },
+    };
+  
+    const response = await fetch("/api/calendar/update-event", {  // ✅ Chemin correct
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventId: editingEvent.id, updatedEvent }),
+    });
+  
+    if (response.ok) {
+      alert("Événement mis à jour !");
+      fetchEvents();
+      setEditingEvent(null);
+    } else {
+      alert("Erreur lors de la mise à jour");
+    }
+  };
+  
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg">
@@ -83,7 +120,7 @@ export default function MyCalendar() {
         selectable
         style={{ height: 500 }}
         onSelectSlot={handleSelectSlot}
-        onSelectEvent={(event) => deleteEvent(event.id)}
+        onSelectEvent={(event) => handleEdit(event)}
         messages={{
           allDay: "Journée entière",
           previous: "Précédent",
@@ -98,16 +135,51 @@ export default function MyCalendar() {
           event: "Événement",
         }}
       />
-      <ul>
+      <ul className="mt-4">
         {events.map((event) => (
-          <li key={event.id}>
-            {event.title} - {event.start.toLocaleDateString("fr-FR")}
-            <button onClick={() => deleteEvent(event.id)} className="ml-2 text-red-500">
-              🗑 Supprimer
-            </button>
+          <li key={event.id} className="border p-2 flex justify-between">
+            <span>{event.title} - {event.start.toLocaleDateString("fr-FR")}</span>
+            <div>
+              <button
+                onClick={() => handleEdit(event)}
+                className="text-blue-500 hover:underline mr-2"
+              >
+                ✏️ Modifier
+              </button>
+              <button
+                onClick={() => deleteEvent(event.id)}
+                className="text-red-500 hover:underline"
+              >
+                🗑 Supprimer
+              </button>
+            </div>
           </li>
         ))}
       </ul>
+
+      {editingEvent && (
+        <div className="mt-4 p-4 border rounded bg-gray-100">
+          <h3 className="text-md font-semibold">Modifier l'événement</h3>
+          <input
+            type="text"
+            value={updatedTitle}
+            onChange={(e) => setUpdatedTitle(e.target.value)}
+            className="border p-2 w-full mt-2"
+          />
+          <button
+            onClick={handleUpdate}
+            className="bg-blue-500 text-white p-2 mt-2 rounded"
+          >
+            ✅ Sauvegarder
+          </button>
+          <button
+            onClick={() => setEditingEvent(null)}
+            className="ml-2 text-red-500 hover:underline"
+          >
+            ❌ Annuler
+          </button>
+        </div>
+      )}
     </div>
   );
 }
