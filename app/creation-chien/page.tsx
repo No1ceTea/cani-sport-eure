@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
 
 const supabase = createClientComponentClient();
 
@@ -103,70 +105,74 @@ export default function PetProfileForm() {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
-      <h1 className="absolute top-6 left-6 text-4xl primary_title !text-black">
-        Créer un profil chien
-      </h1>
+    <div className="">
+      <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
+        <h1 className="absolute top-6 left-6 text-4xl primary_title !text-black">
+          Créer un profil chien
+        </h1>
 
-      <div className="flex flex-col items-center h-[600px] w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
-        <div className="flex flex-col items-center mb-4">
-          <label htmlFor="photo-upload" className="cursor-pointer">
-            {photoPreview ? (
-              <img
-                src={photoPreview}
-                alt="Photo du chien"
-                className="w-32 h-32 object-cover rounded-lg shadow-lg"
-              />
-            ) : (
-              <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
-                Ajouter une photo
+        <div className="flex flex-col items-center h-[600px] w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
+          <div className="flex flex-col items-center mb-4">
+            <label htmlFor="photo-upload" className="cursor-pointer">
+              {photoPreview ? (
+                <img
+                  src={photoPreview}
+                  alt="Photo du chien"
+                  className="w-32 h-32 object-cover rounded-lg shadow-lg"
+                />
+              ) : (
+                <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
+                  Ajouter une photo
+                </div>
+              )}
+            </label>
+            <input
+              id="photo-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+
+          <div className="space-y-6 w-full">
+            {["prenom", "race", "date_de_naissance", "numero_de_puce"].map((field) => (
+              <div key={field} className="flex items-center">
+                <label className="text-sm w-40 text-white capitalize">
+                  {field.replace(/_/g, " ")}
+                </label>
+                <input
+                  name={field}
+                  value={form[field] as string}
+                  onChange={handleChange}
+                  className="flex-1 p-2 text-black rounded-lg"
+                />
               </div>
-            )}
-          </label>
-          <input
-            id="photo-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-        </div>
-
-        <div className="space-y-6 w-full">
-          {["prenom", "race", "date_de_naissance", "numero_de_puce"].map((field) => (
-            <div key={field} className="flex items-center">
-              <label className="text-sm w-40 text-white capitalize">
-                {field.replace(/_/g, " ")}
-              </label>
+            ))}
+            <div className="flex items-center">
+              <label className="text-sm w-40 text-white">Âge</label>
               <input
-                name={field}
-                value={form[field] as string}
+                type="number"
+                name="age"
+                value={form.age as number}
                 onChange={handleChange}
                 className="flex-1 p-2 text-black rounded-lg"
               />
             </div>
-          ))}
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Âge</label>
-            <input
-              type="number"
-              name="age"
-              value={form.age as number}
-              onChange={handleChange}
-              className="flex-1 p-2 text-black rounded-lg"
-            />
+          </div>
+
+          <div className="flex justify-center items-center mt-auto space-x-4 pb-4">
+            <button
+              onClick={handleSubmit}
+              className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md"
+            >
+              Enregistrer
+            </button>
           </div>
         </div>
-
-        <div className="flex justify-center items-center mt-auto space-x-4 pb-4">
-          <button
-            onClick={handleSubmit}
-            className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md"
-          >
-            Enregistrer
-          </button>
-        </div>
       </div>
+      <Sidebar />
+      <Footer />    
     </div>
   );
 }

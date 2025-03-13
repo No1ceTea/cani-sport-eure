@@ -3,7 +3,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
-
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
 
 const supabase = createClientComponentClient();
 
@@ -143,60 +144,64 @@ export default function UserProfileForm() {
   if (!isMounted) return null;
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
-      <h1 className="absolute top-6 left-6 text-4xl primary_title !text-black">Profil utilisateur</h1>
-      <div className="flex flex-col items-center h-auto w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
-        <div className="flex flex-col items-center mb-4">
-          <label htmlFor="photo-upload" className="cursor-pointer">
-            {photoPreview ? (
-              <img src={photoPreview} alt="Photo de profil" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
-            ) : (
-              <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
-                Ajouter une photo
-              </div>
-            )}
-          </label>
-          <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-        </div>
+    <div className="">
+      <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
+        <h1 className="absolute top-6 left-6 text-4xl primary_title !text-black">Profil utilisateur</h1>
+        <div className="flex flex-col items-center h-auto w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
+          <div className="flex flex-col items-center mb-4">
+            <label htmlFor="photo-upload" className="cursor-pointer">
+              {photoPreview ? (
+                <img src={photoPreview} alt="Photo de profil" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
+              ) : (
+                <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
+                  Ajouter une photo
+                </div>
+              )}
+            </label>
+            <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+          </div>
 
-        <div className="space-y-4 w-full">
-          {(["nom", "prenom", "telephone", "adresse", "date_de_naissance", "date_renouvellement", "licence"] as (keyof typeof form)[]).map((field) => (
-            <div key={field} className="flex items-center">
-              <label className="text-sm w-40 text-white capitalize">{field.replace(/_/g, " ")}</label>
-              <input
-                type={field.includes("date") ? "date" : "text"}
-                name={field}
-                value={form[field]}
-                onChange={handleChange}
-                className="flex-1 p-2 text-black rounded-lg"
-              />
+          <div className="space-y-4 w-full">
+            {(["nom", "prenom", "telephone", "adresse", "date_de_naissance", "date_renouvellement", "licence"] as (keyof typeof form)[]).map((field) => (
+              <div key={field} className="flex items-center">
+                <label className="text-sm w-40 text-white capitalize">{field.replace(/_/g, " ")}</label>
+                <input
+                  type={field.includes("date") ? "date" : "text"}
+                  name={field}
+                  value={form[field]}
+                  onChange={handleChange}
+                  className="flex-1 p-2 text-black rounded-lg"
+                />
+              </div>
+            ))}
+            <div className="flex items-center">
+              <label className="text-sm w-40 text-white">Email</label>
+              <input name="email" value={form.email} className="flex-1 p-2 text-gray-500 bg-gray-300 rounded-lg" disabled />
             </div>
-          ))}
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Email</label>
-            <input name="email" value={form.email} className="flex-1 p-2 text-gray-500 bg-gray-300 rounded-lg" disabled />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {chiens.map((chien) => (
+              <button 
+                key={chien.id} 
+                onClick={() => router.push(`/creation-chien/${chien.id}`)} 
+                className="bg-white px-3 py-1 rounded-full text-black shadow-md hover:bg-gray-300"
+              >
+                {chien.prenom}
+              </button>
+            ))}
+            <button onClick={() => router.push("/creation-chien")} className="bg-white px-3 py-1 rounded-full text-black shadow-md">+</button>
+          </div>
+
+          {/* Boutons */}
+          <div className="flex justify-center items-center mt-6 space-x-4 pb-4">
+            <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md">
+              Enregistrer les modifications
+            </button>
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {chiens.map((chien) => (
-            <button 
-              key={chien.id} 
-              onClick={() => router.push(`/creation-chien/${chien.id}`)} 
-              className="bg-white px-3 py-1 rounded-full text-black shadow-md hover:bg-gray-300"
-            >
-              {chien.prenom}
-            </button>
-          ))}
-          <button onClick={() => router.push("/creation-chien")} className="bg-white px-3 py-1 rounded-full text-black shadow-md">+</button>
-        </div>
-
-        {/* Boutons */}
-        <div className="flex justify-center items-center mt-6 space-x-4 pb-4">
-          <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md">
-            Enregistrer les modifications
-          </button>
-        </div>
       </div>
+      <Sidebar />
+      <Footer />      
     </div>
   );
 }
