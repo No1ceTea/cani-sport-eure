@@ -27,40 +27,68 @@ const ModalAdd = ({ isOpen, onClose }) => {
       setMessage("❌ Veuillez remplir tous les champs.");
       return;
     }
-
+  
     setUploading(true);
     setMessage("📡 Upload en cours...");
-
+  
     const dateTime = `${uploadDate}T${uploadTime}`;
     const sanitizedFileName = file.name.replace(/\s+/g, "_");
     const filePath = `gpx-files/${sanitizedFileName}`;
-
-    // 📌 Étape 1 : Upload du fichier GPX
+  
+    // 📌 Étape 1 : Lire le fichier GPX
+    const fileContent = await file.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(fileContent, "text/xml");
+  
+    // 📌 Étape 2 : Extraire les coordonnées GPS
+    const trkpts = xmlDoc.getElementsByTagName("trkpt");
+    let coordinates = [];
+  
+    for (let i = 0; i < trkpts.length; i++) {
+      const lat = trkpts[i].getAttribute("lat");
+      const lon = trkpts[i].getAttribute("lon");
+      const eleTag = trkpts[i].getElementsByTagName("ele");
+      const ele = eleTag.length > 0 ? eleTag[0].textContent : "0"; // Élément optionnel
+      coordinates.push(`${lon} ${lat} ${ele}`);
+    }
+  
+    if (coordinates.length === 0) {
+      setMessage("❌ Impossible d'extraire les coordonnées GPS du fichier.");
+      setUploading(false);
+      return;
+    }
+  
+    // 📌 Étape 3 : Transformer en WKT (Well-Known Text)
+    const linestringZ = `LINESTRINGZ(${coordinates.join(", ")})`;
+    console.log("📌 WKT corrigé :", linestringZ);
+  
+    // 📌 Étape 4 : Upload du fichier GPX
     const { error: uploadError } = await supabase.storage
       .from("gpx-files")
       .upload(filePath, file, { upsert: true });
-
+  
     if (uploadError) {
       console.error("❌ Erreur d'upload :", uploadError);
       setMessage("❌ Erreur lors de l'upload.");
       setUploading(false);
       return;
     }
-
-    // 📌 Étape 2 : Récupération de l'URL publique
+  
+    // 📌 Étape 5 : Récupération de l'URL publique
     const { data: publicUrlData } = await supabase.storage.from("gpx-files").getPublicUrl(filePath);
     const publicUrl = publicUrlData.publicUrl || `https://your-supabase-url/storage/v1/object/public/${filePath}`;
-
-    // 📌 Étape 3 : Envoi en base de données
+  
+    // 📌 Étape 6 : Envoi en base de données avec `geom`
     const { error: dbError } = await supabase.from("gpx_tracks").insert([
       {
         name: title,
         sport: sport,
         date_time: new Date(dateTime).toISOString(),
         file_url: publicUrl,
+        geom: linestringZ, // ✅ Ajout du champ `geom`
       },
     ]);
-
+  
     if (dbError) {
       console.error("❌ Erreur d'insertion en base :", dbError);
       setMessage("❌ Erreur d'insertion en base.");
@@ -68,7 +96,7 @@ const ModalAdd = ({ isOpen, onClose }) => {
       setMessage("✅ Fichier GPX ajouté avec succès !");
       onClose(); // ✅ Ferme le modal après succès
     }
-
+  
     setUploading(false);
   };
 
