@@ -5,3 +5,40 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* styles/globals.css ou app/globals.css */
+.primary_button {
+  @apply bg-blue_primary text-white border-2 border-black_stroke rounded-full px-8 py-3 text-lg font-semibold transition-all duration-300 shadow-lg hover:bg-blue_primary_hover;
+}
+
+.primary_bg {
+  @apply bg-blue_primary;
+}
+
+.primary_title {
+  @apply text-white font-bold font-opendyslexic drop-shadow-lg;
+}
+
+.primary_text {
+  @apply text-white text-sm sm:text-lg font-calibri drop-shadow-md text-center;
+}
+
+.add_border {
+  @apply border-2 border-black_stroke;
+}
+
+.primary_title_black {
+  @apply text-black font-bold font-opendyslexic drop-shadow-lg;
+}
+
+.primary_text_black {
+  @apply text-black text-sm sm:text-lg font-calibri drop-shadow-md text-center;
+}
+
+.primary_title_blue {
+  @apply text-dark_blue_primary font-bold font-opendyslexic drop-shadow-lg;
+}
+
+.primary_text_blue {
+  @apply text-dark_blue_primary text-sm sm:text-lg font-calibri drop-shadow-md text-center;
+}
