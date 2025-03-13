@@ -98,7 +98,7 @@ export default function PetProfileForm() {
       alert("Erreur lors de l'enregistrement.");
     } else {
       alert("Le profil du chien a été enregistré avec succès !");
-      router.push("/profile");
+      router.push("/creation-profil");
     }
   };
 
