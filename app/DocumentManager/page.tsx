@@ -275,7 +275,7 @@ export default function DocumentManager() {
               />
 
               {/* Sélection du Niveau d'Accès */}
-              <label className="block text-gray-700 font-bold mb-2">Droits d&aposaccès :</label>
+              <label className="block text-gray-700 font-bold mb-2">Droits d&apos;accès :</label>
               <select 
                 value={newFolderAccess} 
                 onChange={(e) => setNewFolderAccess(e.target.value)} 
@@ -299,7 +299,7 @@ export default function DocumentManager() {
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg">
               <h2 className="text-lg font-bold mb-4 text-red-600">Accès refusé</h2>
-              <p>Vous n&aposavez pas les droits administrateurs pour réaliser cette action.</p>
+              <p>Vous n&apos;avez pas les droits administrateurs pour réaliser cette action.</p>
               <button onClick={() => setIsErrorModalOpen(false)} className="bg-gray-600 text-white px-4 py-2 mt-4 rounded-lg">OK</button>
             </div>
           </div>
