@@ -11,6 +11,7 @@ import Resultats from "./components/accueil/ResultatsSection";
 */
 
 import Sidebar from "./components/sidebars/Sidebar";
+import Footer from "./components/sidebars/Footer";
 
 export default function HomePage() {
   return (
@@ -29,6 +30,7 @@ export default function HomePage() {
       */}
 
       <Sidebar />
+      <Footer />
     </main>
   );
 }
