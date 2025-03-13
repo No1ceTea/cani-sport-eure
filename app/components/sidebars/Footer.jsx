@@ -24,24 +24,23 @@ export default function Footer() {
                 <div>
                   <h3 className="primary_title">Informations</h3>
                   <ul className="text-sm space-y-2">
-                    <li><a href="#" className="primary_text hover:underline">Le club</a></li>
-                    <li><a href="#" className="primary_text hover:underline">Articles</a></li>
-                    <li><a href="#" className="primary_text hover:underline">Boutique</a></li>
+                    <li><a href="/#accueil" className="primary_text hover:underline">Le Club</a></li>
+                    <li><a href="/articles" className="primary_text hover:underline">Articles</a></li>
+                    <li><a href="https://www.google.fr/" className="primary_text hover:underline">Boutique</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="primary_title">Ressources</h3>
                   <ul className="text-sm space-y-2">
-                    <li><a href="#" className="primary_text hover:underline">Actualités</a></li>
-                    <li><a href="#" className="primary_text hover:underline">Documents</a></li>
-                    <li><a href="#" className="primary_text hover:underline">Mon profil</a></li>
+                    <li><a href="/Document" className="primary_text hover:underline">Documents</a></li>
+                    <li><a href="/creation-profil" className="primary_text hover:underline">Mon profil</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="primary_title">Évènements</h3>
                   <ul className="text-sm space-y-2">
-                    <li><a href="#" className="primary_text hover:underline">Évènements</a></li>
-                    <li><a href="#" className="primary_text hover:underline">Tableau de bord</a></li>
+                    <li><a href="/evenements" className="primary_text hover:underline">Évènements</a></li>
+                    <li><a href="/dashboard/client" className="primary_text hover:underline">Tableau de bord</a></li>
                   </ul>
                 </div>
               </div>
