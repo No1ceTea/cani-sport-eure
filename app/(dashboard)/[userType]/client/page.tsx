@@ -53,7 +53,7 @@ const ClientDashboardPage: React.FC = () => {
     };
   
     checkUser();
-  }, []);
+  }, [router, supabase.auth]);
   
 
   if (isLoading) return <p>Chargement...</p>;
