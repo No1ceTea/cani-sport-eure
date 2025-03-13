@@ -5,19 +5,16 @@ import { FaTrash, FaEye, FaEdit } from "react-icons/fa";
 import { createClient } from "@supabase/supabase-js";
 import ModalAdd from "../components/ModalAdd";
 import ModalEdit from "../components/ModalEdit";
-
-// 📌 Connexion à Supabase
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 
 export default function CatalogueSorties() {
+  const supabase = createClientComponentClient();
   const [data, setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false); // ✅ Déplacement ici
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedSortie, setSelectedSortie] = useState(null);
+  
 
   // 📌 Charger les sorties depuis Supabase
   useEffect(() => {
@@ -63,6 +60,7 @@ export default function CatalogueSorties() {
     setSelectedSortie(sortie);
     setIsEditModalOpen(true);
   };
+
   
   return (
     <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
