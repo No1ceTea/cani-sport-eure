@@ -41,10 +41,10 @@ const TitleSection = () => {
 
       {/* CONTENU PRINCIPAL */}
       <div className="col-span-3 flex flex-col justify-center pl-6 sm:pl-16">
-        <h1 className="primary_title_black text-4xl sm:text-6xl text-left">
+        <h1 className="primary_title_blue text-4xl sm:text-6xl text-left">
           CANI-SPORTS EURE
         </h1>
-        <p className="primary_text_black mt-4 max-w-lg text-center">
+        <p className="primary_text_blue mt-4 max-w-lg text-center">
         Notre objectif est de promouvoir le cani-cross, le cani-trail, la randonnée avec chiens et d&apos;autres disciplines adaptées aux duos humain-chien.
         </p>
       </div>

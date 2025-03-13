@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import NavigationBar from "../components/NavigationBar";
+
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
 
 export default function Inscription() {
   const router = useRouter();
@@ -78,11 +80,10 @@ export default function Inscription() {
 
   return (
     <div>
-      <NavigationBar />
       <div className="flex flex-col min-h-screen">
         <div
           className="flex flex-col md:flex-row items-center justify-center flex-1 px-4 sm:px-8 bg-cover bg-center"
-          style={{ backgroundImage: "url('/montagne.jpeg')" }}
+          style={{ backgroundImage: "url('/photos/MainPage_bg.jpg')" }}
         >
           {/* Formulaire */}
           <div className="w-full max-w-sm sm:max-w-md md:max-w-lg p-6 bg-blue-900 bg-opacity-90 rounded-2xl shadow-xl">
@@ -166,7 +167,7 @@ export default function Inscription() {
               <div className="form-control mb-6">
                 <label className="label cursor-pointer text-white space-x-2">
                   <input type="checkbox" className="checkbox checkbox-info" required />
-                  <span>J&apos;accepte la politique de confidentialité</span>
+                  <span>J&apos;accepte la <a href="/politique" className="hover:underline">politique de confidentialité</a></span>
                 </label>
               </div>
 
@@ -197,6 +198,8 @@ export default function Inscription() {
           </div>
         )}
       </div>
+      <Sidebar />
+      <Footer />
     </div>
   );
 }

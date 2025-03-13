@@ -79,6 +79,15 @@ export default function NavigationBar() {
             <Link href="/connexion" className="text-lg hover:underline">
               Se connecter
             </Link>
+            <Link href="/evenements" className="text-lg hover:underline">
+              Events
+            </Link>
+            <Link href="/articles" className="text-lg hover:underline">
+              Articles
+            </Link>
+            <Link href="/tableauAdmin" className="text-lg hover:underline">
+              tableau
+            </Link>
           </nav>
         </div>
       </div>
