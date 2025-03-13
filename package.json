@@ -19,6 +19,7 @@
     "@tailwindcss/postcss": "^4.0.9",
     "@turf/turf": "^7.2.0",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "@xmldom/xmldom": "^0.9.8",
     "chart.js": "^4.4.8",
     "@vercel/speed-insights": "^1.2.0",
@@ -41,6 +42,7 @@
     "uuid": "^11.1.0",
     "react-leaflet": "^5.0.0",
     "turf": "^3.0.14",
+    "uuid": "^11.1.0",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
