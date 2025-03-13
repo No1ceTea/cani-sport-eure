@@ -26,6 +26,7 @@ export default function DocumentManager() {
   const [files, setFiles] = useState<DocumentFile[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+  const [newFolderAccess, setNewFolderAccess] = useState("public"); // Valeur par défaut
   const [folderPath, setFolderPath] = useState<{ id: string | null; name: string }[]>([
     { id: null, name: "Dossier Racine" },
   ]);
@@ -76,28 +77,36 @@ export default function DocumentManager() {
     fetchFiles();
   }, [folderPath]);
 
-  // 📌 Supprimer un fichier/dossier
   const handleDelete = async (id: string) => {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session) {
-      console.error("⚠️ Aucun utilisateur connecté !");
+    const { data: session, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session?.session) {
+      console.error("⚠️ Aucun utilisateur connecté ou erreur de session !");
       setIsErrorModalOpen(true);
       return;
     }
   
-    if (!isAdmin) {
-      setIsErrorModalOpen(true);
-      return;
-    }
+    console.log("🟢 Session active ?", session?.session?.user);
   
-    const { error } = await supabase.from("club_documents").delete().match({ id });
+    // Récupérer le token d'authentification
+    const token = session.session.access_token;
+  
+    // Supprimer l'élément avec authentification
+    const { error } = await supabase
+      .from("club_documents")
+      .delete()
+      .match({ id })
+      .single()
+      .throwOnError(); // 🔹 Ajoute un meilleur retour d'erreur
   
     if (error) {
       console.error("❌ Erreur de suppression :", error);
     } else {
-      setFiles(files.filter((file) => file.id !== id));
+      console.log(`✅ Fichier/Dossier supprimé avec succès : ${id}`);
+      setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
     }
   };
+  
   
 
   const handleUploadClick = () => {
@@ -123,9 +132,9 @@ export default function DocumentManager() {
       setIsErrorModalOpen(true);
       return;
     }
-
+  
     if (!newFolderName.trim()) return;
-
+  
     const { data, error } = await supabase
       .from("club_documents")
       .insert([
@@ -134,18 +143,34 @@ export default function DocumentManager() {
           is_folder: true,
           parent_id: folderPath[folderPath.length - 1].id,
           created_at: new Date().toISOString(),
+          access_level: newFolderAccess, // 🔹 Ajout du champ sélectionné
         },
       ])
       .select();
-
+  
     if (error) {
       console.error("❌ Erreur d'ajout du dossier :", error);
     } else {
       setFiles([...files, { ...data[0], size: "-", type: "Dossier", createdAt: new Date().toLocaleString() }]);
       setIsFolderModalOpen(false);
       setNewFolderName("");
+      setNewFolderAccess("public"); // Réinitialiser après insertion
     }
   };
+  
+  const checkSession = async () => {
+    const { data: session } = await supabase.auth.getSession();
+    console.log("🟢 Utilisateur connecté :", session?.session?.user);
+    
+  };
+  useEffect(() => { checkSession(); }, []);
+  
+  const testAuthUid = async () => {
+    const { data, error } = await supabase.rpc("test_auth_uid");
+    console.log("🔹 auth.uid() retourné par Supabase :", data, error);
+  };
+  useEffect(() => { testAuthUid(); }, []);
+  
   
 
   return (
@@ -235,16 +260,40 @@ export default function DocumentManager() {
           Ajouter un fichier
         </button>
 
-          {/* Modal d'ajout de dossier */}
-          {isFolderModalOpen && (
+        {/* Modal d'ajout de dossier */}
+        {isFolderModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg relative">
               <button onClick={() => setIsFolderModalOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
                 <FaTimes />
               </button>
               <h2 className="text-lg font-bold mb-4">Créer un dossier</h2>
-              <input type="text" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} className="border p-2 w-full" placeholder="Nom du dossier" />
-              <button onClick={handleAddFolder} className="bg-green-600 text-white px-4 py-2 mt-4 rounded-lg">Créer</button>
+              
+              {/* Champ Nom du Dossier */}
+              <input 
+                type="text" 
+                value={newFolderName} 
+                onChange={(e) => setNewFolderName(e.target.value)} 
+                className="border p-2 w-full mb-4" 
+                placeholder="Nom du dossier" 
+              />
+
+              {/* Sélection du Niveau d'Accès */}
+              <label className="block text-gray-700 font-bold mb-2">Droits d'accès :</label>
+              <select 
+                value={newFolderAccess} 
+                onChange={(e) => setNewFolderAccess(e.target.value)} 
+                className="border p-2 w-full mb-4"
+              >
+                <option value="public">Public (tout le monde)</option>
+                <option value="adherent">Adhérents (connectés)</option>
+                <option value="admin">Admin (restreint)</option>
+              </select>
+
+              {/* Bouton de validation */}
+              <button onClick={handleAddFolder} className="bg-green-600 text-white px-4 py-2 mt-4 rounded-lg w-full">
+                Créer
+              </button>
             </div>
           </div>
         )}
