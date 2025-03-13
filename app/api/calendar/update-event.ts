@@ -1,31 +1,24 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route";  // Assurez-vous que le chemin est correct
 import { google } from "googleapis";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+const auth = new google.auth.JWT({
+  email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  scopes: ["https://www.googleapis.com/auth/calendar"],
+});
+const calendar = google.calendar({ version: "v3", auth });
+
+export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user?.accessToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { eventId, updatedEvent } = await req.json();
-
-    const auth = new google.auth.OAuth2();
-    auth.setCredentials({ access_token: session.user.accessToken });
-
-    const calendar = google.calendar({ version: "v3", auth });
-
     const response = await calendar.events.update({
-      calendarId: "primary",
+      calendarId: process.env.GOOGLE_CALENDAR_ID!,
       eventId,
       requestBody: updatedEvent,
     });
-
     return NextResponse.json({ message: "Événement mis à jour", event: response.data });
   } catch (error) {
-    console.error("Erreur lors de la modification de l'événement", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    console.error("Erreur lors de la mise à jour de l'événement", error);
+    return NextResponse.json({ error: "Impossible de mettre à jour l'événement" }, { status: 500 });
   }
 }
