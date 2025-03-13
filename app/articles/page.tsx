@@ -7,6 +7,7 @@ import AddArticleModal from "../components/AddArticleModal";
 import EditArticleModal from "../components/EditArticleModal";
 import supabase from "../../lib/supabaseClient";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Sidebar from "../components/sidebars/Sidebar";
 
 
 interface Article {
@@ -142,20 +143,22 @@ const supabase = createClientComponentClient();
   });
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
-      <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
-        <SearchBar setSearchQuery={setSearchQuery} />
-        <DateFilter setStartDate={setStartDate} setEndDate={setEndDate} />
+    <div className="">
+      <div className="p-6 max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
+        <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
+          <SearchBar setSearchQuery={setSearchQuery} />
+          <DateFilter setStartDate={setStartDate} setEndDate={setEndDate} />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          {filteredArticles.map((article) => (
+            <div key={article.id} className="cursor-pointer">
+              <ArticleCard article={article} onDelete={handleDelete} onEdit={handleEdit} />
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {filteredArticles.map((article) => (
-          <div key={article.id} className="cursor-pointer">
-            <ArticleCard article={article} onDelete={handleDelete} onEdit={handleEdit} />
-          </div>
-        ))}
-      </div>
-      
+      <Sidebar/>
     </div>
   );
 };

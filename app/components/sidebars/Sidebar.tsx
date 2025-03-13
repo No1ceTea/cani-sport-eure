@@ -54,8 +54,8 @@ const Sidebar = () => {
           <ul className="primary_title tracking-wide space-y-4 text-center">
             <li><a href="/#accueil" className="hover:text-gray-300">Le Club</a></li>
             {/* <li><a href="#" className="hover:text-gray-300">Actualités</a></li> */}
-            <li><a href="/evenements" className="hover:text-gray-300">Événements</a></li>
             <li><a href="/articles" className="hover:text-gray-300">Articles</a></li>
+            <li><a href="/evenements" className="hover:text-gray-300">Événements</a></li>
             <li><a href="/SortieCanine" className="hover:text-gray-300">Catalogue des sorties</a></li>
 
             <li><a href="https://www.google.fr/" className="hover:text-gray-300">Boutique</a></li>
