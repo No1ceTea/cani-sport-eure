@@ -9,13 +9,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
 interface ModalAddDocumentProps {
   isOpen: boolean;
   onClose: () => void;
+  currentFolderId: string | null; // Ajout du parent_id pour classer le fichier
 }
 
-const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose }) => {
+const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, currentFolderId }) => {
   if (!isOpen) return null;
 
   const [file, setFile] = useState<File | null>(null);
@@ -24,7 +24,6 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose }) 
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState("public");
 
-  // 📌 Fonction pour gérer l'upload
   const handleUpload = async () => {
     if (!file || !title) {
       setMessage("❌ Veuillez remplir tous les champs.");
@@ -34,45 +33,45 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose }) 
     setUploading(true);
     setMessage("📡 Upload en cours...");
 
-    const filePath = `club-documents/${file.name}`;
+    const filePath = `club-documents/${currentFolderId ? currentFolderId + '/' : ''}${file.name}`;
 
-    // 📌 Étape 1 : Upload du fichier dans Supabase Storage
     const { data, error } = await supabase.storage
-    .from("club-documents") // ✅ Bucket correct
-    .upload(`documents/${file.name}`, file, { upsert: true });
+      .from("club-documents")
+      .upload(`documents/${file.name}`, file, { upsert: true });
 
     if (error) {
-        console.error("❌ Erreur d'upload :", error);
-        setMessage("❌ Erreur lors de l'upload.");
-        setUploading(false);
-        return;
+      console.error("❌ Erreur d'upload :", error);
+      setMessage("❌ Erreur lors de l'upload.");
+      setUploading(false);
+      return;
     }
 
     // 📌 Étape 2 : Récupération de l'URL publique
     const { data: publicUrlData } = supabase.storage.from("club-documents").getPublicUrl(filePath);
 
-    const fileSize = file.size; // ✅ Récupération de la taille du fichier
-    const fileType = file.type; // ✅ Récupération du type MIME du fichier
+    const fileSize = file.size;
+    const fileType = file.type.split("/")[1]; // ✅ On garde juste l'extension
     const publicUrl = publicUrlData.publicUrl;
 
-    // 📌 Étape 3 : Ajout dans la base de données
+    // 📌 Étape 3 : Ajout dans la base de données avec le bon dossier parent
     const { error: dbError } = await supabase
-    .from("club_documents")
-    .insert([
-      {
-        name: file.name,
-        file_url: publicUrl,
-        type: fileType,
-        size: fileSize, // ✅ Ajout de la taille du fichier
-        created_at: new Date().toISOString(),
-      }
-    ]);
-  
+      .from("club_documents")
+      .insert([
+        {
+          name: title,
+          file_url: publicUrl,
+          type: fileType,
+          size: fileSize,
+          created_at: new Date().toISOString(),
+          parent_id: currentFolderId, // 🔹 Utilisation du dossier actuel
+        }
+      ]);
+
     if (dbError) {
-        console.error("❌ Erreur d'insertion en base :", dbError);
-        setMessage("❌ Erreur d'insertion en base.");
+      console.error("❌ Erreur d'insertion en base :", dbError);
+      setMessage("❌ Erreur d'insertion en base.");
     } else {
-        setMessage("✅ Fichier ajouté avec succès !");
+      setMessage("✅ Fichier ajouté avec succès !");
     }
 
     setUploading(false);

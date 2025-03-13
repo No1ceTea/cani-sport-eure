@@ -208,6 +208,7 @@ export default function DocumentManager() {
         </div>
 
         {/* 📌 Tableau des fichiers et dossiers */}
+        <div className="overflow-auto max-h-[700px] border border-gray-300 rounded-md">
         <table className="w-full border border-gray-300 text-gray-700">
           <thead className="bg-gray-100">
             <tr>
@@ -252,13 +253,8 @@ export default function DocumentManager() {
             ))}
           </tbody>
         </table>
+        </div>
 
-
-
-        {/* Bouton d'ajout de fichier */}
-        <button onClick={() => setIsModalOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4">
-          Ajouter un fichier
-        </button>
 
         {/* Modal d'ajout de dossier */}
         {isFolderModalOpen && (
@@ -310,7 +306,7 @@ export default function DocumentManager() {
         )}
 
         {/* Affichage du modal */}
-        <ModalAddDocument isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        <ModalAddDocument isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} currentFolderId={folderPath[folderPath.length - 1].id}/>
       </div>
     </div>
   );
