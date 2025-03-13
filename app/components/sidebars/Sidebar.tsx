@@ -52,17 +52,21 @@ const Sidebar = () => {
 
           {/* Liste du menu */}
           <ul className="primary_title tracking-wide space-y-4 text-center">
-            <li><a href="#" className="hover:text-gray-300">Le Club</a></li>
-            <li><a href="#" className="hover:text-gray-300">Actualités</a></li>
-            <li><a href="#" className="hover:text-gray-300">Événements</a></li>
-            <li><a href="#" className="hover:text-gray-300">Articles</a></li>
-            <li><a href="#" className="hover:text-gray-300">Documents</a></li>
-            <li><a href="#" className="hover:text-gray-300">Tableau de bord</a></li>
-            <li><a href="#" className="hover:text-gray-300">Boutique</a></li>
-            <li><a href="#" className="hover:text-gray-300">Réglages</a></li>
-            <li><a href="#" className="hover:text-gray-300">Mon profil</a></li>
-            <li><a href="#" className="hover:text-gray-300">Admin</a></li>
-            <li><a href="#" className="hover:text-yellow_primary">Se déconnecter</a></li>
+            <li><a href="/#accueil" className="hover:text-gray-300">Le Club</a></li>
+            {/* <li><a href="#" className="hover:text-gray-300">Actualités</a></li> */}
+            <li><a href="/evenements" className="hover:text-gray-300">Événements</a></li>
+            <li><a href="/articles" className="hover:text-gray-300">Articles</a></li>
+            
+            <li><a href="https://www.google.fr/" className="hover:text-gray-300">Boutique</a></li>
+            {/* <li><a href="#" className="hover:text-gray-300">Réglages</a></li> */}
+            
+            <li><a href="/creation-profil" className="hover:text-gray-300">Mon profil</a></li>
+            <li><a href="/client/dashboard" className="hover:text-gray-300">Tableau de bord</a></li>
+            <li><a href="/Document" className="hover:text-gray-300">Documents</a></li>
+            <li><a href="/admin/dashboard" className="hover:text-gray-300">Admin</a></li>
+
+            <li><a href="/connexion" className="hover:text-yellow_primary">Se connecter</a></li>
+            <li><a href="/connexion#logout" className="hover:text-yellow_primary">Se déconnecter</a></li>
           </ul>
         </div>
       </div>
