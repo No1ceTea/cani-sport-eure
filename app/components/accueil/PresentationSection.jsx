@@ -18,7 +18,7 @@ export default function Presentation() {
           {/* Image mise en avant avec titre */}
           <div className="relative rounded-3xl overflow-hidden mb-8">
             <div className="absolute top-4 left-4 z-10">
-              <h3 className="bg-blue-800 primary_title px-6 py-2 rounded-lg text-xl add_border">Nos Activités</h3>
+              <h3 className="bg-blue_primary primary_title px-6 py-2 rounded-lg text-xl add_border">Nos Activités</h3>
             </div>
             <Image
               src="/montagne.jpeg"

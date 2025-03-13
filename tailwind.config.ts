@@ -13,6 +13,7 @@ export default {
         foreground: "var(--foreground)",
         blue_primary: "#1E3A8A",
         blue_primary_hover : "#3355CC",
+        dark_blue_primary : "#1d285a",
         yellow_primary : "#FED100",
         black_stroke: "#050403",
       },
@@ -21,7 +22,7 @@ export default {
         calibri: ["Calibri", "sans-serif"],
       },
       borderWidth: {
-        2: "2px", // Épaisseur du contour conforme à Figma
+        2: "2px",
       },
     },
   },
