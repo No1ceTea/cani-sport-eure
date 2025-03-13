@@ -22,6 +22,16 @@ const ModalAdd = ({ isOpen, onClose }) => {
   const [uploadTime, setUploadTime] = useState("");
   const [title, setTitle] = useState("");
 
+  // Fonction pour normaliser le nom de fichier
+  const normalizeFileName = (filename) => {
+    return filename
+      .normalize("NFD") // Décomposer les accents
+      .replace(/[\u0300-\u036f]/g, "") // Supprimer les accents
+      .replace(/[^a-zA-Z0-9_\-.]/g, "_") // Remplacer les caractères spéciaux
+      .replace(/_+/g, "_") // Éviter les répétitions d’underscores
+      .trim();
+  };
+
   const handleUpload = async () => {
     if (!file || !title || !sport || !uploadDate || !uploadTime) {
       setMessage("❌ Veuillez remplir tous les champs.");
@@ -32,7 +42,7 @@ const ModalAdd = ({ isOpen, onClose }) => {
     setMessage("📡 Upload en cours...");
   
     const dateTime = `${uploadDate}T${uploadTime}`;
-    const sanitizedFileName = file.name.replace(/\s+/g, "_");
+    const sanitizedFileName = normalizeFileName(file.name);
     const filePath = `gpx-files/${sanitizedFileName}`;
   
     // 📌 Étape 1 : Lire le fichier GPX
