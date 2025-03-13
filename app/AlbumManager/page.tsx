@@ -273,7 +273,7 @@ export default function AlbumManager() {
                 {photos.map((photo) => (
                   <tr key={photo.id} className="border-b text-md hover:bg-gray-50">
                     <td className="p-4 flex items-center gap-2 cursor-pointer" onClick={() => setPreviewImage(photo.url)}>
-                      <Image
+                      <img
                         src={photo.url}
                         alt={photo.name}
                         width={50}
@@ -299,7 +299,7 @@ export default function AlbumManager() {
         {/* ✅ Modale de prévisualisation */}
         {previewImage && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onClick={() => setPreviewImage(null)}>
-            <Image src={previewImage} alt="Aperçu de l'image" width={800} height={800} className="max-w-screen-lg max-h-screen-lg rounded-lg" />
+            <img src={previewImage} alt="Aperçu de l'image" width={800} height={800} className="max-w-screen-lg max-h-screen-lg rounded-lg" />
           </div>
         )}
 

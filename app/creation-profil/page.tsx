@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid"; // Import pour générer un ID unique
 
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -78,59 +81,63 @@ export default function UserProfileForm() {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
-      {/* Titre */}
-      <h1 className="absolute top-6 left-6 text-4xl primary_title !text-black">
-        Profil utilisateur
-      </h1>
+    <div className="">
+      <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
+        {/* Titre */}
+        <h1 className="absolute top-6 left-6 text-4xl primary_title !text-black">
+          Profil utilisateur
+        </h1>
 
-      <div className="flex flex-col items-center h-[600px] w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
-        {/* Upload de photo */}
-        <div className="flex flex-col items-center mb-4">
-          <label htmlFor="photo-upload" className="cursor-pointer">
-            {photoPreview ? (
-              <img src={photoPreview} alt="Photo de profil" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
-            ) : (
-              <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
-                Ajouter une photo
-              </div>
-            )}
-          </label>
-          <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-        </div>
+        <div className="flex flex-col items-center h-[600px] w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
+          {/* Upload de photo */}
+          <div className="flex flex-col items-center mb-4">
+            <label htmlFor="photo-upload" className="cursor-pointer">
+              {photoPreview ? (
+                <img src={photoPreview} alt="Photo de profil" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
+              ) : (
+                <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
+                  Ajouter une photo
+                </div>
+              )}
+            </label>
+            <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+          </div>
 
-        {/* Formulaire */}
-        <div className="space-y-6 w-full">
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Nom</label>
-            <input name="nom" value={form.nom} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
+          {/* Formulaire */}
+          <div className="space-y-6 w-full">
+            <div className="flex items-center">
+              <label className="text-sm w-40 text-white">Nom</label>
+              <input name="nom" value={form.nom} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
+            </div>
+            <div className="flex items-center">
+              <label className="text-sm w-40 text-white">Prénom</label>
+              <input name="prenom" value={form.prenom} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
+            </div>
+            <div className="flex items-center">
+              <label className="text-sm w-40 text-white">Email</label>
+              <input type="email" name="email" value={form.email} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
+            </div>
+            <div className="flex items-center">
+              <label className="text-sm w-40 text-white">Téléphone</label>
+              <input name="telephone" value={form.telephone} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
+            </div>
+            <div className="flex items-center">
+              <label className="text-sm w-40 text-white">Adresse</label>
+              <input name="adresse" value={form.adresse} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
+            </div>
           </div>
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Prénom</label>
-            <input name="prenom" value={form.prenom} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
-          </div>
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Email</label>
-            <input type="email" name="email" value={form.email} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
-          </div>
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Téléphone</label>
-            <input name="telephone" value={form.telephone} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
-          </div>
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Adresse</label>
-            <input name="adresse" value={form.adresse} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" />
-          </div>
-        </div>
 
-        {/* Boutons */}
-        <div className="flex justify-center items-center mt-auto space-x-4 pb-4">
-          <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md">
-            Enregistrer les modifications
-          </button>
-          <button className="text-white text-4xl cursor-pointer">🗑</button>
+          {/* Boutons */}
+          <div className="flex justify-center items-center mt-auto space-x-4 pb-4">
+            <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md">
+              Enregistrer les modifications
+            </button>
+            <button className="text-white text-4xl cursor-pointer">🗑</button>
+          </div>
         </div>
       </div>
+    <Sidebar />
+    <Footer />
     </div>
   );
 }
