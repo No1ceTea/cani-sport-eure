@@ -15,7 +15,6 @@ interface Event {
   contenu: string;
   date: string;
   created_at : string ;
-
   image_url: string;
   type: string;
   auteur: Auteur;

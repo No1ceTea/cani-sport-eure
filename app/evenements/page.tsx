@@ -10,6 +10,7 @@ interface Event {
   titre: string;
   contenu: string;
   date: string;
+  type: string;
   created_at : string ;
   image_url: string;
   id_profil: number;
