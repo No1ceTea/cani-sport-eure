@@ -1,5 +1,7 @@
 "use client";
 
+import "moment/locale/fr";
+moment.locale("fr");
 import { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
@@ -56,20 +58,19 @@ export default function MyCalendar() {
 
   const deleteEvent = async (eventId: string) => {
     if (!confirm("Voulez-vous vraiment supprimer cet événement ?")) return;
-  
+
     const res = await fetch("/api/calendar", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: eventId }), // ✅ Envoie bien l'ID de l'événement
     });
-  
+
     if (res.ok) {
       setEvents(events.filter((event) => event.id !== eventId));
     } else {
       alert("Erreur lors de la suppression.");
     }
   };
-  
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg">
@@ -83,11 +84,24 @@ export default function MyCalendar() {
         style={{ height: 500 }}
         onSelectSlot={handleSelectSlot}
         onSelectEvent={(event) => deleteEvent(event.id)}
+        messages={{
+          allDay: "Journée entière",
+          previous: "Précédent",
+          next: "Suivant",
+          today: "Aujourd'hui",
+          month: "Mois",
+          week: "Semaine",
+          day: "Jour",
+          agenda: "Agenda",
+          date: "Date",
+          time: "Heure",
+          event: "Événement",
+        }}
       />
       <ul>
         {events.map((event) => (
           <li key={event.id}>
-            {event.title} - {event.start.toDateString()}
+            {event.title} - {event.start.toLocaleDateString("fr-FR")}
             <button onClick={() => deleteEvent(event.id)} className="ml-2 text-red-500">
               🗑 Supprimer
             </button>
