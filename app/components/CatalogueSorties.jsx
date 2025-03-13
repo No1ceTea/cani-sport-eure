@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaTrash, FaEye, FaEdit } from "react-icons/fa";
+import { FaTrash, FaPlus, FaEdit, FaUpload  } from "react-icons/fa";
 import { createClient } from "@supabase/supabase-js";
 import ModalAdd from "../components/ModalAdd";
 import ModalEdit from "../components/ModalEdit";
@@ -64,6 +64,12 @@ export default function CatalogueSorties() {
   
   return (
     <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
+      <div className="gap-4 justify-right">
+        <button onClick={() => setIsModalOpen(true)} className="text-blue-600 flex items-center gap-2">
+          <FaPlus /> Ajouter une sortie
+        </button>
+      </div>
+
       <table className="w-full border border-gray-300 text-gray-700">
         <thead className="bg-gray-100">
           <tr>
@@ -95,9 +101,6 @@ export default function CatalogueSorties() {
           ))}
         </tbody>
       </table>
-      
-      {/* Bouton flottant d'ajout */}
-      <button onClick={() => setIsModalOpen(true)}>Ajouter une sortie</button>
 
       {/* Affichage du modal */}
       <ModalAdd isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
