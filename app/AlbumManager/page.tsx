@@ -198,6 +198,7 @@ export default function AlbumManager() {
         ) : (
           <>
             {/* 📌 Tableau des albums et photos */}
+            <div className="overflow-auto max-h-[700px] border border-gray-300 rounded-md">
             <table className="w-full border border-gray-300 text-gray-700">
               <thead className="bg-gray-100">
                 <tr>
@@ -248,6 +249,7 @@ export default function AlbumManager() {
                 ))}
               </tbody>
             </table>
+            </div>
           </>
         )}
 

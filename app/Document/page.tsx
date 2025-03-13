@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { FaTrash, FaEye, FaUpload, FaSort, FaFolderOpen, FaFolder, FaChevronRight, FaPlus, FaTimes } from "react-icons/fa";
 import { createClient } from "@supabase/supabase-js";
 import ModalAddDocument from "../components/ModalAddDocument";
+import Image from 'next/image';
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
@@ -146,53 +147,50 @@ export default function Document() {
         </div>
 
         {/* 📌 Tableau des fichiers et dossiers */}
-        <table className="w-full border border-gray-300 text-gray-700">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border-t border-b p-4 text-left">Nom</th>
-              <th className="border-t border-b p-4 text-left">Taille</th>
-              <th className="border-t border-b p-4 text-left">Type</th>
-              <th className="border-t border-b p-4 text-left">Créé le</th>
-              <th className="border-t border-b p-4 text-left">Dernière modification</th>
-              <th className="border-b p-4 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {files.map((file) => (
-              <tr
-                key={file.id}
-                className="border-b text-md hover:bg-gray-50 cursor-pointer"
-                onDoubleClick={() => file.is_folder && handleFolderClick(file.id, file.name)}
-              >
-                <td className="p-4 flex items-center gap-2">
-                  {file.is_folder ? (
-                    <FaFolder className="text-yellow-500" />
-                  ) : (
-                    <img
-                      src={`/${file.type?.toLowerCase() || "file"}.png`}
-                      alt="icon"
-                      width="20"
-                      height="20"
-                    />
-                  )}
-                  {file.is_folder ? (
-                    <span className="text-blue-500 hover:underline">{file.name}</span>
-                  ) : (
-                    <a href={file.url} download={file.name} className="text-blue-500 hover:underline">
-                      {file.name}
-                    </a>
-                  )}
-                </td>
-                <td className="p-4">{file.size}</td>
-                <td className="p-4">{file.type}</td>
-                <td className="p-4">{file.createdAt}</td>
-                <td className="p-4">{file.updatedAt}</td>
-                <td className="p-4 flex justify-center gap-4">
-                </td>
+        <div className="overflow-auto max-h-[600px] border border-gray-300 rounded-md">
+          <table className="w-full border border-gray-300 text-gray-700">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="border-t border-b p-4 text-left">Nom</th>
+                <th className="border-t border-b p-4 text-left">Taille</th>
+                <th className="border-t border-b p-4 text-left">Type</th>
+                <th className="border-t border-b p-4 text-left">Créé le</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {files.map((file) => (
+                <tr
+                  key={file.id}
+                  className="border-b text-md hover:bg-gray-50 cursor-pointer"
+                  onDoubleClick={() => file.is_folder && handleFolderClick(file.id, file.name)}
+                >
+                  <td className="p-4 flex items-center gap-2">
+                    {file.is_folder ? (
+                      <FaFolder className="text-yellow-500" />
+                    ) : (
+                      <Image
+                        src={`/${file.type?.toLowerCase() || "file"}.png`}
+                        alt="icon"
+                        width="20"
+                        height="20"
+                      />
+                    )}
+                    {file.is_folder ? (
+                      <span className="text-blue-500 hover:underline">{file.name}</span>
+                    ) : (
+                      <a href={file.url} download={file.name} className="text-blue-500 hover:underline">
+                        {file.name}
+                      </a>
+                    )}
+                  </td>
+                  <td className="p-4">{file.size}</td>
+                  <td className="p-4">{file.type}</td>
+                  <td className="p-4">{file.createdAt}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* Modal d'ajout de dossier */}
         {isFolderModalOpen && (
@@ -209,7 +207,7 @@ export default function Document() {
         )}
 
         {/* Affichage du modal */}
-        <ModalAddDocument isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        {/* <ModalAddDocument isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> */}
       </div>
     </div>
   );

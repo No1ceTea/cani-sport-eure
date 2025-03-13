@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { FaTrash, FaEye, FaUpload, FaSort, FaFolderOpen, FaFolder, FaChevronRight, FaPlus, FaTimes } from "react-icons/fa";
-import { createClient } from "@supabase/supabase-js";
 import ModalAddDocument from "../components/ModalAddDocument";
 import Sidebar from "../components/SidebarAdmin";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Image from 'next/image';
 
 const supabase = createClientComponentClient();
 
@@ -216,7 +216,7 @@ export default function DocumentManager() {
               <th className="border-t border-b p-4 text-left">Taille</th>
               <th className="border-t border-b p-4 text-left">Type</th>
               <th className="border-t border-b p-4 text-left">Créé le</th>
-              <th className="border-t border-b p-4 text-left">Dernière modification</th>
+              {/* <th className="border-t border-b p-4 text-left">Dernière modification</th> */}
               <th className="border-b p-4 text-center">Actions</th>
             </tr>
           </thead>
@@ -231,7 +231,7 @@ export default function DocumentManager() {
                   {file.is_folder ? (
                     <FaFolder className="text-yellow-500" />
                   ) : (
-                    <img
+                    <Image
                       src={`/${file.type?.toLowerCase() || "file"}.png`}
                       alt="icon"
                       width="20"
@@ -243,7 +243,7 @@ export default function DocumentManager() {
                 <td className="p-4">{file.size}</td>
                 <td className="p-4">{file.type}</td>
                 <td className="p-4">{file.createdAt}</td>
-                <td className="p-4">{file.updatedAt}</td>
+                {/* <td className="p-4">{file.updatedAt}</td> */}
                 <td className="p-4 flex justify-center gap-4">
                   <button onClick={() => handleDelete(file.id)} className="text-red-500 hover:text-red-700">
                     <FaTrash />
@@ -275,7 +275,7 @@ export default function DocumentManager() {
               />
 
               {/* Sélection du Niveau d'Accès */}
-              <label className="block text-gray-700 font-bold mb-2">Droits d'accès :</label>
+              <label className="block text-gray-700 font-bold mb-2">Droits d&aposaccès :</label>
               <select 
                 value={newFolderAccess} 
                 onChange={(e) => setNewFolderAccess(e.target.value)} 
@@ -299,7 +299,7 @@ export default function DocumentManager() {
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg">
               <h2 className="text-lg font-bold mb-4 text-red-600">Accès refusé</h2>
-              <p>Vous n'avez pas les droits administrateurs pour réaliser cette action.</p>
+              <p>Vous n&aposavez pas les droits administrateurs pour réaliser cette action.</p>
               <button onClick={() => setIsErrorModalOpen(false)} className="bg-gray-600 text-white px-4 py-2 mt-4 rounded-lg">OK</button>
             </div>
           </div>

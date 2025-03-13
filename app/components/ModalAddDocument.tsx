@@ -16,14 +16,14 @@ interface ModalAddDocumentProps {
 }
 
 const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, currentFolderId }) => {
-  if (!isOpen) return null;
-
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState("public");
 
+  if (!isOpen) return null;
+  
   const handleUpload = async () => {
     if (!file || !title) {
       setMessage("❌ Veuillez remplir tous les champs.");
