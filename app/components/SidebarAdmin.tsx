@@ -22,7 +22,7 @@ export default function SidebarAdmin() {
     { name: "Agenda", path: "/agenda" },
     { name: "Adhérents", path: "/dashboard/admin/adherents" },
     { name: "Résultats", path: "/resultats" },
-    { name: "Articles", path: "/articles" },
+    { name: "Articles", path: "/articleAdmin" },
     { name: "Stockage", path: "/DocumentManager" },
     { name: "Album", path: "/AlbumManager" },
     { name: "Catalogue de sorties", path: "/catalogue" },
