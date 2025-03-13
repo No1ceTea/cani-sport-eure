@@ -24,21 +24,13 @@ interface DateFilterProps {
 const ArticleCard: React.FC<{ article: Article; onDelete: (id: string) => void; onEdit: (id: string) => void }> = ({ article, onDelete, onEdit }) => {
   return (
     <div className="bg-white shadow-lg rounded-2xl p-4 max-w-xs relative">
-      {/* Icônes en haut à droite */}
-      <div className="absolute top-2 right-2 flex space-x-2">
-        <button onClick={() => onDelete(article.id)} className="text-red-500">
-          <X size={20} />
-        </button>
-        <button onClick={() => onEdit(article.id)} className="text-blue-500">
-          <Edit size={20} />
-        </button>
-      </div>
+      
       
       <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
       <h3 className="text-lg font-bold mt-2">{article.title}</h3>
       <p className="text-sm text-gray-600">{article.content.slice(0, 100)}...</p>
       <p className="text-xs text-gray-500 mt-2">{new Date(article.date).toLocaleDateString()}</p>
-      <Link href={`/article/${article.id}`} className="text-blue-500 text-sm mt-2 flex items-center">Lire plus &rarr;</Link>
+      <Link href={`/articles/${article.id}`} className="text-blue-500 text-sm mt-2 flex items-center">Lire plus &rarr;</Link>
     </div>
   );
 };

@@ -1,8 +1,9 @@
-import { useState , useEffect} from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { v4 as uuidv4 } from "uuid"; // Importation de la fonction uuidv4
-import supabase from "../../lib/supabaseClient"; 
+import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -11,9 +12,36 @@ interface ModalProps {
 const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState<File | null>(null); // État pour l'image
+  const [image, setImage] = useState<File | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  const supabase = createClientComponentClient(); // ✅ Création du client ici
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      // 🔹 Vérifie la session utilisateur
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (!sessionData.session) {
+        console.log("🔴 Utilisateur non connecté");
+        return;
+      }
+
+      // 🔹 Récupération des infos utilisateur
+      const { data: userData, error } = await supabase.auth.getUser();
+      if (error || !userData?.user) {
+        console.log("❌ Erreur récupération utilisateur :", error);
+        return;
+      }
+
+      setUserId(userData.user.id);
+      setIsLoading(false);
+    };
+
+    checkUser();
+  }, [supabase]); // ✅ Supprime supabase.auth des dépendances
 
   if (!isOpen) return null;
 
@@ -27,51 +55,40 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
     let imageUrl = "";
 
-    // Si une image est sélectionnée, on la télécharge
     if (image) {
-      const uniqueFileName = `${uuidv4()}-${image.name}`; // Génération d'un nom unique pour l'image
-
+      const uniqueFileName = `${uuidv4()}-${image.name}`;
       const { data, error } = await supabase.storage
-        .from("images") // Nom du bucket dans Supabase
-        .upload(`publications/${uniqueFileName}`, image); // Utilisation du nom unique pour l'image
+        .from("images")
+        .upload(`publications/${uniqueFileName}`, image);
 
       if (error) {
-        console.error("Erreur lors du téléchargement de l'image:", error.message);
-        alert("Erreur lors du téléchargement de l'image.");
+        console.error("Erreur upload image:", error.message);
+        alert("Erreur upload image.");
         return;
       }
 
-      // Si l'image est téléchargée avec succès, on obtient l'URL publique
       imageUrl = data?.path ? supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl : "";
     }
 
-    // Define idType and idAuteur
-    const idType = 1; // Replace with appropriate value
-    const idAuteur = 1; // Replace with appropriate value
-
-    // Insérer l'article dans la base de données, avec ou sans image
-    const { data, error } = await supabase
-      .from("publication")
-      .insert([
-        {
-          titre: title,
-          contenu: content,
-          id_profil: userId,
-          image_url: imageUrl, // On ajoute l'URL de l'image à la publication
-        },
-      ]);
+    const { data, error } = await supabase.from("publication").insert([
+      {
+        titre: title,
+        contenu: content,
+        id_profil: userId,
+        image_url: imageUrl,
+      },
+    ]);
 
     if (error) {
-      console.error("Erreur lors de la création de l'article:", error); // Affichage complet de l'erreur
-      alert("Erreur lors de la création de l'article.");
+      console.error("Erreur création article:", error);
+      alert("Erreur création article.");
     } else {
-      console.log("Article créé avec succès:", data);
+      console.log("✅ Article créé:", data);
       alert("Article créé avec succès!");
-      onClose(); // Fermer la modal
+      onClose();
     }
   };
 
- 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg w-[780px] h-[571px] shadow-lg relative flex flex-col justify-between">
@@ -102,18 +119,11 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
           <div className="flex items-center justify-start">
-            <input
-              type="file"
-              className="border p-2"
-              onChange={handleImageChange}
-            />
+            <input type="file" className="border p-2" onChange={handleImageChange} />
           </div>
         </div>
         <div className="flex justify-center pb-4">
-          <button
-            className="bg-blue-700 text-white py-2 px-6 rounded"
-            onClick={handleSubmit}
-          >
+          <button className="bg-blue-700 text-white py-2 px-6 rounded" onClick={handleSubmit}>
             Créer l&apos;article
           </button>
         </div>

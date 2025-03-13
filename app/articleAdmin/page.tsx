@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArticleCard, SearchBar, DateFilter } from "../components/ArticlesComponents";
+import { ArticleCardAdmin, SearchBar, DateFilter } from "../components/ArticlesComponentsAdmin";
 import AddArticleModal from "../components/AddArticleModal";
 import EditArticleModal from "../components/EditArticleModal";
-import supabase from "../../lib/supabaseClient";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
 
 interface Article {
   id: string;
@@ -16,11 +14,12 @@ interface Article {
   image_url: string;
   date: string;
   id_profil: string;
+  user_name: string;
+  user_avatar: string;
 }
 
 const ArticlesPage: React.FC = () => {
-
-const supabase = createClientComponentClient();
+  const supabase = createClientComponentClient(); // ✅ Correctement défini ici
   const [articles, setArticles] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
@@ -29,33 +28,9 @@ const supabase = createClientComponentClient();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentArticleId, setCurrentArticleId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      const { data, error } = await supabase
-        .from("publication")
-        .select("id, titre, contenu, image_url, created_at, id_profil")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Erreur lors de la récupération des articles:", error);
-      } else {
-        setArticles(
-          data.map((article) => ({
-            id: article.id,
-            title: article.titre,
-            content: article.contenu,
-            image_url: article.image_url,
-            date: article.created_at,
-            id_profil: article.id_profil,
-          }))
-        );
-      }
-    };
-    fetchArticles();
-  }, []);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("publication").delete().eq("id", id);
 
@@ -68,52 +43,48 @@ const supabase = createClientComponentClient();
   };
 
 
-  const router = useRouter();
-  const [userType, setUserType] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    const checkUser = async () => {
-      // 🔹 Vérifie si l'utilisateur est connecté
-      const { data: userSession } = await supabase.auth.getSession();
+    const fetchArticles = async () => {
+      const { data, error } = await supabase
+        .from("publication")
+        .select("id, titre, contenu, image_url, created_at, id_profil");
 
-      if (!userSession.session) {
-        console.log("🔴 Utilisateur non connecté, redirection vers /connexion");
-        //router.replace("/connexion");
+      if (error) {
+        console.error("❌ Erreur lors de la récupération des articles:", error);
         return;
       }
 
-      // 🔹 Récupère les données utilisateur
-      const { data: userData, error } = await supabase.auth.getUser();
+      const articlesWithProfiles = await Promise.all(
+        data.map(async (article) => {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profils")
+            .select("nom, photo_profil")
+            .eq("id", article.id_profil)
+            .single();
 
-      if (error || !userData?.user) {
-        console.log("❌ Erreur lors de la récupération de l'utilisateur :", error);
-       // router.replace("/connexion");
-        return;
-      }
+          if (profileError) {
+            console.error(`⚠️ Erreur lors de la récupération du profil pour id_profil=${article.id_profil}`, profileError);
+          }
 
-      console.log("🔍 Données de l'utilisateur :", userData.user.user_metadata);
+          return {
+            id: article.id,
+            title: article.titre,
+            content: article.contenu,
+            image_url: article.image_url,
+            date: article.created_at,
+            id_profil: article.id_profil,
+            user_name: profileData?.nom || "Utilisateur inconnu",
+            user_avatar: profileData?.photo_profil || "/default-avatar.png",
+          };
+        })
+      );
 
-      // ✅ Stocke l'UUID de l'utilisateur
-      setUserId(userData.user.id);
-
-      const isAdmin = userData.user.user_metadata?.administrateur === true;
-
-      if (isAdmin) {
-        console.log("🔴 Admin détecté, redirection vers /dashboard/admin");
-       // router.replace("/dashboard/admin");
-      } else {
-        console.log("✅ Utilisateur adhérent détecté, accès autorisé !");
-        setUserType("client");
-      }
-
-      console.log(userData.user.id)
-
-      setIsLoading(false);
+      setArticles(articlesWithProfiles);
     };
 
-    checkUser();
-  }, [router, supabase.auth]);
+    fetchArticles();
+  }, []);
+
 
   const handleEdit = (id: string) => {
     setCurrentArticleId(id);
@@ -146,16 +117,24 @@ const supabase = createClientComponentClient();
       <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
       <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
         <SearchBar setSearchQuery={setSearchQuery} />
-        <DateFilter setStartDate={setStartDate} setEndDate={setEndDate} />
+       
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {filteredArticles.map((article) => (
           <div key={article.id} className="cursor-pointer">
-            <ArticleCard article={article} onDelete={handleDelete} onEdit={handleEdit} />
+            <ArticleCardAdmin article={article} onDelete={handleDelete} onEdit={handleEdit} />
           </div>
         ))}
       </div>
-      
+      <div className="p-6">
+        <button onClick={handleOpenModal} className="bg-blue-600 text-white px-4 py-2 rounded">
+          Ajouter un article
+        </button>
+        <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
+        {currentArticleId && (
+          <EditArticleModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} articleId={currentArticleId} />
+        )}
+      </div>
     </div>
   );
 };
