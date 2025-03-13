@@ -47,3 +47,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Impossible d'ajouter l'événement" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const { id } = await req.json();
+    
+    if (!id) {
+      return NextResponse.json({ error: "ID de l'événement requis" }, { status: 400 });
+    }
+
+    await calendar.events.delete({
+      calendarId: process.env.GOOGLE_CALENDAR_ID!,
+      eventId: id,
+    });
+
+    return NextResponse.json({ message: "Événement supprimé avec succès" }, { status: 200 });
+  } catch (error) {
+    console.error("Erreur suppression événement:", error);
+    return NextResponse.json({ error: "Impossible de supprimer l'événement" }, { status: 500 });
+  }
+}

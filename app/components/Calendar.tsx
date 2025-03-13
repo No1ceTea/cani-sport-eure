@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, momentLocalizer, Event } from "react-big-calendar";
+import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
@@ -54,6 +54,23 @@ export default function MyCalendar() {
     }
   };
 
+  const deleteEvent = async (eventId: string) => {
+    if (!confirm("Voulez-vous vraiment supprimer cet événement ?")) return;
+  
+    const res = await fetch("/api/calendar", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: eventId }), // ✅ Envoie bien l'ID de l'événement
+    });
+  
+    if (res.ok) {
+      setEvents(events.filter((event) => event.id !== eventId));
+    } else {
+      alert("Erreur lors de la suppression.");
+    }
+  };
+  
+
   return (
     <div className="p-4 bg-white shadow-md rounded-lg">
       <h2 className="text-xl font-bold mb-4">📅 Agenda</h2>
@@ -65,7 +82,18 @@ export default function MyCalendar() {
         selectable
         style={{ height: 500 }}
         onSelectSlot={handleSelectSlot}
+        onSelectEvent={(event) => deleteEvent(event.id)}
       />
+      <ul>
+        {events.map((event) => (
+          <li key={event.id}>
+            {event.title} - {event.start.toDateString()}
+            <button onClick={() => deleteEvent(event.id)} className="ml-2 text-red-500">
+              🗑 Supprimer
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
