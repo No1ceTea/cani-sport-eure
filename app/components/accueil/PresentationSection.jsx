@@ -21,7 +21,7 @@ export default function Presentation() {
               <h3 className="bg-blue_primary primary_title px-6 py-2 rounded-lg text-xl add_border">Nos Activités</h3>
             </div>
             <Image
-              src="/montagne.jpeg"
+              src="/photos/trotinete.jpeg"
               alt="Person running with dog"
               width={600}
               height={400}
