@@ -4,9 +4,11 @@ import Title from "./components/accueil/TitleSection";
 import Presentation from "./components/accueil/PresentationSection";
 import Agenda from "./components/accueil/AgendaSection";
 import Sponsor from "./components/accueil/SponsorSection";
+/*
 import Evenements from "./components/accueil/EvenementsSection";
 import Articles from "./components/accueil/ArticlesSection";
 import Resultats from "./components/accueil/ResultatsSection";
+*/
 
 import Sidebar from "./components/sidebars/Sidebar";
 
@@ -20,9 +22,11 @@ export default function HomePage() {
       <Presentation />
       <Agenda />
       <Sponsor />
+      {/*
       <Evenements />
       <Articles />
       <Resultats />
+      */}
 
       <Sidebar />
     </main>
