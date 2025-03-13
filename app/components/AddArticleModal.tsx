@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import { X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid"; // Importation de la fonction uuidv4
 import supabase from "../../lib/supabaseClient"; 
+import { useRouter } from "next/navigation";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -11,6 +12,8 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null); // État pour l'image
+  const [userId, setUserId] = useState<string | null>(null);
+
 
   if (!isOpen) return null;
 
@@ -53,7 +56,7 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         {
           titre: title,
           contenu: content,
-          
+          id_profil: userId,
           image_url: imageUrl, // On ajoute l'URL de l'image à la publication
         },
       ]);
@@ -68,6 +71,7 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
+ 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg w-[780px] h-[571px] shadow-lg relative flex flex-col justify-between">

@@ -5,9 +5,10 @@ import { Link, X, Edit } from "lucide-react";
 interface Article {
   id: string;
   title: string;
-  excerpt: string;
+  content: string;
   image_url: string;
   date: string;
+  id_profil: string;
 }
 
 interface SearchBarProps {
@@ -35,7 +36,7 @@ const ArticleCard: React.FC<{ article: Article; onDelete: (id: string) => void; 
       
       <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
       <h3 className="text-lg font-bold mt-2">{article.title}</h3>
-      <p className="text-sm text-gray-600">{article.excerpt}</p>
+      <p className="text-sm text-gray-600">{article.content.slice(0, 100)}...</p>
       <p className="text-xs text-gray-500 mt-2">{new Date(article.date).toLocaleDateString()}</p>
       <Link href={`/article/${article.id}`} className="text-blue-500 text-sm mt-2 flex items-center">Lire plus &rarr;</Link>
     </div>

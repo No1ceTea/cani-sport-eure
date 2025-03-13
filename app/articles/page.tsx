@@ -4,54 +4,120 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArticleCard, SearchBar, DateFilter } from "../components/ArticlesComponents";
 import AddArticleModal from "../components/AddArticleModal";
-import EditArticleModal from "../components/EditArticleModal"; // Importation du modal de modification
-import supabase from "../../lib/supabaseClient"; // Importation de Supabase
+import EditArticleModal from "../components/EditArticleModal";
+import supabase from "../../lib/supabaseClient";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 
 interface Article {
   id: string;
   title: string;
-  excerpt: string;
+  content: string;
   image_url: string;
   date: string;
-  content?: string;
+  id_profil: string;
 }
 
-const mockArticles: Article[] = [
-  { id: "1", title: "Randonnée en montagne", excerpt: "Une belle aventure en altitude.", image_url: "/images/mountain.jpg", date: "2025-03-01", content: "Description complète de l'article sur la randonnée en montagne..." },
-  { id: "2", title: "Course en forêt", excerpt: "Découvrez les sentiers boisés.", image_url: "/images/forest.jpg", date: "2025-03-03", content: "Détails sur la course en forêt et ses bienfaits..." },
-  { id: "3", title: "Balade avec les chiens", excerpt: "Une sortie agréable avec nos compagnons.", image_url: "/images/dogs.jpg", date: "2025-02-25", content: "Informations sur les balades organisées avec les chiens..." },
-  { id: "4", title: "Marche nordique", excerpt: "Un exercice complet et accessible.", image_url: "/images/nordic.jpg", date: "2025-02-28", content: "Explication détaillée des bienfaits de la marche nordique..." }
-];
-
 const ArticlesPage: React.FC = () => {
-  const [articles, setArticles] = useState<Article[]>(mockArticles);
+
+const supabase = createClientComponentClient();
+  const [articles, setArticles] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // État pour le modal de modification
-  const [currentArticleId, setCurrentArticleId] = useState<string | null>(null); // État pour l'ID de l'article en cours de modification
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentArticleId, setCurrentArticleId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      const { data, error } = await supabase
+        .from("publication")
+        .select("id, titre, contenu, image_url, created_at, id_profil")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Erreur lors de la récupération des articles:", error);
+      } else {
+        setArticles(
+          data.map((article) => ({
+            id: article.id,
+            title: article.titre,
+            content: article.contenu,
+            image_url: article.image_url,
+            date: article.created_at,
+            id_profil: article.id_profil,
+          }))
+        );
+      }
+    };
+    fetchArticles();
+  }, []);
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from("publication")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("publication").delete().eq("id", id);
 
     if (error) {
       console.error("Erreur lors de la suppression de l'article:", error);
       alert("Erreur lors de la suppression de l'article.");
     } else {
       setArticles((prevArticles) => prevArticles.filter((article) => article.id !== id));
-      console.log(`Supprimer l'article avec l'id: ${id}`);
     }
   };
+
+
+  const router = useRouter();
+  const [userType, setUserType] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      // 🔹 Vérifie si l'utilisateur est connecté
+      const { data: userSession } = await supabase.auth.getSession();
+
+      if (!userSession.session) {
+        console.log("🔴 Utilisateur non connecté, redirection vers /connexion");
+        //router.replace("/connexion");
+        return;
+      }
+
+      // 🔹 Récupère les données utilisateur
+      const { data: userData, error } = await supabase.auth.getUser();
+
+      if (error || !userData?.user) {
+        console.log("❌ Erreur lors de la récupération de l'utilisateur :", error);
+       // router.replace("/connexion");
+        return;
+      }
+
+      console.log("🔍 Données de l'utilisateur :", userData.user.user_metadata);
+
+      // ✅ Stocke l'UUID de l'utilisateur
+      setUserId(userData.user.id);
+
+      const isAdmin = userData.user.user_metadata?.administrateur === true;
+
+      if (isAdmin) {
+        console.log("🔴 Admin détecté, redirection vers /dashboard/admin");
+       // router.replace("/dashboard/admin");
+      } else {
+        console.log("✅ Utilisateur adhérent détecté, accès autorisé !");
+        setUserType("client");
+      }
+
+      console.log(userData.user.id)
+
+      setIsLoading(false);
+    };
+
+    checkUser();
+  }, [router, supabase.auth]);
 
   const handleEdit = (id: string) => {
     setCurrentArticleId(id);
     setIsEditModalOpen(true);
-    console.log(`Modifier l'article avec l'id: ${id}`);
   };
 
   const handleOpenModal = () => {
@@ -67,25 +133,13 @@ const ArticlesPage: React.FC = () => {
     setCurrentArticleId(null);
   };
 
-  useEffect(() => {
-    let filteredArticles = mockArticles;
-
-    if (searchQuery) {
-      filteredArticles = filteredArticles.filter((article) =>
-        article.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (startDate) {
-      filteredArticles = filteredArticles.filter((article) => article.date >= startDate);
-    }
-
-    if (endDate) {
-      filteredArticles = filteredArticles.filter((article) => article.date <= endDate);
-    }
-
-    setArticles(filteredArticles);
-  }, [searchQuery, startDate, endDate]);
+  const filteredArticles = articles.filter((article) => {
+    return (
+      (!searchQuery || article.title.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!startDate || article.date >= startDate) &&
+      (!endDate || article.date <= endDate)
+    );
+  });
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -95,29 +149,19 @@ const ArticlesPage: React.FC = () => {
         <DateFilter setStartDate={setStartDate} setEndDate={setEndDate} />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {articles.map((article) => (
+        {filteredArticles.map((article) => (
           <div key={article.id} className="cursor-pointer">
             <ArticleCard article={article} onDelete={handleDelete} onEdit={handleEdit} />
           </div>
         ))}
       </div>
       <div className="p-6">
-        <button
-          onClick={handleOpenModal}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
+        <button onClick={handleOpenModal} className="bg-blue-600 text-white px-4 py-2 rounded">
           Ajouter un article
         </button>
-        <AddArticleModal 
-          isOpen={isModalOpen} 
-          onClose={handleCloseModal} 
-        />
+        <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
         {currentArticleId && (
-          <EditArticleModal
-            isOpen={isEditModalOpen}
-            onClose={handleCloseEditModal}
-            articleId={currentArticleId}
-          />
+          <EditArticleModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} articleId={currentArticleId} />
         )}
       </div>
     </div>
