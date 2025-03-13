@@ -70,7 +70,7 @@ export default function LoginPage() {
       const isAdmin = userData.user.user_metadata?.administrateur === true;
       sessionStorage.setItem("isAdmin", isAdmin ? "true" : "false");
   
-      router.push(isAdmin ? "/dashboard/admin" : "/dashboard/client");
+      router.push(isAdmin ? "/dashboard/admin" : "/");
     }
   };
   
