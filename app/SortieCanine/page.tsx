@@ -5,6 +5,9 @@ import { createClient } from "@supabase/supabase-js";
 // import Filter from "../components/SportFilter";
 import dynamic from "next/dynamic";
 
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
+
 const MapWithStats = dynamic(() => import("../components/MapWithStats"), { ssr: false });
 const Filter = dynamic(() => import("../components/SportFilter"), { ssr: false });
 
@@ -95,6 +98,8 @@ const SortiesPage = () => {
           </div>
         ))}
       </div>
+      <Sidebar />
+      <Footer />
     </div>
   );
 };

@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid"; // Import pour générer un ID unique
 
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -131,6 +134,8 @@ export default function UserProfileForm() {
           <button className="text-white text-4xl cursor-pointer">🗑</button>
         </div>
       </div>
+      <Sidebar />
+      <Footer />
     </div>
   );
 }
