@@ -1,6 +1,7 @@
   "use client";
 
   import { Link, X, Edit } from "lucide-react";
+  import Image from "next/image";
 
   interface Article {
     id: string;
@@ -44,7 +45,7 @@
       <div className="bg-white shadow-lg rounded-2xl p-4 max-w-md relative">
         {/* Section utilisateur */}
         <div className="flex items-center space-x-3 mb-3">
-          <img src={article.user_avatar} alt={article.user_name} className="w-10 h-10 rounded-full" />
+          <Image src={article.user_avatar} alt={article.user_name} className="w-10 h-10 rounded-full" />
           <div>
             <p className="font-semibold">{article.user_name}</p>
             <p className="text-xs text-gray-500">{timeSince(article.date)}</p>
@@ -62,7 +63,7 @@
         </div>
   
         {/* Image de l'article */}
-        <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
+        <Image src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
   
         {/* Contenu de l'article */}
         <p className="text-xs text-gray-500 mt-2">Créé le {new Date(article.date).toLocaleDateString()}</p>

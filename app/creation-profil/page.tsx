@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
+import Image from "next/image";
 
 const supabase = createClientComponentClient();
 
@@ -151,7 +152,7 @@ export default function UserProfileForm() {
           <div className="flex flex-col items-center mb-4">
             <label htmlFor="photo-upload" className="cursor-pointer">
               {photoPreview ? (
-                <img src={photoPreview} alt="Photo de profil" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
+                <Image src={photoPreview} alt="Photo de profil" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
               ) : (
                 <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
                   Ajouter une photo

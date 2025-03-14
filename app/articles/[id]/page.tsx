@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface Article {
   id: string;
@@ -37,7 +38,7 @@ const ArticleDetail: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-blue-900 text-white rounded-xl shadow-lg mt-10">
       <div className="flex items-center space-x-4 mb-6">
-        <img src="/images/user-placeholder.jpg" alt="Auteur" className="w-12 h-12 rounded-full" />
+        <Image src="/images/user-placeholder.jpg" alt="Auteur" className="w-12 h-12 rounded-full" />
         <div>
           <p className="text-lg font-semibold">Nom</p>
           <p className="text-sm text-gray-300">Il y a 20 minutes</p>
@@ -46,7 +47,7 @@ const ArticleDetail: React.FC = () => {
       <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <p className="leading-relaxed">{article.content}</p>
-        <img src={article.image_url} alt={article.title} className="rounded-lg shadow-md" />
+        <Image src={article.image_url} alt={article.title} className="rounded-lg shadow-md" />
       </div>
       <p className="mt-6 text-sm text-gray-300">Créé le {new Date(article.date).toLocaleDateString()}</p>
     </div>

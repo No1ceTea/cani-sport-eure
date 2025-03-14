@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
+import Image from "next/image";
 
 const supabase = createClientComponentClient();
 
@@ -115,7 +116,7 @@ export default function PetProfileForm() {
           <div className="flex flex-col items-center mb-4">
             <label htmlFor="photo-upload" className="cursor-pointer">
               {photoPreview ? (
-                <img
+                <Image
                   src={photoPreview}
                   alt="Photo du chien"
                   className="w-32 h-32 object-cover rounded-lg shadow-lg"

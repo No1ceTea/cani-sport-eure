@@ -1,6 +1,7 @@
 "use client";
 
 import { Link, X, Edit } from "lucide-react";
+import Image from "next/image";
 
 interface Article {
   id: string;
@@ -26,7 +27,7 @@ const ArticleCard: React.FC<{ article: Article; onDelete: (id: string) => void; 
     <div className="bg-white shadow-lg rounded-2xl p-4 max-w-xs relative">
       
       
-      <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
+      <Image src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
       <h3 className="text-lg font-bold mt-2">{article.title}</h3>
       <p className="text-sm text-gray-600">{article.content.slice(0, 100)}...</p>
       <p className="text-xs text-gray-500 mt-2">{new Date(article.date).toLocaleDateString()}</p>
