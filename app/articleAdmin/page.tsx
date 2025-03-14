@@ -6,6 +6,7 @@ import { ArticleCardAdmin, SearchBar, DateFilter } from "../components/ArticlesC
 import AddArticleModal from "../components/AddArticleModal";
 import EditArticleModal from "../components/EditArticleModal";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import SidebarAdmin from "../components/SidebarAdmin";
 
 interface Article {
   id: string;
@@ -113,6 +114,8 @@ const ArticlesPage: React.FC = () => {
   });
 
   return (
+    <div className="flex">
+    <SidebarAdmin/>
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
       <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
@@ -135,6 +138,7 @@ const ArticlesPage: React.FC = () => {
           <EditArticleModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} articleId={currentArticleId} />
         )}
       </div>
+    </div>
     </div>
   );
 };
