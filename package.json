@@ -33,7 +33,7 @@
     "gapi": "^0.0.3",
     "gapi-script": "^1.2.0",
     "googleapis": "^146.0.0",
-    "image-size": "^1.2.0",
+    "image-size": "^2.0.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.477.0",
     "next": "15.1.7",
