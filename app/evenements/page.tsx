@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import EventCard from '../components/EventCard';
 import AddEventModal from '../components/AddEventModal';
+import SidebarAdmin from '../components/SidebarAdmin';
 
 const fakeEvents = [
   {
@@ -58,22 +59,7 @@ const EventsPage = () => {
 
   return (
     <div className="flex relative">
-      {/* Sidebar */}
-      <aside className="w-1/5 bg-blue-900 text-white p-4 min-h-screen">
-        <h2 className="text-xl font-bold">Menu</h2>
-        <ul className="mt-4 space-y-3">
-          <li className="hover:bg-blue-700 p-2 rounded">🏠 Dashboard</li>
-          <li className="hover:bg-blue-700 p-2 rounded">📅 Événements</li>
-          <li className="hover:bg-blue-700 p-2 rounded">📖 Articles</li>
-          <li className="hover:bg-blue-700 p-2 rounded">📷 Album</li>
-        </ul>
-        <button
-          className="mt-6 bg-yellow-400 text-black p-2 rounded flex items-center justify-center w-full"
-          onClick={openModal}
-        >
-          ➕ Ajouter événement
-        </button>
-      </aside>
+      <SidebarAdmin/>
 
       {/* Contenu Principal */}
       <div className={`flex-1 p-6 ${isModalOpen ? 'pointer-events-none opacity-50' : ''}`}>
