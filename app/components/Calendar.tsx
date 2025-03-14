@@ -159,7 +159,7 @@ export default function MyCalendar() {
 
       {editingEvent && (
         <div className="mt-4 p-4 border rounded bg-gray-100">
-          <h3 className="text-md font-semibold">Modifier l'événement</h3>
+          <h3 className="text-md font-semibold">Modifier l&apos;événement</h3>
           <input
             type="text"
             value={updatedTitle}
