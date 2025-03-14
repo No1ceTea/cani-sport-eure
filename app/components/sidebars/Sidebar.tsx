@@ -86,7 +86,7 @@ export default function Sidebar({ session = null }: SidebarProps) {
               </a>
             </li>
             <li>
-              <a href="https://www.google.fr/" className="hover:text-gray-300">
+              <a href="https://sublimtout.com/200-canisports-eure" className="hover:text-gray-300">
                 Boutique
               </a>
             </li>

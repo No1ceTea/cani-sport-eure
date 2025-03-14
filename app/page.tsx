@@ -41,7 +41,9 @@ export default function HomePage() {
     <main className="bg-cover bg-center">
       <Title />
       <Presentation />
+      {/*
       <Agenda />
+      */}
       <Sponsor />
 
       {/* Transmet la session à Sidebar */}
