@@ -5,6 +5,7 @@ import { FaTrash, FaPlus, FaEdit, FaUpload  } from "react-icons/fa";
 import { createClient } from "@supabase/supabase-js";
 import ModalAdd from "../components/ModalAdd";
 import ModalEdit from "../components/ModalEdit";
+import ModalConfirm from "./ModalConfirm";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 
@@ -14,6 +15,10 @@ export default function CatalogueSorties() {
   const [isModalOpen, setIsModalOpen] = useState(false); // ✅ Déplacement ici
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedSortie, setSelectedSortie] = useState(null);
+  // constante pour gérer le modal de confirmation de suppression
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedSortieId, setSelectedSortieId] = useState(null);
+
   
 
   // 📌 Charger les sorties depuis Supabase
@@ -45,15 +50,34 @@ export default function CatalogueSorties() {
   }, []);
 
   // 📌 Fonction pour supprimer une sortie
-  const handleDelete = async (id) => {
-    const { error } = await supabase.from("gpx_tracks").delete().match({ id });
+  // const handleDelete = async (id) => {
+  //   const { error } = await supabase.from("gpx_tracks").delete().match({ id });
 
+  //   if (error) {
+  //     console.error("❌ Erreur de suppression :", error);
+  //   } else {
+  //     setData(data.filter((sortie) => sortie.id !== id));
+  //   }
+  // };
+  const handleDeleteClick = (id) => {
+    setSelectedSortieId(id);
+    setIsDeleteModalOpen(true);
+  };
+  
+  const confirmDelete = async () => {
+    if (!selectedSortieId) return;
+  
+    const { error } = await supabase.from("gpx_tracks").delete().match({ id: selectedSortieId });
+  
     if (error) {
       console.error("❌ Erreur de suppression :", error);
     } else {
-      setData(data.filter((sortie) => sortie.id !== id));
+      setData(data.filter((sortie) => sortie.id !== selectedSortieId));
+      setIsDeleteModalOpen(false);
+      setSelectedSortieId(null);
     }
   };
+  
 
   // 📌 Fonction pour ouvrir le modal d'édition avec les données de la sortie sélectionnée
   const handleEditClick = (sortie) => {
@@ -90,20 +114,30 @@ export default function CatalogueSorties() {
               <td className="p-4">{sortie.heure}</td>
               <td className="p-4">{sortie.fichier}</td>
               <td className="p-4 flex justify-center gap-4">
-                <button onClick={() => handleDelete(sortie.id)} className="text-red-500 hover:text-red-700">
-                  <FaTrash />
-                </button>
-                <button onClick={() => handleEditClick(sortie)} className="text-green-500 hover:text-green-700">
-                  <FaEdit />
-                </button>
+              <button onClick={() => handleDeleteClick(sortie.id)} className="text-red-500 hover:text-red-700">
+                <FaTrash />
+              </button>
+              <button onClick={() => handleEditClick(sortie)} className="text-green-500 hover:text-green-700">
+                <FaEdit />
+              </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Affichage du modal */}
+      {/* Modal de confirmation */}  
+      <ModalConfirm
+        isOpen={isDeleteModalOpen}
+        title="Voulez-vous vraiment supprimer cette sortie ?"
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        onConfirm={confirmDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+      />
+      {/* Modal d'ajout */}
       <ModalAdd isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {/* Modal d'édition */}
       <ModalEdit isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} sortie={selectedSortie} />
     </div>
   );
