@@ -27,7 +27,7 @@ interface EventCardProps {
 // Fonction pour calculer le temps écoulé depuis la publication
 const timeSince = (date: string) => {
 
-  console.log("date", date);
+  //console.log("date", date);
   const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
   if (seconds < 60) return `Il y a ${seconds} secondes`;
   const minutes = Math.floor(seconds / 60);
@@ -62,7 +62,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const formattedDate = timeSince(event.created_at);
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-4 border relative">
+    <div className="bg-white shadow-lg rounded-lg p-4 border relative flex flex-col h-[500px]">
       {/* Boutons Modifier/Supprimer */}
       <div className="absolute top-3 right-3 flex space-x-2 text-gray-600">
         <FaTrash className="cursor-pointer hover:text-red-500" onClick={handleOpenDeleteConfirm} />
@@ -94,13 +94,15 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
 
       {/* Image de l'événement */}
       {event.image_url && (
-        <Image
-          src={event.image_url}
-          alt={event.titre}
-          width={500}
-          height={250}
-          className="rounded-lg"
-        />
+        <div className="h-64 w-full relative">
+          <Image
+            src={event.image_url}
+            alt={event.titre}
+            layout="fill"
+            objectFit="cover"
+            className="rounded-lg"
+          />
+        </div>
       )}
 
       {/* Modal de modification */}
