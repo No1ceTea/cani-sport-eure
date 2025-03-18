@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig = {
   
   images: {
-    domains: ["i.pravatar.cc", "source.unsplash.com"], // Autoriser les domaines d'images
+    domains: ["i.pravatar.cc", "source.unsplash.com", "hemnffexpmrczjjusnnj.supabase.co"], // Autoriser les domaines d'images
     remotePatterns: [
       {
         protocol: 'https',

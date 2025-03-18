@@ -98,7 +98,7 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
   };
 
   return (
-    <div className="fixed z-100 inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed z-[9999] inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg w-[780px] h-[571px] shadow-lg relative flex flex-col justify-between">
         <div className="flex justify-between items-center border-b border-black pb-2">
           <h2 className="text-xl font-semibold">Modifier un événement</h2>
