@@ -94,14 +94,18 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
 
       {/* Image de l'événement */}
       {event.image_url && (
-        <div className="h-64 w-full relative">
-          <Image
-            src={event.image_url}
-            alt={event.titre}
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg"
-          />
+        <div className="relative">
+          <div className="h-64 w-full relative">
+            <Image
+              src={event.image_url}
+              alt={event.titre}
+              layout="fill"
+              objectFit="cover"
+              className="rounded-lg"
+            />
+          </div>
+          {/* Trait sous l'image */}
+          <div className="border-b-2 border-gray-300 w-full mt-4"></div>
         </div>
       )}
 
