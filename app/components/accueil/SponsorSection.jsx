@@ -4,7 +4,7 @@ export default function Sponsor() {
   return (
     <section id="sponsors" className="bg-white text-black py-16 px-6 sm:px-16">
       <div className="container mx-auto">
-        <h2 className="text-2xl font-bold mb-6 primary_title_black">Nos sponsors</h2>
+        <h2 className="text-2xl font-bold mb-6 primary_title_black">Nos partenaires</h2>
 
         <div className="flex justify-center items-center gap-10 flex-wrap">
           {/* Logos des sponsors */}

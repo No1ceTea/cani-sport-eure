@@ -69,7 +69,6 @@ const EventsPage = () => {
 
   return (
     <div className="flex relative">
-      {/* Sidebar */}
       <SidebarAdmin/>
 
         {/* Contenu Principal */}

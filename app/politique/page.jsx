@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 
 const PrivacyPolicy = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -60,7 +61,9 @@ const PrivacyPolicy = () => {
         </div>
         <div className="text-center mt-4">
           <button className="bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-700" style={{ fontFamily: 'Calibri, sans-serif' }}>
+          <Link href="/inscription">
             OK
+          </Link>
           </button>
         </div>
       </div>
