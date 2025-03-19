@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import EventCard from "../components/EventCard";
 import supabase from "../../lib/supabaseClient";
 import { FaSearch } from "react-icons/fa";
-import { BsCalendar } from "react-icons/bs";
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
 
 interface Event {
   id: number;
@@ -74,7 +75,7 @@ const ListeEvenement = () => {
   return (
     <div className="min-h-screen px-10 py-6">
       {/* Titre de la page */}
-      <h1 className="text-4xl font-bold text-black mb-6">Évènement</h1>
+      <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Évènement</h1>
 
       {/* Barre de recherche et filtres */}
       <div className="flex flex-wrap items-center gap-6 mb-6">
@@ -118,6 +119,7 @@ const ListeEvenement = () => {
           </div>
         ))}
       </div>
+      <Sidebar/>
     </div>
   );
 };

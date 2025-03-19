@@ -3,6 +3,7 @@ import Image from "next/image";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import EditEventModal from "./EditEventModal";
 import supabase from "../../lib/supabaseClient";
+import ModalConfirm from "./ModalConfirm";
 
 interface Auteur {
   nom: string;
@@ -112,22 +113,16 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
       {/* Modal de modification */}
       <EditEventModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} articleId={event.id.toString()} />
 
-      {/* Pop-up de confirmation de suppression */}
-      {isDeleteConfirmOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Voulez-vous vraiment supprimer cet événement ?</h2>
-            <div className="flex justify-end space-x-4">
-              <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded" onClick={handleCloseDeleteConfirm}>
-                Annuler
-              </button>
-              <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleDelete}>
-                Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Utilisation du ModalConfirm pour la suppression */}
+      <ModalConfirm
+        isOpen={isDeleteConfirmOpen}
+        onConfirm={handleDelete}
+        onCancel={handleCloseDeleteConfirm} // Assure que le bouton "Annuler" ferme bien le modal
+        title="Confirmer la suppression"
+        message="Voulez-vous vraiment supprimer cet événement ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+      />
     </div>
   );
 };
