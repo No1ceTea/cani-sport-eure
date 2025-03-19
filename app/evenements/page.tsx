@@ -68,7 +68,7 @@ const EventsPage = () => {
   );
 
   return (
-    <div className="flex relative">
+    <div className="flex h-screen overflow-hidden">
       <SidebarAdmin/>
 
         {/* Contenu Principal */}
