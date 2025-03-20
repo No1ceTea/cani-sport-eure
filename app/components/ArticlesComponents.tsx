@@ -13,6 +13,7 @@ interface Article {
 
 interface SearchBarProps {
   setSearchQuery: (query: string) => void;
+  placeholder?: string; // Ajout de la prop optionnelle
 }
 
 interface DateFilterProps {
@@ -40,7 +41,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ setSearchQuery }) => {
   return (
     <input
       type="text"
-      placeholder="Rechercher un article..."
+      placeholder="Rechercher le titre de l'article ou le nom de l'auteur..."
       className="p-2 border rounded-lg w-full"
       onChange={(e) => setSearchQuery(e.target.value)}
     />
