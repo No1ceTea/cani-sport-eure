@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "../../../lib/supabaseClient";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale"; // Import pour afficher la date en français
 
 interface Article {
   id: string;
@@ -13,10 +15,16 @@ interface Article {
   id_profil: string;
 }
 
+interface Author {
+  nom: string;
+  prenom: string;
+  photo_profil: string | null; // Peut être null
+}
+
 const ArticleDetail = () => {
   const { id } = useParams() as { id: string };
   const [article, setArticle] = useState<Article | null>(null);
-  const [author, setAuthor] = useState<{ name: string; avatar: string } | null>(null);
+  const [author, setAuthor] = useState<Author | null>(null);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -38,8 +46,8 @@ const ArticleDetail = () => {
 
     const fetchAuthor = async (authorId: string) => {
       const { data, error } = await supabase
-        .from("users") // Assure-toi que cette table contient les profils des auteurs
-        .select("name, avatar")
+        .from("profils") // Table correcte
+        .select("nom, prenom, photo_profil")
         .eq("id", authorId)
         .single();
 
@@ -50,6 +58,9 @@ const ArticleDetail = () => {
   }, [id]);
 
   if (!article) return <p>Chargement...</p>;
+
+  // ✅ Calcul du temps écoulé depuis la publication
+  const timeAgo = formatDistanceToNow(new Date(article.created_at), { locale: fr, addSuffix: true });
 
   return (
     <div className="min-h-screen px-10 py-6 bg-gray-100">
@@ -62,11 +73,15 @@ const ArticleDetail = () => {
         {/* Partie gauche : Texte avec scroll */}
         <div className="flex-1 flex flex-col max-h-[700px] overflow-y-auto p-4">
           {/* Auteur */}
-          <div className="flex gap-3 mb-4">
-            {author && <img src={author.avatar} alt={author.name} className="w-10 h-10 rounded-full" />}
+          <div className="flex gap-3 mb-4 items-center">
+            <img
+              src={author?.photo_profil || "/default-avatar.png"} // ✅ Utilisation de l'image par défaut
+              alt={author ? `${author.prenom} ${author.nom}` : "Auteur inconnu"}
+              className="w-10 h-10 rounded-full"
+            />
             <div>
-              <p className="font-bold">{author ? author.name : "Auteur inconnu"}</p>
-              <p className="text-sm text-gray-300">Il y a 20 minutes</p>
+              <p className="font-bold">{author ? `${author.prenom} ${author.nom}` : "Auteur inconnu"}</p>
+              <p className="text-sm text-gray-300">{timeAgo}</p>
             </div>
           </div>
 

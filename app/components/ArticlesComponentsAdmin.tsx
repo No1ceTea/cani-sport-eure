@@ -68,11 +68,6 @@
         <p className="text-xs text-gray-500 mt-2">Créé le {new Date(article.date).toLocaleDateString()}</p>
         <h3 className="text-lg font-bold mt-2">{article.title}</h3>
         <p className="text-sm text-gray-600">{article.content.slice(0, 100)}...</p>
-  
-        {/* Lien vers l'article */}
-        <Link href={`/article/${article.id}`} className="text-blue-500 text-sm mt-2 flex items-center">
-          Lire plus &rarr;
-        </Link>
       </div>
     );
   };

@@ -80,19 +80,19 @@ const ArticlesPage = () => {
       </div>
 
       {/* Liste des articles */}
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto max-h-[700px] overflow-y-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filteredArticles.map((article) => (
-          <div className="bg-white shadow-lg rounded-2xl p-4 max-w-xs relative">
-          <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
-          <h3 className="text-lg font-bold mt-2">{article.title}</h3>
-          <p className="text-sm text-gray-600">{article.content.slice(0, 100)}...</p>
-          <p className="text-xs text-gray-500 mt-2">{new Date(article.date).toLocaleDateString()}</p>
-          <button onClick={() => handleClick(article.id)} className="text-blue-500">
-            Lire plus →
-          </button>
-        </div>
-        ))}
+          {filteredArticles.map((article) => (
+            <div key={article.id} className="bg-white shadow-lg rounded-2xl p-4 max-w-xs relative">
+              <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
+              <h3 className="text-lg font-bold mt-2">{article.title}</h3>
+              <p className="text-sm text-gray-600">{article.content.slice(0, 100)}...</p>
+              <p className="text-xs text-gray-500 mt-2">{new Date(article.date).toLocaleDateString()}</p>
+              <button onClick={() => handleClick(article.id)} className="text-blue-500">
+                Lire plus →
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
