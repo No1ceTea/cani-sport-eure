@@ -26,7 +26,7 @@ export default function Footer() {
                   <ul className="text-sm space-y-2">
                     <li><a href="/#accueil" className="primary_text hover:underline">Le Club</a></li>
                     <li><a href="/articles" className="primary_text hover:underline">Articles</a></li>
-                    <li><a href="https://www.google.fr/" className="primary_text hover:underline">Boutique</a></li>
+                    <li><a href="https://sublimtout.com/200-canisports-eure" className="primary_text hover:underline">Boutique</a></li>
                   </ul>
                 </div>
                 <div>

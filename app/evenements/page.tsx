@@ -1,104 +1,101 @@
 "use client";
 
-import { useState } from 'react';
-import EventCard from '../components/EventCard';
-import AddEventModal from '../components/AddEventModal';
+import { useEffect, useState } from "react";
+import EventCard from "../components/EventCard";
+import AddEventModal from "../components/AddEventModal";
+import supabase from "../../lib/supabaseClient";
+import SidebarAdmin from "../components/SidebarAdmin";
+import { FaSearch } from "react-icons/fa";
 
-const fakeEvents = [
-  {
-    id: 1,
-    titre: "Canicross en forêt 🌲",
-    contenu: "Rejoignez-nous pour une session de canicross dans les bois ! 🐕‍🦺",
-    datePublication: "Publié le 1 mars 2025",
-    type: "Course",
-    auteur: {
-      nom: "Marie Dupont",
-      avatar_url: "https://i.pravatar.cc/300?img=5",
-    },
-    image_url: "https://source.unsplash.com/600x300/?dog,run",
-  },
-  {
-    id: 2,
-    titre: "Atelier initiation CanivTT 🚴‍♂️",
-    contenu: "Découvrez les bases du cani-VTT avec nos experts.",
-    datePublication: "Publié le 2 mars 2025",
-    type: "Atelier",
-    auteur: {
-      nom: "Lucas Martin",
-      avatar_url: "https://i.pravatar.cc/300?img=8",
-    },
-    image_url: "https://source.unsplash.com/600x300/?mountain,bike",
-  },
-  {
-    id: 3,
-    titre: "Séance d'entraînement 🏋️‍♂️",
-    contenu: "Séance spéciale pour améliorer la vitesse et l'endurance.",
-    datePublication: "Publié le 3 mars 2025",
-    type: "Entraînement",
-    auteur: {
-      nom: "Sophie Lambert",
-      avatar_url: "https://i.pravatar.cc/300?img=12",
-    },
-    image_url: "https://source.unsplash.com/600x300/?fitness,dog",
-  },
-];
-
-interface ModalProps {
-  isOpen: boolean;
-  closeModal: () => void;
+interface Event {
+  id: number;
+  titre: string;
+  contenu: string;
+  date: string;
+  type: string;
+  created_at : string ;
+  image_url: string;
+  id_profil: number;
+  auteur: {
+    nom: string;
+    avatar_url: string;
+  };
 }
 
-
-
 const EventsPage = () => {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [searchQuery, setSearchQuery] = useState(""); // État pour la recherche
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const { data, error } = await supabase.from("evenements").select("*");
+
+      if (error) {
+        console.error("Erreur lors de la récupération des événements:", error);
+        return;
+      }
+
+      // Récupérer les informations des auteurs pour chaque événement
+      const eventsWithProfiles = await Promise.all(
+        data.map(async (event) => {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profils")
+            .select("nom, photo_profil")
+            .eq("id", event.id_profil)
+            .single();
+
+          return {
+            ...event,
+            auteur: {
+              nom: profileData?.nom || "Auteur inconnu",
+              avatar_url: profileData?.photo_profil || "/default-avatar.png",
+            },
+          };
+        })
+      );
+
+      setEvents(eventsWithProfiles);
+    };
+
+    fetchEvents();
+  }, []); // Dépendances vides pour ne s'exécuter qu'une seule fois
+
+
+  // Filtrer les événements en fonction du titre
+  const filteredEvents = events.filter((event) =>
+    event.titre.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="flex relative">
-      {/* Sidebar */}
-      <aside className="w-1/5 bg-blue-900 text-white p-4 min-h-screen">
-        <h2 className="text-xl font-bold">Menu</h2>
-        <ul className="mt-4 space-y-3">
-          <li className="hover:bg-blue-700 p-2 rounded">🏠 Dashboard</li>
-          <li className="hover:bg-blue-700 p-2 rounded">📅 Événements</li>
-          <li className="hover:bg-blue-700 p-2 rounded">📖 Articles</li>
-          <li className="hover:bg-blue-700 p-2 rounded">📷 Album</li>
-        </ul>
-        <button
-          className="mt-6 bg-yellow-400 text-black p-2 rounded flex items-center justify-center w-full"
-          onClick={openModal}
-        >
-          ➕ Ajouter événement
-        </button>
-      </aside>
+    <div className="flex h-screen overflow-hidden">
+      <SidebarAdmin/>
 
-      {/* Contenu Principal */}
-      <div className={`flex-1 p-6 ${isModalOpen ? 'pointer-events-none opacity-50' : ''}`}>
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Liste des Événements</h1>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Rechercher un événement"
-              className="border border-gray-300 rounded-lg py-1 px-3"
-            />
-            🔍
-          </div>
+        {/* Contenu Principal */}
+        <div className={`flex-1 p-6 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+        
+        {/* Barre de recherche stylisée */}
+        <div className="relative w-full flex justify-left mb-6">
+          <input
+            type="text"
+            placeholder="Rechercher un événement"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-[50%] py-2 pl-4 pr-10 text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
+          />
+          <FaSearch className="absolute right-[52%] top-1/2 transform -translate-y-1/2 text-blue-900 text-lg" />
         </div>
 
-        {/* Grid des événements */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {fakeEvents.map((event) => (
+        {/* Conteneur avec scroll */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 max-h-[85vh] overflow-y-auto p-2">
+          {filteredEvents.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>
       </div>
 
       {/* Modal */}
-      <AddEventModal isOpen={isModalOpen} onClose={closeModal} />
+      <AddEventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

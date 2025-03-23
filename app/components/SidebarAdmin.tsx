@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deleteCookie } from "cookies-next";
+//import { deleteCookie } from "cookies-next";
 import BlueBackground from "./backgrounds/BlueBackground";
 
 export default function SidebarAdmin() {
@@ -19,7 +19,7 @@ export default function SidebarAdmin() {
   const menuItems = [
     { name: "Dashboard", path: "/dashboard/admin" },
     { name: "Événements", path: "/evenements" },
-    { name: "Agenda", path: "/agenda" },
+    { name: "Agenda", path: "/agendar" },
     { name: "Adhérents", path: "/dashboard/admin/adherents" },
     { name: "Résultats", path: "/resultats" },
     { name: "Articles", path: "/articleAdmin" },

@@ -6,6 +6,8 @@ import { ArticleCardAdmin, SearchBar, DateFilter } from "../components/ArticlesC
 import AddArticleModal from "../components/AddArticleModal";
 import EditArticleModal from "../components/EditArticleModal";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import SidebarAdmin from "../components/SidebarAdmin";
+import ModalConfirm from "../components/ModalConfirm";
 
 interface Article {
   id: string;
@@ -29,62 +31,73 @@ const ArticlesPage: React.FC = () => {
   const [currentArticleId, setCurrentArticleId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // ✅ Nouvel état pour la confirmation
+  const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
   const router = useRouter();
-  
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("publication").delete().eq("id", id);
+
+  const fetchArticles = async () => {
+    const { data, error } = await supabase
+      .from("publication")
+      .select("id, titre, contenu, image_url, created_at, id_profil");
+
+    if (error) {
+      console.error("❌ Erreur lors de la récupération des articles:", error);
+      return;
+    }
+
+    const articlesWithProfiles = await Promise.all(
+      data.map(async (article) => {
+        const { data: profileData, error: profileError } = await supabase
+          .from("profils")
+          .select("nom, photo_profil")
+          .eq("id", article.id_profil)
+          .single();
+
+        if (profileError) {
+          console.error(`⚠️ Erreur lors de la récupération du profil pour id_profil=${article.id_profil}`, profileError);
+        }
+
+        return {
+          id: article.id,
+          title: article.titre,
+          content: article.contenu,
+          image_url: article.image_url,
+          date: article.created_at,
+          id_profil: article.id_profil,
+          user_name: profileData?.nom || "Utilisateur inconnu",
+          user_avatar: profileData?.photo_profil || "/default-avatar.png",
+        };
+      })
+    );
+
+    setArticles(articlesWithProfiles);
+  };
+
+  useEffect(() => {
+    fetchArticles();
+  }, []);
+
+  // ✅ Fonction pour ouvrir la boîte de confirmation
+  const confirmDelete = (id: string) => {
+    setArticleToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  // ✅ Fonction de suppression après confirmation
+  const handleDelete = async () => {
+    if (!articleToDelete) return;
+    const { error } = await supabase.from("publication").delete().eq("id", articleToDelete);
 
     if (error) {
       console.error("Erreur lors de la suppression de l'article:", error);
       alert("Erreur lors de la suppression de l'article.");
     } else {
-      setArticles((prevArticles) => prevArticles.filter((article) => article.id !== id));
+      setArticles((prevArticles) => prevArticles.filter((article) => article.id !== articleToDelete));
     }
+
+    setIsConfirmOpen(false); // ✅ Ferme le modal après la suppression
+    setArticleToDelete(null);
   };
-
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      const { data, error } = await supabase
-        .from("publication")
-        .select("id, titre, contenu, image_url, created_at, id_profil");
-
-      if (error) {
-        console.error("❌ Erreur lors de la récupération des articles:", error);
-        return;
-      }
-
-      const articlesWithProfiles = await Promise.all(
-        data.map(async (article) => {
-          const { data: profileData, error: profileError } = await supabase
-            .from("profils")
-            .select("nom, photo_profil")
-            .eq("id", article.id_profil)
-            .single();
-
-          if (profileError) {
-            console.error(`⚠️ Erreur lors de la récupération du profil pour id_profil=${article.id_profil}`, profileError);
-          }
-
-          return {
-            id: article.id,
-            title: article.titre,
-            content: article.contenu,
-            image_url: article.image_url,
-            date: article.created_at,
-            id_profil: article.id_profil,
-            user_name: profileData?.nom || "Utilisateur inconnu",
-            user_avatar: profileData?.photo_profil || "/default-avatar.png",
-          };
-        })
-      );
-
-      setArticles(articlesWithProfiles);
-    };
-
-    fetchArticles();
-  }, []);
-
 
   const handleEdit = (id: string) => {
     setCurrentArticleId(id);
@@ -113,28 +126,51 @@ const ArticlesPage: React.FC = () => {
   });
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
-      <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
-        <SearchBar setSearchQuery={setSearchQuery} />
-       
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar fixe */}
+      <SidebarAdmin />
+
+      {/* Conteneur principal */}
+      <div className="p-6 max-w-6xl mx-auto flex-1 flex flex-col">
+        {/* Titre */}
+        <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
+
+        {/* Barre de recherche */}
+        <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
+          <SearchBar setSearchQuery={setSearchQuery} />
+        </div>
+
+        {/* Conteneur scrollable des articles */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-h-[600px] overflow-y-auto p-2">
+          {filteredArticles.map((article) => (
+            <div key={article.id} className="cursor-pointer">
+              <ArticleCardAdmin article={article} onDelete={() => confirmDelete(article.id)} onEdit={handleEdit} />
+            </div>
+          ))}
+        </div>
+
+        {/* Bouton d'ajout */}
+        <div className="p-6">
+          <button onClick={handleOpenModal} className="bg-blue-600 text-white px-4 py-2 rounded">
+            Ajouter un article
+          </button>
+          <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
+          {currentArticleId && (
+            <EditArticleModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} articleId={currentArticleId} />
+          )}
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {filteredArticles.map((article) => (
-          <div key={article.id} className="cursor-pointer">
-            <ArticleCardAdmin article={article} onDelete={handleDelete} onEdit={handleEdit} />
-          </div>
-        ))}
-      </div>
-      <div className="p-6">
-        <button onClick={handleOpenModal} className="bg-blue-600 text-white px-4 py-2 rounded">
-          Ajouter un article
-        </button>
-        <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
-        {currentArticleId && (
-          <EditArticleModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} articleId={currentArticleId} />
-        )}
-      </div>
+
+      {/* ✅ Modal de confirmation */}
+      <ModalConfirm
+        isOpen={isConfirmOpen}
+        title="Confirmer la suppression"
+        message="Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        onConfirm={handleDelete}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
     </div>
   );
 };
