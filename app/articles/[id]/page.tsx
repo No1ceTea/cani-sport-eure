@@ -1,54 +1,105 @@
 "use client";
 
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import supabase from "../../../lib/supabaseClient";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale"; // Import pour afficher la date en français
 
 interface Article {
   id: string;
-  title: string;
-  content: string;
+  titre: string;
+  contenu: string;
   image_url: string;
-  date: string;
+  created_at: string;
+  id_profil: string;
 }
 
-const mockArticles: Article[] = [
-  { id: "1", title: "Randonnée en montagne", content: "Description complète de l'article sur la randonnée en montagne...", image_url: "/images/mountain.jpg", date: "2025-03-01" },
-  { id: "2", title: "Course en forêt", content: "Détails sur la course en forêt et ses bienfaits...", image_url: "/images/forest.jpg", date: "2025-03-03" },
-  { id: "3", title: "Balade avec les chiens", content: "Informations sur les balades organisées avec les chiens...", image_url: "/images/dogs.jpg", date: "2025-02-25" },
-  { id: "4", title: "Marche nordique", content: "Explication détaillée des bienfaits de la marche nordique...", image_url: "/images/nordic.jpg", date: "2025-02-28" }
-];
+interface Author {
+  nom: string;
+  prenom: string;
+  photo_profil: string | null; // Peut être null
+}
 
-const ArticleDetail: React.FC = () => {
-  const router = useRouter();
-  const { id } = router.query;
+const ArticleDetail = () => {
+  const { id } = useParams() as { id: string };
   const [article, setArticle] = useState<Article | null>(null);
+  const [author, setAuthor] = useState<Author | null>(null);
 
   useEffect(() => {
-    if (id) {
-      const foundArticle = mockArticles.find((art) => art.id === id);
-      if (foundArticle) setArticle(foundArticle);
-    }
+    const fetchArticle = async () => {
+      if (!id) return;
+
+      const { data, error } = await supabase
+        .from("publication")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        console.error("Erreur lors du chargement de l'article :", error);
+      } else {
+        setArticle(data as Article);
+        fetchAuthor(data.id_profil);
+      }
+    };
+
+    const fetchAuthor = async (authorId: string) => {
+      const { data, error } = await supabase
+        .from("profils") // Table correcte
+        .select("nom, prenom, photo_profil")
+        .eq("id", authorId)
+        .single();
+
+      if (!error) setAuthor(data);
+    };
+
+    fetchArticle();
   }, [id]);
 
-  if (!article) {
-    return <div className="text-center mt-10 text-xl">Article non trouvé</div>;
-  }
+  if (!article) return <p>Chargement...</p>;
+
+  // ✅ Calcul du temps écoulé depuis la publication
+  const timeAgo = formatDistanceToNow(new Date(article.created_at), { locale: fr, addSuffix: true });
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-blue-900 text-white rounded-xl shadow-lg mt-10">
-      <div className="flex items-center space-x-4 mb-6">
-        <img src="/images/user-placeholder.jpg" alt="Auteur" className="w-12 h-12 rounded-full" />
-        <div>
-          <p className="text-lg font-semibold">Nom</p>
-          <p className="text-sm text-gray-300">Il y a 20 minutes</p>
+    <div className="min-h-screen px-10 py-6 bg-gray-100">
+      {/* Titre principal */}
+      <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Articles</h1>
+
+      {/* Carte contenant l'article */}
+      <div className="bg-blue-900 text-white p-10 rounded-3xl shadow-lg flex flex-col md:flex-row items-left gap-6 max-w-6xl mx-auto border-black border-2 max-h-[800px] overflow-hidden">
+        
+        {/* Partie gauche : Texte avec scroll */}
+        <div className="flex-1 flex flex-col max-h-[700px] overflow-y-auto p-4">
+          {/* Auteur */}
+          <div className="flex gap-3 mb-4 items-center">
+            <img
+              src={author?.photo_profil || "/default-avatar.png"} // ✅ Utilisation de l'image par défaut
+              alt={author ? `${author.prenom} ${author.nom}` : "Auteur inconnu"}
+              className="w-10 h-10 rounded-full"
+            />
+            <div>
+              <p className="font-bold">{author ? `${author.prenom} ${author.nom}` : "Auteur inconnu"}</p>
+              <p className="text-sm text-gray-300">{timeAgo}</p>
+            </div>
+          </div>
+
+          {/* Contenu de l'article (scrollable) */}
+          <h2 className="text-xl font-bold">{article.titre}</h2>
+          <p className="mt-2 text-gray-200 whitespace-pre-line">{article.contenu}</p>
+
+          {/* Date */}
+          <p className="mt-4 text-sm text-gray-300">
+            Créé le {new Date(article.created_at).toLocaleDateString()}
+          </p>
+        </div>
+
+        {/* Partie droite : Image fixe */}
+        <div className="w-64 h-64 flex-shrink-0">
+          <img src={article.image_url} alt={article.titre} className="w-full h-full object-cover rounded-lg" />
         </div>
       </div>
-      <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <p className="leading-relaxed">{article.content}</p>
-        <img src={article.image_url} alt={article.title} className="rounded-lg shadow-md" />
-      </div>
-      <p className="mt-6 text-sm text-gray-300">Créé le {new Date(article.date).toLocaleDateString()}</p>
     </div>
   );
 };
