@@ -14,12 +14,18 @@ interface EventData {
   title: string;
   start: Date;
   end: Date;
+  color?: string;
+  allDay?: boolean;
 }
 
 export default function MyCalendar() {
   const [events, setEvents] = useState<EventData[]>([]);
-  const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
-  const [updatedTitle, setUpdatedTitle] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newColor, setNewColor] = useState("#3b82f6");
+  const [startDate, setStartDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [endTime, setEndTime] = useState("");
 
   useEffect(() => {
     fetchEvents();
@@ -31,12 +37,20 @@ export default function MyCalendar() {
       const data = await res.json();
       if (Array.isArray(data)) {
         setEvents(
-          data.map((event: any) => ({
-            id: event.id,
-            title: event.summary,
-            start: new Date(event.start.dateTime || event.start.date),
-            end: new Date(event.end.dateTime || event.end.date),
-          }))
+          data.map((event: any) => {
+            const start = new Date(event.start.dateTime || event.start.date);
+            const end = new Date(event.end.dateTime || event.end.date);
+            const allDay = !event.start.dateTime;
+
+            return {
+              id: event.id,
+              title: event.summary,
+              start,
+              end,
+              color: event.description || "#3b82f6",
+              allDay,
+            };
+          })
         );
       }
     } catch (err) {
@@ -44,23 +58,48 @@ export default function MyCalendar() {
     }
   };
 
-  const handleSelectSlot = async ({ start, end }: { start: Date; end: Date }) => {
-    const title = prompt("Nom de l'événement ?");
-    if (!title) return;
+  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
+    setStartDate(start.toISOString().slice(0, 10));
+    setStartTime(start.toTimeString().slice(0, 5));
+    setEndDate(end.toISOString().slice(0, 10));
+    setEndTime(end.toTimeString().slice(0, 5));
+  };
 
-    const newEvent = { title, start, end };
+  const handleCreateEvent = async () => {
+    if (!newTitle || !startDate || !startTime || !endDate || !endTime) {
+      alert("Tous les champs sont obligatoires.");
+      return;
+    }
+
+    const start = new Date(`${startDate}T${startTime}`);
+    const end = new Date(`${endDate}T${endTime}`);
 
     const res = await fetch("/api/calendar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newEvent),
+      body: JSON.stringify({
+        title: newTitle,
+        start,
+        end,
+        color: newColor,
+      }),
     });
 
     if (res.ok) {
       fetchEvents();
+      resetForm();
     } else {
-      alert("Erreur lors de l'ajout de l'événement.");
+      alert("Erreur lors de la création.");
     }
+  };
+
+  const resetForm = () => {
+    setNewTitle("");
+    setNewColor("#3b82f6");
+    setStartDate("");
+    setStartTime("");
+    setEndDate("");
+    setEndTime("");
   };
 
   const deleteEvent = async (eventId: string) => {
@@ -79,39 +118,48 @@ export default function MyCalendar() {
     }
   };
 
-  const handleEdit = (event: EventData) => {
-    setEditingEvent(event);
-    setUpdatedTitle(event.title);
+  const eventStyleGetter = (event: EventData) => {
+    const backgroundColor = event.color || "#3b82f6";
+    return {
+      style: {
+        backgroundColor,
+        borderRadius: "6px",
+        color: "white",
+        border: "none",
+        padding: "4px",
+      },
+    };
   };
 
-  const handleUpdate = async () => {
-    if (!editingEvent) return;
-  
-    const updatedEvent = {
-      summary: updatedTitle,
-      start: { dateTime: editingEvent.start.toISOString() },
-      end: { dateTime: editingEvent.end.toISOString() },
-    };
-  
-    const response = await fetch("/api/calendar/update-event", {  // ✅ Chemin correct
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ eventId: editingEvent.id, updatedEvent }),
-    });
-  
-    if (response.ok) {
-      alert("Événement mis à jour !");
-      fetchEvents();
-      setEditingEvent(null);
+  const formatEventTime = (start: Date, end: Date) => {
+    const isSameDay =
+      start.toLocaleDateString() === end.toLocaleDateString();
+
+    const formatDate = (d: Date) =>
+      d.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+    const formatHour = (d: Date) =>
+      d.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+
+    if (isSameDay) {
+      return `${formatDate(start)} de ${formatHour(start)} à ${formatHour(end)}`;
     } else {
-      alert("Erreur lors de la mise à jour");
+      return `Du ${formatDate(start)} à ${formatHour(start)} au ${formatDate(end)} à ${formatHour(end)}`;
     }
   };
-  
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg">
       <h2 className="text-xl font-bold mb-4">📅 Agenda</h2>
+
       <Calendar
         localizer={localizer}
         events={events}
@@ -120,7 +168,7 @@ export default function MyCalendar() {
         selectable
         style={{ height: 500 }}
         onSelectSlot={handleSelectSlot}
-        onSelectEvent={(event) => handleEdit(event)}
+        eventPropGetter={eventStyleGetter}
         messages={{
           allDay: "Journée entière",
           previous: "Précédent",
@@ -135,51 +183,115 @@ export default function MyCalendar() {
           event: "Événement",
         }}
       />
-      <ul className="mt-4">
-        {events.map((event) => (
-          <li key={event.id} className="border p-2 flex justify-between">
-            <span>{event.title} - {event.start.toLocaleDateString("fr-FR")}</span>
-            <div>
+
+      {/* FORMULAIRE D’AJOUT MANUEL */}
+      {startDate && startTime && (
+        <div className="mt-4 p-4 border rounded bg-gray-100">
+          <h3 className="text-md font-semibold mb-2">Créer un événement</h3>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCreateEvent();
+            }}
+          >
+            <label className="block mb-2">
+              Titre :
+              <input
+                type="text"
+                required
+                className="ml-2 border p-1 w-full"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+              />
+            </label>
+
+            <label className="block mb-2">
+              Date de début :
+              <input
+                type="date"
+                required
+                className="ml-2 border p-1"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+              Heure :
+              <input
+                type="time"
+                required
+                className="ml-2 border p-1"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
+            </label>
+
+            <label className="block mb-2">
+              Date de fin :
+              <input
+                type="date"
+                required
+                className="ml-2 border p-1"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+              Heure :
+              <input
+                type="time"
+                required
+                className="ml-2 border p-1"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
+            </label>
+
+            <label className="block mb-2">
+              Couleur :
+              <input
+                type="color"
+                className="ml-2 border p-1 w-16"
+                value={newColor}
+                onChange={(e) => setNewColor(e.target.value)}
+              />
+            </label>
+
+            <div className="flex gap-2 mt-2">
               <button
-                onClick={() => handleEdit(event)}
-                className="text-blue-500 hover:underline mr-2"
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-2 rounded"
               >
-                ✏️ Modifier
+                ➕ Créer
               </button>
               <button
-                onClick={() => deleteEvent(event.id)}
-                className="text-red-500 hover:underline"
+                type="button"
+                onClick={resetForm}
+                className="bg-gray-400 text-white px-4 py-2 rounded"
               >
-                🗑 Supprimer
+                ❌ Annuler
               </button>
             </div>
+          </form>
+        </div>
+      )}
+
+      {/* LISTE DES ÉVÉNEMENTS */}
+      <ul className="mt-4">
+        {events.map((event) => (
+          <li
+            key={event.id}
+            className="border p-2 flex justify-between"
+            style={{ backgroundColor: event.color || "#e5e7eb", color: "#111" }}
+          >
+            <span>
+              {event.title} – {formatEventTime(event.start, event.end)}
+            </span>
+            <button
+              onClick={() => deleteEvent(event.id)}
+              className="bg-red-600 text-white px-3 py-1 rounded"
+            >
+              🗑 Supprimer
+            </button>
           </li>
         ))}
       </ul>
-
-      {editingEvent && (
-        <div className="mt-4 p-4 border rounded bg-gray-100">
-          <h3 className="text-md font-semibold">Modifier l&apos;événement</h3>
-          <input
-            type="text"
-            value={updatedTitle}
-            onChange={(e) => setUpdatedTitle(e.target.value)}
-            className="border p-2 w-full mt-2"
-          />
-          <button
-            onClick={handleUpdate}
-            className="bg-blue-500 text-white p-2 mt-2 rounded"
-          >
-            ✅ Sauvegarder
-          </button>
-          <button
-            onClick={() => setEditingEvent(null)}
-            className="ml-2 text-red-500 hover:underline"
-          >
-            ❌ Annuler
-          </button>
-        </div>
-      )}
     </div>
   );
 }
