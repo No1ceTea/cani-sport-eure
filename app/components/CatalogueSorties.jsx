@@ -9,10 +9,10 @@ import ModalConfirm from "./ModalConfirm";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 
-export default function CatalogueSorties() {
+export default function CatalogueSorties({ isModalOpen, setIsModalOpen }) {
   const supabase = createClientComponentClient();
   const [data, setData] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false); // ✅ Déplacement ici
+  // const [isModalOpen, setIsModalOpen] = useState(false); // ✅ Déplacement ici
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedSortie, setSelectedSortie] = useState(null);
   // constante pour gérer le modal de confirmation de suppression
@@ -88,12 +88,6 @@ export default function CatalogueSorties() {
   
   return (
     <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
-      <div className="gap-4 justify-right">
-        <button onClick={() => setIsModalOpen(true)} className="text-blue-600 flex items-center gap-2">
-          <FaPlus /> Ajouter une sortie
-        </button>
-      </div>
-
       <table className="w-full border border-gray-300 text-gray-700">
         <thead className="bg-gray-100">
           <tr>
