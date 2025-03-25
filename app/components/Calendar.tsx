@@ -6,6 +6,7 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import supabase from "@/lib/supabaseClient";
+import ModalConfirm from "./ModalConfirm";
 
 moment.locale("fr");
 const localizer = momentLocalizer(moment);
@@ -30,6 +31,9 @@ export default function MyCalendar() {
   const [visibility, setVisibility] = useState("public"); // 🔒 public ou private
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
 
   useEffect(() => {
     const fetchUserAndEvents = async () => {
@@ -79,6 +83,11 @@ export default function MyCalendar() {
     setShowModal(true); // 👉 on affiche la popup
   };
   
+  const handleSelectEvent = (event: EventData) => {
+    setSelectedEventId(event.id);
+    setShowDeleteModal(true);
+  };
+  
 
   const handleCreateEvent = async () => {
     if (!newTitle || !startDate || !startTime || !endDate || !endTime) {
@@ -122,7 +131,7 @@ export default function MyCalendar() {
   };
 
   const deleteEvent = async (eventId: string) => {
-    if (!confirm("Voulez-vous vraiment supprimer cet événement ?")) return;
+    if (!eventId) return;
 
     const res = await fetch("/api/calendar", {
       method: "DELETE",
@@ -187,6 +196,7 @@ export default function MyCalendar() {
         selectable
         style={{ height: 500 }}
         onSelectSlot={handleSelectSlot}
+        onSelectEvent={handleSelectEvent} // 👈 ici
         eventPropGetter={eventStyleGetter}
         messages={{
           allDay: "Journée entière",
@@ -202,6 +212,7 @@ export default function MyCalendar() {
           event: "Événement",
         }}
       />
+
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -306,25 +317,24 @@ export default function MyCalendar() {
         </div>
       )}
 
-      <ul className="mt-4">
-        {events.map((event) => (
-          <li
-            key={event.id}
-            className="border p-2 flex justify-between"
-            style={{ backgroundColor: event.color || "#e5e7eb", color: "#111" }}
-          >
-            <span>
-              {event.title} – {formatEventTime(event.start, event.end)}
-            </span>
-            <button
-              onClick={() => deleteEvent(event.id)}
-              className="bg-red-600 text-white px-3 py-1 rounded"
-            >
-              🗑 Supprimer
-            </button>
-          </li>
-        ))}
-      </ul>
+      <ModalConfirm
+        isOpen={showDeleteModal}
+        title="Supprimer l'événement ?"
+        message="Cette action est irréversible."
+        confirmText="Confirmer"
+        cancelText="Annuler"
+        onConfirm={() => {
+          if (selectedEventId) {
+            deleteEvent(selectedEventId);
+            setShowDeleteModal(false);
+            setSelectedEventId(null);
+          }
+        }}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setSelectedEventId(null);
+        }}
+      />
     </div>
   );
 }
