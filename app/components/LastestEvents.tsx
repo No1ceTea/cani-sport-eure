@@ -63,7 +63,7 @@ const LatestEvents = () => {
 
   return (
     <div className="bg-blue-900 p-12">
-        <h2 className="text-3xl font-bold text-white mb-4">
+        <h2 className="text-3xl font-bold primary_title mb-4">
             Nos derniers évènements
         </h2>
         <div className="flex justify-between items-start py-8 ">

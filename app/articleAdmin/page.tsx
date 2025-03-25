@@ -160,6 +160,9 @@ const ArticlesPage: React.FC = () => {
         onConfirm={handleDelete}
         onCancel={() => setIsConfirmOpen(false)}
       />
+
+      {/* ✅ Modal d'ajout d'article */}
+      <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );
 };
