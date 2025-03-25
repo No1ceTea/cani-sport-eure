@@ -3,26 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-// 1) Initialiser Supabase avec vos variables d'environnement
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
 );
 
-// 2) Enum pour distinguer "Compétition" et "Événements"
-enum CategoryGeneral {
-  Competition = "Compétition",
-  Event = "Événements",
-}
-
-// 3) Mapping entre l'enum et la colonne id_type de votre table resultats
-//    (Adaptez les valeurs si nécessaire)
-const categoryTypeMap: Record<CategoryGeneral, number> = {
-  [CategoryGeneral.Competition]: 1, // Par ex. 1 = Compétition
-  [CategoryGeneral.Event]: 2,       // Par ex. 2 = Événements
-};
-
-// 4) Mapping pour la colonne id_categorie (Cross, Trail, Marche, VTT)
+// Pour les sous-catégories
 const subCategoryMap: Record<string, number> = {
   Cross: 1,
   Trail: 2,
@@ -31,46 +17,57 @@ const subCategoryMap: Record<string, number> = {
 };
 
 const ResultsPage: React.FC = () => {
-  // État pour la catégorie générale (Compétition ou Événements)
-  const [selectedCategory, setSelectedCategory] = useState<CategoryGeneral>(CategoryGeneral.Competition);
-  // États pour le sous-filtre (Cross, Trail, Marche, VTT)
+  const [resultatTypes, setResultatTypes] = useState<{ id: number; nom_resultat: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedTabComp, setSelectedTabComp] = useState("Cross");
   const [selectedTabEvent, setSelectedTabEvent] = useState("Cross");
-  // État pour stocker les données
   const [data, setData] = useState<any[]>([]);
-  // État pour les messages d'erreur éventuels
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Le sous-filtre dépend du type de catégorie
-  const selectedFilter = selectedCategory === CategoryGeneral.Competition ? selectedTabComp : selectedTabEvent;
+  const selectedFilter = selectedCategory !== null ? selectedTabComp : "";
 
+  // ⏬ FETCH des catégories dynamiquement depuis ResultatType
   useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from("resultatType") // ⚠️ respecte bien la casse ici
+        .select("id, nom_resultat");
+
+      if (error) {
+        setErrorMessage("Erreur lors du chargement des catégories");
+      } else if (data) {
+        setResultatTypes(data);
+        if (data.length > 0 && selectedCategory === null) {
+          setSelectedCategory(data[0].id);
+        }
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // ⏬ FETCH des résultats
+  useEffect(() => {
+    if (selectedCategory === null) return;
+
     const fetchData = async () => {
       setErrorMessage("");
 
-      try {
-        // 1. Préparer la requête
-        let query = supabase.from("resultats").select("*");
+      const { data: resultsData, error } = await supabase
+        .from("resultats")
+        .select(`
+          *,
+          chiens ( prenom ),
+          profils ( nom, prenom )
+        `)
+        .eq("id_type", selectedCategory)
+        .eq("id_categorie", subCategoryMap[selectedFilter]);
 
-        // 2. Filtrer par type (id_type) en fonction de l'enum
-        const typeId = categoryTypeMap[selectedCategory];
-        query = query.eq("id_type", typeId);
-
-        // 3. Filtrer par sous-catégorie (id_categorie)
-        const catId = subCategoryMap[selectedFilter];
-        query = query.eq("id_categorie", catId);
-
-        // 4. Exécuter la requête
-        const { data: resultsData, error } = await query;
-        if (error) {
-          console.error("Erreur lors de la récupération des données :", error);
-          setErrorMessage(error.message);
-        } else {
-          setData(resultsData || []);
-        }
-      } catch (err: any) {
-        console.error("Erreur inattendue :", err);
-        setErrorMessage(err.message);
+      if (error) {
+        setErrorMessage("Erreur lors de la récupération des résultats");
+        console.error(error);
+      } else {
+        setData(resultsData || []);
       }
     };
 
@@ -81,70 +78,79 @@ const ResultsPage: React.FC = () => {
     <div className="relative min-h-screen bg-gray-100 p-8 flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6 w-full text-left">Résultats</h1>
 
-      {/* Affichage d'un éventuel message d'erreur */}
-      {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
-
       <div className="bg-[#475C99] p-8 rounded-3xl w-full max-w-7xl border-2 border-black min-h-[500px]">
-        {/* Sélecteur pour Compétition / Événements */}
+        {/* 🟩 MENU DEROULANT DYNAMIQUE */}
         <div className="mb-6 text-center">
           <label className="text-white text-lg font-semibold">Afficher :</label>
           <select
             className="ml-2 p-2 border border-gray-300 rounded-lg"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value as CategoryGeneral)}
+            value={selectedCategory ?? ""}
+            onChange={(e) => setSelectedCategory(parseInt(e.target.value))}
           >
-            <option value={CategoryGeneral.Competition}>Compétition</option>
-            <option value={CategoryGeneral.Event}>Événements</option>
+            {resultatTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.nom_resultat}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="bg-white text-black p-6 rounded-xl shadow-md">
-          <h2 className="text-xl font-semibold mb-4 text-center">{selectedCategory}</h2>
-          {/* Boutons de sous-catégorie : Cross, Trail, Marche, VTT */}
+          <h2 className="text-xl font-semibold mb-4 text-center">Résultats</h2>
           <div className="flex justify-between rounded-lg overflow-hidden mb-4 p-1">
-            {["Cross", "Trail", "Marche", "VTT"].map((tab) => (
+            {["Cross", "Trail", "Marche", "VTT"].map((tab, index) => (
               <button
                 key={tab}
-                onClick={() =>
-                  selectedCategory === CategoryGeneral.Competition
-                    ? setSelectedTabComp(tab)
-                    : setSelectedTabEvent(tab)
-                }
+                onClick={() => setSelectedTabComp(tab)}
                 className={`flex-1 px-4 py-2 text-center border border-gray-300 mx-1 ${
-                  selectedFilter === tab ? "bg-[#031F73] text-white" : "bg-[#475C99] text-white border-[#475C99]"
-                }`}
+                  selectedTabComp === tab
+                    ? "bg-[#031F73] text-white"
+                    : "bg-[#475C99] text-white border-[#475C99]"
+                } ${index === 0 ? "rounded-tl-lg" : ""} ${index === 3 ? "rounded-tr-lg" : ""}`}
               >
                 {tab}
               </button>
             ))}
           </div>
 
-          {/* Affichage des résultats */}
           {data.length === 0 ? (
             <p className="text-center text-gray-500">Aucun résultat disponible.</p>
           ) : (
             <table className="w-full text-left mt-2 border-collapse border border-gray-300">
               <thead>
-                <tr className="bg-gray-200">
-                  <th className="border p-2 text-sm">ID</th>
-                  <th className="border p-2 text-sm">Créé le</th>
-                  <th className="border p-2 text-sm">ID Chien</th>
-                  <th className="border p-2 text-sm">ID Profil</th>
-                  <th className="border p-2 text-sm">ID Catégorie</th>
-                  <th className="border p-2 text-sm">ID Type</th>
+                <tr className="bg-gray-200 text-center">
+                  <th className="border p-2 text-sm">Nom activité</th>
+                  <th className="border p-2 text-sm">Lieu</th>
+                  <th className="border p-2 text-sm">Région</th>
+                  <th className="border p-2 text-sm">Distance</th>
+                  <th className="border p-2 text-sm">Participant</th>
+                  <th className="border p-2 text-sm">Chien</th>
                   <th className="border p-2 text-sm">Temps</th>
+                  <th className="border p-2 text-sm">Min/km</th>
+                  <th className="border p-2 text-sm">Vitesse</th>
+                  <th className="border p-2 text-sm">Km A/R</th>
+                  <th className="border p-2 text-sm">Classement</th>
                 </tr>
               </thead>
               <tbody>
                 {data.map((item, index) => (
-                  <tr key={item.id || index} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                    <td className="border p-2 text-sm">{item.id}</td>
-                    <td className="border p-2 text-sm">{item.created_at}</td>
-                    <td className="border p-2 text-sm">{item.id_chien}</td>
-                    <td className="border p-2 text-sm">{item.id_profil}</td>
-                    <td className="border p-2 text-sm">{item.id_categorie}</td>
-                    <td className="border p-2 text-sm">{item.id_type}</td>
-                    <td className="border p-2 text-sm">{item.temps}</td>
+                  <tr
+                    key={item.id || index}
+                    className={index % 2 === 0 ? "bg-gray-100" : "bg-white text-center"}
+                  >
+                    <td className="border p-2 text-sm text-center">{item.nomActivite}</td>
+                    <td className="border p-2 text-sm text-center">{item.lieu}</td>
+                    <td className="border p-2 text-sm text-center">{item.region}</td>
+                    <td className="border p-2 text-sm text-center">{item.distance}</td>
+                    <td className="border p-2 text-sm text-center">
+                      {item.profils ? `${item.profils.nom} ${item.profils.prenom}` : ""}
+                    </td>
+                    <td className="border p-2 text-sm text-center">{item.chiens?.prenom}</td>
+                    <td className="border p-2 text-sm text-center">{item.temps}</td>
+                    <td className="border p-2 text-sm text-center">{item.minKm}</td>
+                    <td className="border p-2 text-sm text-center">{item.vitesse}</td>
+                    <td className="border p-2 text-sm text-center">{item.kmAR}</td>
+                    <td className="border p-2 text-sm text-center">{item.classement}</td>
                   </tr>
                 ))}
               </tbody>
