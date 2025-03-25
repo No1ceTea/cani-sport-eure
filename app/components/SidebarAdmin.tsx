@@ -19,7 +19,7 @@ export default function SidebarAdmin() {
   const menuItems = [
     { name: "Dashboard", path: "/dashboard/admin" },
     { name: "Événements", path: "/evenements" },
-    { name: "Agenda", path: "/agendar" },
+    { name: "Agenda", path: "/agendaAdmin" },
     { name: "Adhérents", path: "/dashboard/admin/adherents" },
     { name: "Résultats", path: "/resultats" },
     { name: "Articles", path: "/articleAdmin" },

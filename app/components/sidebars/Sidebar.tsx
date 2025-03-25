@@ -86,7 +86,7 @@ export default function Sidebar({ session = null }: SidebarProps) {
               </a>
             </li>
             <li>
-              <a href="/agendar" className="hover:text-gray-300">
+              <a href="/agenda" className="hover:text-gray-300">
                 Agenda
               </a>
             </li>

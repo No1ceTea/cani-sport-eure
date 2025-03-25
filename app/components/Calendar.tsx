@@ -173,7 +173,7 @@ export default function MyCalendar() {
   };
 
   return (
-    <div className="p-4 bg-white shadow-md rounded-lg">
+    <div className="p-4 bg-white shadow-md rounded-lg mx-auto">
       <h2 className="text-xl font-bold mb-4">📅 Agenda</h2>
 
       <Calendar

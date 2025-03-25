@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClientComponentClient, Session } from "@supabase/auth-helpers-nextjs";
 import Title from "./components/accueil/TitleSection";
 import Presentation from "./components/accueil/PresentationSection";
-import Agenda from "./components/accueil/AgendaSection";
+import AgendaHome from "./components/agendaHome";
 import Sponsor from "./components/accueil/SponsorSection";
 import Sidebar from "./components/sidebars/Sidebar";
 import Footer from "./components/sidebars/Footer";
@@ -42,9 +42,9 @@ export default function HomePage() {
     <main className="bg-cover bg-center">
       <Title />
       <Presentation />
-      {/*
-      <Agenda />
-      */}
+
+      <AgendaHome />
+
       <Sponsor />
 
       <LatestEvents/>
