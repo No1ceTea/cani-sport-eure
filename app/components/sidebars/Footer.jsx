@@ -39,7 +39,7 @@ export default function Footer() {
                 <div>
                   <h3 className="primary_title">Évènements</h3>
                   <ul className="text-sm space-y-2">
-                    <li><a href="/evenements" className="primary_text hover:underline">Évènements</a></li>
+                    <li><a href="/listeEvenement" className="primary_text hover:underline">Évènements</a></li>
                     <li><a href="/dashboard/client" className="primary_text hover:underline">Tableau de bord</a></li>
                   </ul>
                 </div>
