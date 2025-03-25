@@ -128,7 +128,7 @@ const ArticlesPage: React.FC = () => {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar fixe */}
-      <SidebarAdmin />
+      <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
       {/* Conteneur principal */}
       <div className="p-6 max-w-6xl mx-auto flex-1 flex flex-col">
@@ -148,17 +148,6 @@ const ArticlesPage: React.FC = () => {
             </div>
           ))}
         </div>
-
-        {/* Bouton d'ajout */}
-        <div className="p-6">
-          <button onClick={handleOpenModal} className="bg-blue-600 text-white px-4 py-2 rounded">
-            Ajouter un article
-          </button>
-          <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
-          {currentArticleId && (
-            <EditArticleModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} articleId={currentArticleId} />
-          )}
-        </div>
       </div>
 
       {/* ✅ Modal de confirmation */}
@@ -171,6 +160,9 @@ const ArticlesPage: React.FC = () => {
         onConfirm={handleDelete}
         onCancel={() => setIsConfirmOpen(false)}
       />
+
+      {/* ✅ Modal d'ajout d'article */}
+      <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );
 };

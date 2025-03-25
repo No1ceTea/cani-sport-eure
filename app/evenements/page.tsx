@@ -69,7 +69,7 @@ const EventsPage = () => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <SidebarAdmin/>
+      <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
         {/* Contenu Principal */}
         <div className={`flex-1 p-6 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>

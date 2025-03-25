@@ -4,8 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 //import { deleteCookie } from "cookies-next";
 import BlueBackground from "./backgrounds/BlueBackground";
+import AddButtonAdmin from "./AddButtonAdmin";
 
-export default function SidebarAdmin() {
+interface SidebarAdminProps {
+  onAdd?: () => void;
+}
+
+export default function SidebarAdmin({ onAdd }: SidebarAdminProps) {
   const router = useRouter();
 
   const handleLogout = () => {
@@ -40,7 +45,7 @@ export default function SidebarAdmin() {
               </Link>
             ))}
           </nav>
-          
+          <AddButtonAdmin onAdd={onAdd} />
           {/* 🔹 Bouton Déconnexion en bas */}
           <button
             onClick={handleLogout}
