@@ -64,7 +64,7 @@ const LatestEvents = () => {
   }, []);
 
   return (
-    <div><BlueBackground>
+    <div className="add_border"><BlueBackground>
       <div className="p-12">
           <h2 className="text-3xl font-bold primary_title mb-4">
               Nos derniers évènements
@@ -72,7 +72,7 @@ const LatestEvents = () => {
           <div className="flex justify-between items-start py-8 ">
 
           {/* Section des événements */}
-          <div className="bg-white p-6 rounded-xl shadow-lg w-[50%] border-4 border-black">
+          <div className="bg-white p-6 rounded-xl shadow-lg w-[50%] border-4 border-black add_border">
               {/* Liste des événements avec scroll interne */}
               <div className="h-[450px] overflow-y-auto pr-4">
               {events.map((event) => (
@@ -97,7 +97,7 @@ const LatestEvents = () => {
 
               {/* Bouton "Plus d'événements" */}
               <Link href="/listeEvenement">
-              <button className="bg-yellow-500 text-black font-semibold px-6 py-3 rounded-full flex items-center hover:bg-yellow-600 transition border-black border-2">
+              <button className="bg-yellow-500 text-black font-semibold px-6 py-3 rounded-full flex items-center hover:bg-yellow-600 transition border-black border-2 add_border">
                   Plus d’événements <FaArrowRight className="ml-2" />
               </button>
               </Link>
