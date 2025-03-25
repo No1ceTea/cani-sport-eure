@@ -6,6 +6,7 @@ import { ArticleCard, SearchBar, DateFilter } from "../components/ArticlesCompon
 import Sidebar from "../components/sidebars/Sidebar";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Link from "next/link";
+import WhiteBackground from "../components/backgrounds/WhiteBackground";
 
 interface Article {
   id: string;
@@ -63,6 +64,7 @@ const ArticlesPage = () => {
   };
 
   return (
+    <div> <WhiteBackground>
     <div className="min-h-screen px-10 py-6">
       {/* Titre principal */}
       <div className="text-left">
@@ -99,6 +101,7 @@ const ArticlesPage = () => {
       {/* Sidebar */}
       <Sidebar />
     </div>
+    </WhiteBackground></div>
   );
 };
 
