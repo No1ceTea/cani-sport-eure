@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArticleCard, SearchBar, DateFilter } from "../components/ArticlesComponents";
+import { SearchBar, DateFilter } from "../components/ArticlesComponents";
 import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Link from "next/link";
 import WhiteBackground from "../components/backgrounds/WhiteBackground";
 
 interface Article {
@@ -101,7 +101,7 @@ const ArticlesPage = () => {
       {/* Sidebar */}
       <Sidebar />
     </div>
-    </WhiteBackground></div>
+    </WhiteBackground> <Footer/> </div>
   );
 };
 

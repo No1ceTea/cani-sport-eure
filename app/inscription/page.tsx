@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import Sidebar from "../components/sidebars/Sidebar";
-import Footer from "../components/sidebars/Footer";
 
 export default function Inscription() {
   const router = useRouter();
@@ -199,7 +197,6 @@ export default function Inscription() {
         )}
       </div>
       <Sidebar />
-      <Footer />
     </div>
   );
 }

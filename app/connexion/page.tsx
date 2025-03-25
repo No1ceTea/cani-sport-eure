@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
 import Sidebar from "../components/sidebars/Sidebar";
-import Footer from "../components/sidebars/Footer";
 
 export default function LoginPage() {
   const supabase = createClientComponentClient();
@@ -180,7 +178,6 @@ export default function LoginPage() {
         </div>
       </div>
       <Sidebar />
-      <Footer />
     </div>
   );
 }
