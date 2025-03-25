@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import EventCard from "../components/EventCard";
 import supabase from "../../lib/supabaseClient";
 import { FaSearch } from "react-icons/fa";
+import WhiteBackground from "../components/backgrounds/WhiteBackground";
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
 
@@ -73,6 +74,7 @@ const ListeEvenement = () => {
   });
 
   return (
+    <div> <WhiteBackground>
     <div className="min-h-screen px-10 py-6">
       {/* Titre de la page */}
       <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Évènement</h1>
@@ -121,6 +123,7 @@ const ListeEvenement = () => {
       </div>
       <Sidebar/>
     </div>
+    </WhiteBackground> </div>
   );
 };
 
