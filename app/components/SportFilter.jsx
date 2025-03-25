@@ -4,11 +4,11 @@ import Image from "next/image";
 
 // 📌 Images des sports
 const sportImages = {
-  Cross: "/cross.jpeg",
-  Trail: "/trail.jpg",
-  Marche: "/marche.jpg",
-  Trottinette: "/trotinete.jpeg",
-  VTT: "/vtt.png",
+  Cross: "/photos/cross.jpeg",
+  Trail: "/photos/trail.jpg",
+  Marche: "/photos/marche.jpg",
+  Trottinette: "/photos/trotinete.jpeg",
+  VTT: "/photos/vtt.png",
 };
 
 const SportFilters = ({ selectedSport, onSportChange }) => {

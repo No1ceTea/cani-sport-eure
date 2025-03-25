@@ -72,8 +72,24 @@ export default function NavigationBar() {
             <a href="#articles" className="text-lg hover:underline">
               Articles
             </a>
+
+            <Link href="/creation-chien" className="text-lg hover:underline">
+              chien test
+            </Link>
             <Link href="/connexion" className="text-lg hover:underline">
               Se connecter
+            </Link>
+            <Link href="/evenements" className="text-lg hover:underline">
+              Events
+            </Link>
+            <Link href="/articles" className="text-lg hover:underline">
+              Articles
+            </Link>
+            <Link href="/tableauAdmin" className="text-lg hover:underline">
+              tableau
+            </Link>
+            <Link href="/Agenda" className="text-lg hover:underline">
+              CALENDRIER
             </Link>
           </nav>
         </div>

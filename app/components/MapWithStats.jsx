@@ -99,7 +99,7 @@ const MapWithStats = ({ trackData }) => {
 
       {trackData.file_url && (
         <div style={{ display: "flex", alignItems: "center", gap: "5px", marginLeft: "20px" }}>
-          <Image src="/download.png" alt="Télécharger GPX" width={18} height={18} />
+          <Image src="/Download.png" alt="Télécharger GPX" width={18} height={18} />
           <a href={trackData.file_url} download={trackData.name} style={{ fontSize: "12px" }}>
             Télécharger GPX
           </a>

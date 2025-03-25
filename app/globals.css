@@ -20,7 +20,7 @@ body {
 }
 
 .primary_text {
-  @apply text-white text-sm sm:text-lg font-calibri drop-shadow-md text-center;
+  @apply text-white text-sm sm:text-lg font-calibri drop-shadow-md;
 }
 
 .add_border {
@@ -32,5 +32,13 @@ body {
 }
 
 .primary_text_black {
-  @apply text-black text-sm sm:text-lg font-calibri drop-shadow-md text-center;
+  @apply text-black text-sm sm:text-lg font-calibri drop-shadow-md;
+}
+
+.primary_title_blue {
+  @apply text-dark_blue_primary font-bold font-opendyslexic drop-shadow-lg;
+}
+
+.primary_text_blue {
+  @apply text-dark_blue_primary text-sm sm:text-lg font-calibri drop-shadow-md;
 }
