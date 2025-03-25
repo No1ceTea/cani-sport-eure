@@ -29,6 +29,7 @@ export default function MyCalendar() {
   const [endTime, setEndTime] = useState("");
   const [visibility, setVisibility] = useState("public"); // 🔒 public ou private
   const [userToken, setUserToken] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchUserAndEvents = async () => {
@@ -75,7 +76,9 @@ export default function MyCalendar() {
     setStartTime(start.toTimeString().slice(0, 5));
     setEndDate(end.toISOString().slice(0, 10));
     setEndTime(end.toTimeString().slice(0, 5));
+    setShowModal(true); // 👉 on affiche la popup
   };
+  
 
   const handleCreateEvent = async () => {
     if (!newTitle || !startDate || !startTime || !endDate || !endTime) {
@@ -200,102 +203,106 @@ export default function MyCalendar() {
         }}
       />
 
-      {startDate && startTime && (
-        <div className="mt-4 p-4 border rounded bg-gray-100">
-          <h3 className="text-md font-semibold mb-2">Créer un événement</h3>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleCreateEvent();
-            }}
-          >
-            <label className="block mb-2">
-              Titre :
-              <input
-                type="text"
-                required
-                className="ml-2 border p-1 w-full"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-              />
-            </label>
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h3 className="text-lg font-bold mb-4">Créer un événement</h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleCreateEvent();
+                setShowModal(false); // Fermer après création
+              }}
+            >
+              <label className="block mb-2">
+                Titre :
+                <input
+                  type="text"
+                  required
+                  className="ml-2 border p-1 w-full"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                />
+              </label>
 
-            <label className="block mb-2">
-              Date de début :
-              <input
-                type="date"
-                required
-                className="ml-2 border p-1"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-              Heure :
-              <input
-                type="time"
-                required
-                className="ml-2 border p-1"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </label>
+              <label className="block mb-2">
+                Début :
+                <input
+                  type="date"
+                  required
+                  className="ml-2 border p-1"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <input
+                  type="time"
+                  required
+                  className="ml-2 border p-1"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+              </label>
 
-            <label className="block mb-2">
-              Date de fin :
-              <input
-                type="date"
-                required
-                className="ml-2 border p-1"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-              Heure :
-              <input
-                type="time"
-                required
-                className="ml-2 border p-1"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
-            </label>
+              <label className="block mb-2">
+                Fin :
+                <input
+                  type="date"
+                  required
+                  className="ml-2 border p-1"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+                <input
+                  type="time"
+                  required
+                  className="ml-2 border p-1"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
+              </label>
 
-            <label className="block mb-2">
-              Couleur :
-              <input
-                type="color"
-                className="ml-2 border p-1 w-16"
-                value={newColor}
-                onChange={(e) => setNewColor(e.target.value)}
-              />
-            </label>
+              <label className="block mb-2">
+                Couleur :
+                <input
+                  type="color"
+                  className="ml-2 border p-1 w-16"
+                  value={newColor}
+                  onChange={(e) => setNewColor(e.target.value)}
+                />
+              </label>
 
-            <label className="block mb-4">
-              Visibilité :
-              <select
-                className="ml-2 border p-1"
-                value={visibility}
-                onChange={(e) => setVisibility(e.target.value)}
-              >
-                <option value="public">🌍 Public</option>
-                <option value="private">🔒 Réservé aux membres</option>
-              </select>
-            </label>
+              <label className="block mb-4">
+                Visibilité :
+                <select
+                  className="ml-2 border p-1"
+                  value={visibility}
+                  onChange={(e) => setVisibility(e.target.value)}
+                >
+                  <option value="public">🌍 Public</option>
+                  <option value="private">🔒 Réservé aux membres</option>
+                </select>
+              </label>
 
-            <div className="flex gap-2 mt-2">
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                ➕ Créer
-              </button>
-              <button
-                type="button"
-                onClick={resetForm}
-                className="bg-gray-400 text-white px-4 py-2 rounded"
-              >
-                ❌ Annuler
-              </button>
-            </div>
-          </form>
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  ➕ Créer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetForm();
+                    setShowModal(false);
+                  }}
+                  className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
+                  ❌ Annuler
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
