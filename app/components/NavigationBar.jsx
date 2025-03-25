@@ -88,6 +88,9 @@ export default function NavigationBar() {
             <Link href="/tableauAdmin" className="text-lg hover:underline">
               tableau
             </Link>
+            <Link href="/Agenda" className="text-lg hover:underline">
+              CALENDRIER
+            </Link>
           </nav>
         </div>
       </div>

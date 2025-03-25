@@ -8,6 +8,8 @@ import Agenda from "./components/accueil/AgendaSection";
 import Sponsor from "./components/accueil/SponsorSection";
 import Sidebar from "./components/sidebars/Sidebar";
 import Footer from "./components/sidebars/Footer";
+import LatestEvents from "./components/LastestEvents";
+import LastestArticles from "./components/LastestArticles";
 
 // Créez votre client Supabase (les variables d'environnement sont utilisées automatiquement)
 const supabase = createClientComponentClient();
@@ -41,8 +43,14 @@ export default function HomePage() {
     <main className="bg-cover bg-center">
       <Title />
       <Presentation />
+      {/*
       <Agenda />
+      */}
       <Sponsor />
+
+      <LatestEvents/>
+
+      <LastestArticles />
 
       {/* Transmet la session à Sidebar */}
       <Sidebar session={session} />

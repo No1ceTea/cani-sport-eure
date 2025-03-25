@@ -3,12 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArticleCard, SearchBar, DateFilter } from "../components/ArticlesComponents";
-import AddArticleModal from "../components/AddArticleModal";
-import EditArticleModal from "../components/EditArticleModal";
-import supabase from "../../lib/supabaseClient";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Sidebar from "../components/sidebars/Sidebar";
-
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Link from "next/link";
 
 interface Article {
   id: string;
@@ -19,18 +16,12 @@ interface Article {
   id_profil: string;
 }
 
-const ArticlesPage: React.FC = () => {
-
-const supabase = createClientComponentClient();
+const ArticlesPage = () => {
+  const supabase = createClientComponentClient();
   const [articles, setArticles] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [currentArticleId, setCurrentArticleId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -57,83 +48,6 @@ const supabase = createClientComponentClient();
     fetchArticles();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("publication").delete().eq("id", id);
-
-    if (error) {
-      console.error("Erreur lors de la suppression de l'article:", error);
-      alert("Erreur lors de la suppression de l'article.");
-    } else {
-      setArticles((prevArticles) => prevArticles.filter((article) => article.id !== id));
-    }
-  };
-
-
-  const router = useRouter();
-  const [userType, setUserType] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      // 🔹 Vérifie si l'utilisateur est connecté
-      const { data: userSession } = await supabase.auth.getSession();
-
-      if (!userSession.session) {
-        console.log("🔴 Utilisateur non connecté, redirection vers /connexion");
-        //router.replace("/connexion");
-        return;
-      }
-
-      // 🔹 Récupère les données utilisateur
-      const { data: userData, error } = await supabase.auth.getUser();
-
-      if (error || !userData?.user) {
-        console.log("❌ Erreur lors de la récupération de l'utilisateur :", error);
-       // router.replace("/connexion");
-        return;
-      }
-
-      console.log("🔍 Données de l'utilisateur :", userData.user.user_metadata);
-
-      // ✅ Stocke l'UUID de l'utilisateur
-      setUserId(userData.user.id);
-
-      const isAdmin = userData.user.user_metadata?.administrateur === true;
-
-      if (isAdmin) {
-        console.log("🔴 Admin détecté, redirection vers /dashboard/admin");
-       // router.replace("/dashboard/admin");
-      } else {
-        console.log("✅ Utilisateur adhérent détecté, accès autorisé !");
-        setUserType("client");
-      }
-
-      console.log(userData.user.id)
-
-      setIsLoading(false);
-    };
-
-    checkUser();
-  }, [router, supabase.auth]);
-
-  const handleEdit = (id: string) => {
-    setCurrentArticleId(id);
-    setIsEditModalOpen(true);
-  };
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setCurrentArticleId(null);
-  };
-
   const filteredArticles = articles.filter((article) => {
     return (
       (!searchQuery || article.title.toLowerCase().includes(searchQuery.toLowerCase())) &&
@@ -142,23 +56,48 @@ const supabase = createClientComponentClient();
     );
   });
 
+  const router = useRouter();
+
+  const handleClick = (id :string) => {
+    router.push(`/articles/${id}`);
+  };
+
   return (
-    <div className="">
-      <div className="p-6 max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
-        <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
-          <SearchBar setSearchQuery={setSearchQuery} />
+    <div className="min-h-screen px-10 py-6">
+      {/* Titre principal */}
+      <div className="text-left">
+      <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Articles</h1>
+      </div>
+
+      {/* Barre de recherche et filtres */}
+      <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-8 px-4">
+        <div className="w-full md:w-1/2">
+          <SearchBar setSearchQuery={setSearchQuery}/>
+        </div>
+        <div className="flex gap-4">
           <DateFilter setStartDate={setStartDate} setEndDate={setEndDate} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+      </div>
+
+      {/* Liste des articles */}
+      <div className="max-w-6xl mx-auto max-h-[700px] overflow-y-auto px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filteredArticles.map((article) => (
-            <div key={article.id} className="cursor-pointer">
-              <ArticleCard article={article} onDelete={handleDelete} onEdit={handleEdit} />
+            <div key={article.id} className="bg-white shadow-lg rounded-2xl p-4 max-w-xs relative">
+              <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
+              <h3 className="text-lg font-bold mt-2">{article.title}</h3>
+              <p className="text-sm text-gray-600">{article.content.slice(0, 100)}...</p>
+              <p className="text-xs text-gray-500 mt-2">{new Date(article.date).toLocaleDateString()}</p>
+              <button onClick={() => handleClick(article.id)} className="text-blue-500">
+                Lire plus →
+              </button>
             </div>
           ))}
         </div>
       </div>
-      <Sidebar/>
+
+      {/* Sidebar */}
+      <Sidebar />
     </div>
   );
 };
