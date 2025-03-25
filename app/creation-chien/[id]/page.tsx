@@ -116,6 +116,22 @@ export default function PetProfileForm() {
     }
   };
 
+  const handleDelete = async () => {
+    const confirmDelete = confirm("❗ Êtes-vous sûr de vouloir supprimer ce chien ?");
+    if (!confirmDelete) return;
+  
+    const { error } = await supabase.from("chiens").delete().eq("id", id);
+  
+    if (error) {
+      console.error("❌ Erreur lors de la suppression :", error.message);
+      alert("Erreur lors de la suppression.");
+    } else {
+      alert("🐾 Chien supprimé avec succès !");
+      router.push("/creation-profil"); // Redirige vers la liste après suppression
+    }
+  };
+
+  
   return (
     <div className="">
       <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
@@ -166,9 +182,13 @@ export default function PetProfileForm() {
               Enregistrer les modifications
             </button>
             {id !== "new" && (
-              <button className="text-white text-4xl cursor-pointer" onClick={() => console.log("TODO: Supprimer le chien")}>
-                🗑
-              </button>
+              <button
+              onClick={handleDelete}
+              className="text-white text-4xl cursor-pointer hover:text-red-500 transition"
+              title="Supprimer le chien"
+            >
+              🗑
+            </button>
             )}
           </div>
         </div>
