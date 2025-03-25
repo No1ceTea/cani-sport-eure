@@ -86,6 +86,11 @@ export default function Sidebar({ session = null }: SidebarProps) {
               </a>
             </li>
             <li>
+              <a href="/agendar" className="hover:text-gray-300">
+                Agenda
+              </a>
+            </li>
+            <li>
               <a href="https://sublimtout.com/200-canisports-eure" className="hover:text-gray-300">
                 Boutique
               </a>

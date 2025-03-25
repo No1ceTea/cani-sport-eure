@@ -1,10 +1,11 @@
 "use client";
 
 import "moment/locale/fr";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import supabase from "@/lib/supabaseClient";
 
 moment.locale("fr");
 const localizer = momentLocalizer(moment);
@@ -26,14 +27,25 @@ export default function MyCalendar() {
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [visibility, setVisibility] = useState("public"); // 🔒 public ou private
+  const [userToken, setUserToken] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchEvents();
+    const fetchUserAndEvents = async () => {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token || null;
+      setUserToken(token);
+      fetchEvents(token);
+    };
+
+    fetchUserAndEvents();
   }, []);
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (token: string | null = null) => {
     try {
-      const res = await fetch("/api/calendar");
+      const res = await fetch("/api/calendar", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = await res.json();
       if (Array.isArray(data)) {
         setEvents(
@@ -76,17 +88,20 @@ export default function MyCalendar() {
 
     const res = await fetch("/api/calendar", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         title: newTitle,
         start,
         end,
         color: newColor,
+        visibility,
       }),
     });
 
     if (res.ok) {
-      fetchEvents();
+      fetchEvents(userToken);
       resetForm();
     } else {
       alert("Erreur lors de la création.");
@@ -100,6 +115,7 @@ export default function MyCalendar() {
     setStartTime("");
     setEndDate("");
     setEndTime("");
+    setVisibility("public");
   };
 
   const deleteEvent = async (eventId: string) => {
@@ -184,7 +200,6 @@ export default function MyCalendar() {
         }}
       />
 
-      {/* FORMULAIRE D’AJOUT MANUEL */}
       {startDate && startTime && (
         <div className="mt-4 p-4 border rounded bg-gray-100">
           <h3 className="text-md font-semibold mb-2">Créer un événement</h3>
@@ -253,6 +268,18 @@ export default function MyCalendar() {
               />
             </label>
 
+            <label className="block mb-4">
+              Visibilité :
+              <select
+                className="ml-2 border p-1"
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value)}
+              >
+                <option value="public">🌍 Public</option>
+                <option value="private">🔒 Réservé aux membres</option>
+              </select>
+            </label>
+
             <div className="flex gap-2 mt-2">
               <button
                 type="submit"
@@ -272,7 +299,6 @@ export default function MyCalendar() {
         </div>
       )}
 
-      {/* LISTE DES ÉVÉNEMENTS */}
       <ul className="mt-4">
         {events.map((event) => (
           <li
