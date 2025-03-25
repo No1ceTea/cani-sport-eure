@@ -4,13 +4,13 @@ export default function Presentation() {
   return (
     <section id="presentation" className="bg-white py-16 px-6 sm:px-16">
       {/* Grid principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 container mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 container mx-auto">
         
         {/* Colonne gauche - Présentation */}
         <div className="lg:col-span-7">
           <h1 className="text-4xl font-bold mb-6 primary_title_black">Présentation de l&apos;association</h1>
 
-          <p className="mb-8 text-lg leading-relaxed primary_text_black">
+          <p className="mb-8 text-lg leading-relaxed primary_text_black text-left">
             Nous sommes une association passionnée par les sports canins. Notre objectif est de promouvoir le cani-cross,
             le cani-trail, la randonnée avec chiens et d&apos;autres disciplines adaptées aux duos humain-chien.
           </p>
@@ -72,8 +72,8 @@ export default function Presentation() {
             }
           ].map((activity, index) => (
             <div key={index} className="flex items-start gap-4">
-              <div className="w-24 h-24 flex-shrink-0 bg-white rounded-full flex items-center justify-center">
-                <Image src={activity.img} alt={`${activity.title} icon`} width={48} height={48} className="opacity-70" />
+              <div className="w-26 h-26 flex-shrink-0 bg-white rounded-full flex items-center justify-center">
+                <Image src={activity.img} alt={`${activity.title} icon`} width={150} height={150} className="opacity-70" />
               </div>
               <div>
                 <h3 className="text-xl font-bold mb-2">{activity.title}</h3>
