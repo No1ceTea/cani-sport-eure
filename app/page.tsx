@@ -10,6 +10,7 @@ import Sidebar from "./components/sidebars/Sidebar";
 import Footer from "./components/sidebars/Footer";
 import LatestEvents from "./components/LastestEvents";
 import LastestArticles from "./components/LastestArticles";
+import { AuthProvider } from "./components/Auth/AuthProvider";
 
 // Créez votre client Supabase (les variables d'environnement sont utilisées automatiquement)
 const supabase = createClientComponentClient();
@@ -40,21 +41,21 @@ export default function HomePage() {
   }, [supabase]);
 
   return (
-    <main className="bg-cover bg-center">
-      <Title />
-      <Presentation />
-      {/*
-      <Agenda />
-      */}
-      <Sponsor />
+      <main className="bg-cover bg-center">
+        <Title />
+        <Presentation />
+        {/*
+        <Agenda />
+        */}
+        <Sponsor />
 
-      <LatestEvents/>
+        <LatestEvents/>
 
-      <LastestArticles />
+        <LastestArticles />
 
-      {/* Transmet la session à Sidebar */}
-      <Sidebar session={session} />
-      <Footer />
-    </main>
+        {/* Transmet la session à Sidebar */}
+        <Sidebar session={session} />
+        <Footer />
+      </main>
   );
 }

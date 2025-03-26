@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import SidebarAdmin from "../../../components/SidebarAdmin";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useAuth } from "@/app/components/Auth/AuthProvider";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -17,22 +18,9 @@ export default function DashboardPage() {
   const [kmParcourus, setKmParcourus] = useState(0);
   const [kmMax, setKmMax] = useState(0);
   const supabase = createClientComponentClient();
+  const { role, isLoading } = useAuth(); 
 
   useEffect(() => {
-    const checkUserRole = async () => {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData?.user) {
-        router.push("/connexion");
-        return;
-      }
-      const isAdmin = userData.user.user_metadata?.administrateur === true;
-      if (!isAdmin) {
-        router.push("/unauthorized");
-        return;
-      }
-      setUserType("admin");
-    };
-
     const fetchData = async () => {
       const { data: resultatsData } = await supabase.from("resultats").select("*, profils(prenom, nom)");
       const { data: evenementsData } = await supabase.from("evenements").select("*");
@@ -59,11 +47,33 @@ export default function DashboardPage() {
       }
     };
 
-    checkUserRole();
-    fetchData();
-  }, [router, pathname, supabase.auth, selectedEvent]);
+    if (role === "admin") {
+      fetchData();
+    }
+
+  }, [role, selectedEvent]);
 
   const kmPourcentage = kmMax > 0 ? Math.min((kmParcourus / kmMax) * 100, 100) : 0;
+
+  console.log("Page admin — isLoading:", isLoading, "role:", role);
+
+  useEffect(() => {
+    if (!isLoading && role !== "admin") {
+      router.push("/connexion");
+    }
+  }, [isLoading, role]);  
+  
+
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg">Chargement...</p>
+      </div>
+    );
+  }
+  
+  
 
   return (
     <div className="flex h-screen bg-gray-100">
