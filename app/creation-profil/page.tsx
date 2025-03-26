@@ -124,32 +124,54 @@ export default function UserProfileForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+  
     let imageUrl = form.photo_profil;
-
+  
+    // Fonction pour sécuriser le nom du fichier
+    const sanitizeFileName = (name: string) =>
+      name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  
     if (image) {
-      const uniqueFileName = `${uuidv4()}-${image.name}`;
-      const { data, error } = await supabase.storage.from("images").upload(`profils/${uniqueFileName}`, image);
+      const uniqueFileName = `${uuidv4()}-${sanitizeFileName(image.name)}`;
+      console.log("Nom du fichier sécurisé :", uniqueFileName); // 🔍 debug
+  
+      const { data, error } = await supabase
+        .storage
+        .from("images")
+        .upload(`profils/${uniqueFileName}`, image);
+  
       if (error) {
         alert("Erreur lors du téléchargement de l'image.");
         console.error("Erreur image:", error.message);
         setLoading(false);
         return;
       }
-      imageUrl = supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl;
+  
+      imageUrl = supabase
+        .storage
+        .from("images")
+        .getPublicUrl(data.path)
+        .data
+        .publicUrl;
     }
-
+  
     const { error } = await supabase.from("profils").upsert([
       { ...form, photo_profil: imageUrl, id: form.id },
     ]);
-
+  
     if (error) {
       alert("Erreur lors de l'enregistrement.");
       console.error("Erreur:", error.message);
     } else {
       alert("Le profil a été enregistré avec succès !");
     }
+  
     setLoading(false);
   };
+  
 
   if (!isMounted) return null; 
 
