@@ -6,6 +6,8 @@ import AddEventModal from "../components/AddEventModal";
 import supabase from "../../lib/supabaseClient";
 import SidebarAdmin from "../components/SidebarAdmin";
 import { FaSearch } from "react-icons/fa";
+import { useAuth } from "../components/Auth/AuthProvider";
+import { useRouter } from "next/navigation";
 
 interface Event {
   id: number;
@@ -13,7 +15,7 @@ interface Event {
   contenu: string;
   date: string;
   type: string;
-  created_at : string ;
+  created_at: string;
   image_url: string;
   id_profil: number;
   auteur: {
@@ -23,9 +25,19 @@ interface Event {
 }
 
 const EventsPage = () => {
+  const { user, role, isLoading } = useAuth();
+  const router = useRouter();
+
   const [events, setEvents] = useState<Event[]>([]);
-  const [searchQuery, setSearchQuery] = useState(""); // État pour la recherche
+  const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 🔐 Protection
+  useEffect(() => {
+    if (!isLoading && (!user || role !== "admin")) {
+      router.replace("/connexion");
+    }
+  }, [isLoading, user, role]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -36,10 +48,9 @@ const EventsPage = () => {
         return;
       }
 
-      // Récupérer les informations des auteurs pour chaque événement
       const eventsWithProfiles = await Promise.all(
         data.map(async (event) => {
-          const { data: profileData, error: profileError } = await supabase
+          const { data: profileData } = await supabase
             .from("profils")
             .select("nom, photo_profil")
             .eq("id", event.id_profil)
@@ -58,23 +69,23 @@ const EventsPage = () => {
       setEvents(eventsWithProfiles);
     };
 
-    fetchEvents();
-  }, []); // Dépendances vides pour ne s'exécuter qu'une seule fois
+    if (user && role === "admin") {
+      fetchEvents();
+    }
+  }, [user, role]);
 
-
-  // Filtrer les événements en fonction du titre
   const filteredEvents = events.filter((event) =>
     event.titre.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (isLoading || !user || role !== "admin") return null;
 
   return (
     <div className="flex h-screen overflow-hidden">
       <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
-        {/* Contenu Principal */}
-        <div className={`flex-1 p-6 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-        
-        {/* Barre de recherche stylisée */}
+      <div className={`flex-1 p-6 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+        {/* Barre de recherche */}
         <div className="relative w-full flex justify-left mb-6">
           <input
             type="text"
@@ -86,7 +97,7 @@ const EventsPage = () => {
           <FaSearch className="absolute right-[52%] top-1/2 transform -translate-y-1/2 text-blue-900 text-lg" />
         </div>
 
-        {/* Conteneur avec scroll */}
+        {/* Liste des événements */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 max-h-[85vh] overflow-y-auto p-2">
           {filteredEvents.map((event) => (
             <EventCard key={event.id} event={event} />
@@ -94,7 +105,6 @@ const EventsPage = () => {
         </div>
       </div>
 
-      {/* Modal */}
       <AddEventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
