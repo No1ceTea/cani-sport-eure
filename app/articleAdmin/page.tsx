@@ -152,7 +152,19 @@ const ArticlesPage: React.FC = () => {
       />
 
       <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
-      {/* <EditArticleModal isOpen={isEditModalOpen} articleId={currentArticleId} onClose={handleCloseEditModal} /> */}
+      {isEditModalOpen && currentArticleId && (
+        <EditArticleModal
+          isOpen={isEditModalOpen}
+          articleId={currentArticleId}
+          onClose={handleCloseEditModal}
+          onUpdate={() => {
+            handleCloseEditModal();
+            fetchArticles();
+          }}
+        />
+      )}
+
+
     </div>
   );
 };
