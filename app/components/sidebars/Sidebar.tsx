@@ -76,7 +76,7 @@ export default function Sidebar({ session = null }: SidebarProps) {
               </a>
             </li>
             <li>
-              <a href="/evenements" className="hover:text-gray-300">
+              <a href="/listeEvenement" className="hover:text-gray-300">
                 Événements
               </a>
             </li>
