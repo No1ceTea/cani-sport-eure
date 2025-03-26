@@ -1,8 +1,9 @@
 "use client";
 
-import { login, signup } from "./actions";
+import { login } from "./actions";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,9 +11,14 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  const redirectToSignup = () => {
+    router.push("/inscription"); // Redirection vers la page d'inscription
+  };
 
   return (
     <div>
@@ -100,7 +106,7 @@ export default function LoginPage() {
               <p className="text-sm mt-2 text-white">
                 Pas encore inscrit ?{" "}
                 <button
-                  formAction={signup}
+                  onClick={redirectToSignup}
                   className="underline hover:text-blue-300"
                 >
                   Inscription
