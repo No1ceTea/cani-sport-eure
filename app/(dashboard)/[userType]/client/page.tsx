@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useAuth } from "../../../components/Auth/AuthProvider";
 
 import Sidebar from "@/app/components/sidebars/Sidebar";
 import Footer from "@/app/components/sidebars/Footer";
@@ -10,36 +11,29 @@ import Footer from "@/app/components/sidebars/Footer";
 const ClientDashboardPage: React.FC = () => {
   const router = useRouter();
   const supabase = createClientComponentClient();
-  const [userType, setUserType] = useState<string | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, role, isLoading } = useAuth();
+
   const [userId, setUserId] = useState<string | null>(null);
   const [resultsData, setResultsData] = useState<any[]>([]);
   const [eventStats, setEventStats] = useState<{ participants: number; kmParcourus: number; kmMax: number }>({ participants: 0, kmParcourus: 0, kmMax: 0 });
   const [eventNames, setEventNames] = useState<string[]>([]);
   const [eventMap, setEventMap] = useState<Record<string, number>>({});
+  const [selectedEvent, setSelectedEvent] = useState<string>("");
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user || (role !== "adherent" && role !== "admin")) {
+        router.replace("/connexion");
+      }
+    }
+  }, [isLoading, user, role]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: userSession } = await supabase.auth.getSession();
-      if (!userSession.session) {
-        console.log("🔴 Pas de session !");
-        return router.replace("/connexion");
-      }
+      const uid = user?.id;
+      if (!uid) return;
 
-      const { data: userData, error } = await supabase.auth.getUser();
-      if (error || !userData?.user) {
-        console.log("❌ Erreur utilisateur :", error);
-        return router.replace("/connexion");
-      }
-
-      const uid = userData.user.id;
       setUserId(uid);
-
-      const isAdmin = userData.user.user_metadata?.administrateur === true;
-      if (isAdmin) return router.replace("/dashboard/admin");
-
-      setUserType("client");
 
       const { data: results } = await supabase
         .from("resultats")
@@ -48,7 +42,6 @@ const ClientDashboardPage: React.FC = () => {
         .order("date", { ascending: false })
         .limit(5);
 
-      console.log("resultsData:", results);
       if (results) setResultsData(results);
 
       const { data: participations } = await supabase
@@ -71,12 +64,12 @@ const ClientDashboardPage: React.FC = () => {
       setEventMap(map);
 
       if (names.length > 0) setSelectedEvent(names[0]);
-
-      setIsLoading(false);
     };
 
-    fetchData();
-  }, [router, supabase]);
+    if (!isLoading && user) {
+      fetchData();
+    }
+  }, [isLoading, user]);
 
   useEffect(() => {
     const fetchStatsForEvent = async () => {
@@ -108,8 +101,13 @@ const ClientDashboardPage: React.FC = () => {
     fetchStatsForEvent();
   }, [selectedEvent, userId, supabase, eventMap]);
 
-  if (isLoading) return <p>Chargement...</p>;
-  if (!userType) return <p>Non autorisé</p>;
+  if (isLoading || !user || (role !== "adherent" && role !== "admin")) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg">Chargement du tableau de bord...</p>
+      </div>
+    );
+  }
 
   const pourcentage = eventStats.kmMax > 0 ? Math.round((eventStats.kmParcourus / eventStats.kmMax) * 100) : 0;
 
@@ -149,9 +147,9 @@ const ClientDashboardPage: React.FC = () => {
             </table>
           </div>
 
-          {/* Carte Statistique */}
+          {/* Statistiques par événement */}
           <div className="bg-white shadow-lg rounded-lg p-4 col-span-1">
-            <h2 className="font-semibold">Nombre de kilomètres parcourus par compétition</h2>
+            <h2 className="font-semibold">Kilomètres parcourus par compétition</h2>
             <select
               className="select select-bordered w-full mt-2"
               value={selectedEvent}
@@ -163,7 +161,7 @@ const ClientDashboardPage: React.FC = () => {
             </select>
 
             <div className="mt-4">
-              <span className="text-sm">Nombre de participants du club : {eventStats.participants}</span>
+              <span className="text-sm">Participants du club : {eventStats.participants}</span>
               <div className="relative w-full bg-gray-200 h-6 rounded-lg mt-2">
                 <div className="bg-blue-500 h-6 rounded-lg" style={{ width: `${pourcentage}%` }}></div>
               </div>
@@ -173,21 +171,22 @@ const ClientDashboardPage: React.FC = () => {
               <div className="mt-4 space-y-1 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                  <span>Km parcourus par les participants ({eventStats.kmParcourus.toFixed(1)} km)</span>
+                  <span>Km parcourus ({eventStats.kmParcourus.toFixed(1)} km)</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
-                  <span>Km parcourus maximal ({eventStats.kmMax.toFixed(1)} km)</span>
+                  <span>Objectif ({eventStats.kmMax.toFixed(1)} km)</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Blocs vides */}
-          <div className="bg-white shadow-lg rounded-lg h-40"></div>
-          <div className="bg-white shadow-lg rounded-lg h-40"></div>
+          {/* Blocs extensibles plus tard */}
+          <div className="bg-white shadow-lg rounded-lg h-40 col-span-1"></div>
+          <div className="bg-white shadow-lg rounded-lg h-40 col-span-1"></div>
         </div>
       </div>
+
       <Sidebar />
       <Footer />
     </div>

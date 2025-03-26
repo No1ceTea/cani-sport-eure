@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/app/components/Auth/AuthProvider";
+import { useRouter } from "next/navigation";
 import SidebarAdmin from "../../../../components/SidebarAdmin";
 
 interface User {
@@ -18,6 +20,8 @@ export default function ListeAdherents() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { user, role, isLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchUsers() {
