@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import Sidebar from "../components/sidebars/Sidebar";
+import Footer from "../components/sidebars/Footer";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
@@ -152,8 +154,11 @@ const ResultsPage: React.FC = () => {
             </table>
           )}
         </div>
+        </div>
+        <Sidebar />
+        <Footer />
       </div>
-    </div>
+
   );
 };
 
