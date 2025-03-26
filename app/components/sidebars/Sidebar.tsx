@@ -71,6 +71,11 @@ export default function Sidebar() {
               <a href="/SortieCanine" className="hover:text-gray-300">Catalogue des sorties</a>
             </li>
             <li>
+              <a href="/agenda" className="hover:text-gray-300">
+                Agenda
+              </a>
+            </li>
+            <li>
               <a href="https://sublimtout.com/200-canisports-eure" className="hover:text-gray-300">Boutique</a>
             </li>
 
