@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react";
 import { FaTrash, FaEye, FaUpload, FaSort, FaFolderOpen, FaFolder, FaChevronRight, FaPlus, FaTimes } from "react-icons/fa";
 import { createClient } from "@supabase/supabase-js";
-import ModalAddDocument from "../components/ModalAddDocument";
 import Image from 'next/image';
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
+import { useAuth } from "../components/Auth/AuthProvider";
+import { useRouter } from "next/navigation";
+
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+
 
 // ✅ Définition du type des fichiers et dossiers
 interface DocumentFile {
@@ -35,6 +38,9 @@ export default function Document() {
     { id: null, name: "Dossier Racine" },
   ]);
   const [newFolderName, setNewFolderName] = useState("");
+  const { role, isLoading } = useAuth();
+  const router = useRouter();
+
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -114,6 +120,20 @@ export default function Document() {
       setNewFolderName("");
     }
   };
+
+  useEffect(() => {
+    if (!isLoading && role !== "adherent" && role !== "admin") {
+      router.push("/connexion"); // ou une page "Accès refusé"
+    }
+  }, [isLoading, role]);
+  
+  if (isLoading || (role !== "adherent" && role !== "admin")) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg">Chargement...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="">

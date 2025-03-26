@@ -6,6 +6,8 @@ import ModalAddDocument from "../components/ModalAddDocument";
 import Sidebar from "../components/SidebarAdmin";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from 'next/image';
+import { useRouter } from "next/navigation";
+import { useAuth } from "../components/Auth/AuthProvider";
 
 const supabase = createClientComponentClient();
 
@@ -23,6 +25,8 @@ interface DocumentFile {
 }
 
 export default function DocumentManager() {
+  const { role, isLoading } = useAuth();
+  const router = useRouter();
   const [files, setFiles] = useState<DocumentFile[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
@@ -34,16 +38,17 @@ export default function DocumentManager() {
 
   // 🚨 État pour gérer les erreurs de permissions
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  
+  const isAdmin = role === "admin";
 
   useEffect(() => {
-    // 🔹 Récupérer `isAdmin` depuis sessionStorage (évite requête Supabase)
-    const storedIsAdmin = sessionStorage.getItem("isAdmin");
-    setIsAdmin(storedIsAdmin === "true");
-    console.log(storedIsAdmin)
-  }, []);
+    if (!isLoading && role !== "admin") {
+      router.push("/connexion");
+    }
+  }, [role, isLoading, router]);
 
   useEffect(() => {
+    if (isLoading) return;
     const fetchFiles = async () => {
       let query = supabase.from("club_documents").select("*");
 
@@ -75,7 +80,7 @@ export default function DocumentManager() {
     };
 
     fetchFiles();
-  }, [folderPath]);
+  }, [folderPath, isLoading]);
 
   const handleDelete = async (id: string) => {
     const { data: session, error: sessionError } = await supabase.auth.getSession();
@@ -171,7 +176,7 @@ export default function DocumentManager() {
   };
   useEffect(() => { testAuthUid(); }, []);
   
-  
+  if (isLoading || !role) return <div>Chargement...</div>;
 
   return (
     <div className="flex">

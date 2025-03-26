@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import EventCard from "../components/EventCard";
 import supabase from "../../lib/supabaseClient";
 import { FaSearch } from "react-icons/fa";
+import WhiteBackground from "../components/backgrounds/WhiteBackground";
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
 
@@ -73,9 +74,10 @@ const ListeEvenement = () => {
   });
 
   return (
+    <div> <WhiteBackground>
     <div className="min-h-screen px-10 py-6">
       {/* Titre de la page */}
-      <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Évènement</h1>
+      <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Évènements</h1>
 
       {/* Barre de recherche et filtres */}
       <div className="flex flex-wrap items-center gap-6 mb-6">
@@ -83,7 +85,7 @@ const ListeEvenement = () => {
         <div className="relative flex-grow">
           <input
             type="text"
-            placeholder="Rechercher le titre de l'évènement ou le nom de l’auteur"
+            placeholder="Rechercher le titre de l'évènement ou le nom de l&apos;auteur"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full py-2 pl-4 pr-10 text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
@@ -121,6 +123,7 @@ const ListeEvenement = () => {
       </div>
       <Sidebar/>
     </div>
+    </WhiteBackground> <Footer/> </div>
   );
 };
 

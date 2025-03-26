@@ -22,9 +22,10 @@ export default function SidebarAdmin({ onAdd }: SidebarAdminProps) {
   };
 
   const menuItems = [
+    { name: "Accueil", path: "/" },
     { name: "Dashboard", path: "/dashboard/admin" },
     { name: "Événements", path: "/evenements" },
-    { name: "Agenda", path: "/agendar" },
+    { name: "Agenda", path: "/agendaAdmin" },
     { name: "Adhérents", path: "/dashboard/admin/adherents" },
     { name: "Résultats", path: "/resultatAdmin" },
     { name: "Articles", path: "/articleAdmin" },
@@ -46,13 +47,6 @@ export default function SidebarAdmin({ onAdd }: SidebarAdminProps) {
             ))}
           </nav>
           <AddButtonAdmin onAdd={onAdd} />
-          {/* 🔹 Bouton Déconnexion en bas */}
-          <button
-            onClick={handleLogout}
-            className="mt-4 p-2 bg-red-600 hover:bg-red-700 text-white rounded w-full"
-          >
-            Déconnexion
-          </button>
         </aside>
       </BlueBackground>
       </div>
