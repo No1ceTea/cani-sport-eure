@@ -10,7 +10,7 @@ interface AddButtonAdminProps {
 const AddButtonAdmin: React.FC<AddButtonAdminProps> = ({ onAdd }) => {
   const pathname = usePathname();
 
-  const shouldShowButton = ["/evenements", "/articleAdmin", "/catalogue"].includes(pathname);
+  const shouldShowButton = ["/evenements", "/articleAdmin", "/catalogue", "/resultatAdmin"].includes(pathname);
 
   if (!shouldShowButton) return null;
 
@@ -18,6 +18,7 @@ const AddButtonAdmin: React.FC<AddButtonAdminProps> = ({ onAdd }) => {
     if (pathname === "/evenements") return "Ajout d’un évènement";
     if (pathname === "/articleAdmin") return "Ajout d’un article";
     if (pathname === "/catalogue") return "Ajout d’une sortie";
+    if (pathname === "/resultatAdmin") return "Ajout d'un résultat";
     return "Ajouter";
   };
 

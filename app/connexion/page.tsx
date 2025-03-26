@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
 import Sidebar from "../components/sidebars/Sidebar";
-import Footer from "../components/sidebars/Footer";
+import { useAuth } from "../components/Auth/AuthProvider";
+
 
 export default function LoginPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
-
+  const { role, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,8 +21,18 @@ export default function LoginPage() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true); // Indique que nous sommes côté client
+    setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (role === "admin") {
+        router.push("/dashboard/admin");
+      } else if (role === "adherent") {
+        router.push("/"); // ou autre page pour adhérents
+      }
+    }
+  }, [role, isLoading]);
 
   const translateError = (errorMessage: string): string => {
     switch (errorMessage) {
@@ -47,38 +57,50 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-  
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-  
-    setLoading(false);
-  
+
     if (error) {
       setError(translateError(error.message));
+      setLoading(false);
       return;
     }
-  
-    if (data?.session) {
-      // 🔹 Vérification immédiate après connexion
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-  
-      if (userError || !userData?.user) {
-        setError("Erreur lors de la récupération du profil.");
-        return;
-      }
-  
-      const isAdmin = userData.user.user_metadata?.administrateur === true;
-      sessionStorage.setItem("isAdmin", isAdmin ? "true" : "false");
-  
-      router.push(isAdmin ? "/dashboard/admin" : "/");
+
+    if (!data?.session) {
+      setError("La connexion a échoué.");
+      setLoading(false);
+      return;
     }
+
+    // Récupérer les infos utilisateur
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !userData?.user) {
+      setError("Erreur lors de la récupération du profil.");
+      setLoading(false);
+      return;
+    }
+
+    const metadata = userData.user.user_metadata;
+    const isAdmin = metadata?.administrateur === true;
+    const isAdherent = metadata?.statut_inscription === "inscrit";
+
+    if (isAdmin) {
+      router.push("/dashboard/admin");
+    } else if (isAdherent) {
+      router.push("/"); // ou la page d’accueil adhérents
+    } else {
+      setError("Votre compte n'est pas encore validé.");
+    }
+
+    setLoading(false);
   };
-  
 
   const redirectToSignup = () => {
-    router.push("/inscription"); // Redirection vers la page d'inscription
+    router.push("/inscription");
   };
 
   return (
@@ -180,7 +202,6 @@ export default function LoginPage() {
         </div>
       </div>
       <Sidebar />
-      <Footer />
     </div>
   );
 }

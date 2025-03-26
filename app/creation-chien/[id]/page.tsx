@@ -15,11 +15,10 @@ export default function PetProfileForm() {
 
   const [form, setForm] = useState<{ [key: string]: string | number }>({
     prenom: "",
-    age: "",
+    age: 0,
     race: "",
     date_de_naissance: "",
     numero_de_puce: "",
-    numero_de_tatouage: "",
     photo_chien: "",
   });
 
@@ -28,7 +27,6 @@ export default function PetProfileForm() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  //verif authentification de l'user
   useEffect(() => {
     const checkUser = async () => {
       const { data: userSession } = await supabase.auth.getSession();
@@ -43,7 +41,6 @@ export default function PetProfileForm() {
     checkUser();
   }, [router]);
 
-  //chargement des données du chien pour modfication
   useEffect(() => {
     if (id && id !== "new") {
       fetchChienData();
@@ -56,23 +53,13 @@ export default function PetProfileForm() {
     if (error) {
       console.error("Erreur lors de la récupération du chien:", error.message);
     } else {
-      setForm({
-        prenom: data.prenom || "",
-        age: data.age || 0,
-        race: data.race || "",
-        date_de_naissance: data.date_de_naissance || "",
-        numero_de_puce: data.numero_de_puce || "",
-        numero_de_tatouage: data.numero_de_tatouage || "",
-        photo_chien: data.photo_chien || "",
-      });
-      
+      setForm(data);
       if (data.photo_chien) {
         setPhotoPreview(data.photo_chien);
       }
     }
   };
 
-  // Gestion upload image
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
@@ -80,95 +67,71 @@ export default function PetProfileForm() {
     setPhotoPreview(URL.createObjectURL(file));
   };
 
-  //gestion des changements dans le formulaire
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-  
-    setForm((prevForm) => {
-      const updatedForm = {
-        ...prevForm,
-        [name]: value,
-      };
-  
-      if (name === "date_de_naissance") {
-        const today = new Date();
-        const birthDate = new Date(value);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-  
-        // Ajustement si l'anniversaire n'est pas encore passé cette année
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-          age--;
-        }
-  
-        updatedForm.age = Math.max(age, 0); // âge ne peut pas être négatif
-      }
-  
-      return updatedForm;
-    });
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: name === "age" ? parseInt(value, 10) || 0 : value,
+    }));
   };
-  
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-//soumission du formulaire
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  if (!userId) {
-    alert("⚠️ Vous devez être connecté pour enregistrer un chien.");
-    return;
-  }
-
-  const chienId = id !== "new" && id ? id : uuidv4(); // ✅ Génère ou récupère l'ID
-
-  const numero_de_puce = form.numero_de_puce as string;
-  if (numero_de_puce && numero_de_puce.length !== 15) {
-    alert("⚠️ Le numéro de puce doit contenir 15 caractères.");
-    return;
-  }
-
-  const numero_de_tatouage = form.numero_de_tatouage as string;
-  if (numero_de_tatouage && numero_de_tatouage.length !== 6) {
-    alert("⚠️ Le numéro de tatouage doit contenir 6 caractères.");
-    return;
-  }
-
-  let imageUrl = form.photo_chien as string;
-
-  if (image) {
-    const uniqueFileName = `${uuidv4()}-${image.name}`;
-    const { data, error } = await supabase.storage.from("images").upload(`chiens/${uniqueFileName}`, image);
-
-    if (error) {
-      console.error("❌ Erreur lors du téléchargement de l'image:", error.message);
-      alert("Erreur lors du téléchargement de l'image.");
+    if (!userId) {
+      alert("⚠️ Vous devez être connecté pour enregistrer un chien.");
       return;
     }
 
-    imageUrl = supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl;
-  }
+    let imageUrl = form.photo_chien as string;
 
-  const payload = {
-    id: chienId,
-    ...form,
-    photo_chien: imageUrl,
-    id_profil: userId,
+    if (image) {
+      const uniqueFileName = `${uuidv4()}-${image.name}`;
+      const { data, error } = await supabase.storage.from("images").upload(`chiens/${uniqueFileName}`, image);
+
+      if (error) {
+        console.error("❌ Erreur lors du téléchargement de l'image:", error.message);
+        alert("Erreur lors du téléchargement de l'image.");
+        return;
+      }
+
+      imageUrl = supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl;
+    }
+
+    const { error } = await supabase.from("chiens").upsert([
+      {
+        id: id !== "new" ? id : uuidv4(), // Si modification, conserve l'ID, sinon en génère un
+        ...form,
+        photo_chien: imageUrl,
+        id_profil: userId,
+      },
+    ]);
+
+    if (error) {
+      console.error("❌ Erreur lors de l'enregistrement :", error.message);
+      alert("Erreur lors de l'enregistrement.");
+    } else {
+      alert("Le profil du chien a été enregistré avec succès !");
+      router.push("/creation-profil");
+    }
   };
 
-  console.log("📤 Données envoyées à Supabase :", payload);
+  const handleDelete = async () => {
+    const confirmDelete = confirm("❗ Êtes-vous sûr de vouloir supprimer ce chien ?");
+    if (!confirmDelete) return;
+  
+    const { error } = await supabase.from("chiens").delete().eq("id", id);
+  
+    if (error) {
+      console.error("❌ Erreur lors de la suppression :", error.message);
+      alert("Erreur lors de la suppression.");
+    } else {
+      alert("🐾 Chien supprimé avec succès !");
+      router.push("/creation-profil"); // Redirige vers la liste après suppression
+    }
+  };
 
-  const { error } = await supabase.from("chiens").upsert([payload]);
-
-  if (error) {
-    console.error("❌ Erreur lors de l'enregistrement :", error.message);
-    alert("Erreur lors de l'enregistrement.");
-  } else {
-    alert("✅ Le profil du chien a été enregistré avec succès !");
-    router.push("/creation-profil");
-  }
-};
-
-
+  
   return (
     <div className="">
       <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
@@ -176,13 +139,13 @@ const handleSubmit = async (e: React.FormEvent) => {
           {id !== "new" ? "Modifier le profil du chien" : "Créer un profil chien"}
         </h1>
 
-        <div className="flex flex-col items-center w-[630px] bg-[#475C99] text-black py-8 px-8 rounded-xl shadow-lg border-4 border-black">
+        <div className="flex flex-col items-center h-[600px] w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
           <div className="flex flex-col items-center mb-4">
             <label htmlFor="photo-upload" className="cursor-pointer">
               {photoPreview ? (
                 <img src={photoPreview} alt="Photo du chien" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
               ) : (
-                <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500 text-center">
+                <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
                   Ajouter une photo
                 </div>
               )}
@@ -191,60 +154,41 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
 
           <div className="space-y-6 w-full">
-          {["prenom", "race", "date_de_naissance"].map((field) => (
-            <div key={field} className="flex items-center">
-              <label className="text-sm w-40 text-white capitalize">{field.replace(/_/g, " ")}</label>
-              <input
-                name={field}
-                value={form[field] as string}
-                onChange={handleChange}
-                className="flex-1 p-2 text-black rounded-lg"
-              />
-            </div>
-          ))}
-
-          {/* Champ personnalisé : numéro de puce ou tatouage */}
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Numéro de puce</label>
-            <input
-              name="numero_de_puce"
-              value={form.numero_de_puce as string}
-              onChange={handleChange}
-              maxLength={15}
-              className="flex-1 p-2 text-black rounded-lg"
-            />
-          </div>
-          <div className="flex items-center">
-            <label className="text-sm w-40 text-white">Numéro de tatouage</label>
-            <input
-              name="numero_de_tatouage"
-              value={form.numero_de_tatouage as string}
-              onChange={handleChange}
-              maxLength={6}
-              className="flex-1 p-2 text-black rounded-lg"
-            />
-          </div>
-
+            {["prenom", "race", "date_de_naissance", "numero_de_puce"].map((field) => (
+              <div key={field} className="flex items-center">
+                <label className="text-sm w-40 text-white capitalize">{field.replace(/_/g, " ")}</label>
+                <input
+                  name={field}
+                  value={form[field] as string} // 🔹 Type assertion pour éviter l'erreur
+                  onChange={handleChange}
+                  className="flex-1 p-2 text-black rounded-lg"
+                />
+              </div>
+            ))}
             <div className="flex items-center">
               <label className="text-sm w-40 text-white">Âge</label>
               <input
                 type="number"
                 name="age"
                 value={form.age as number}
-                readOnly
-                className="flex-1 p-2 text-black rounded-lg bg-gray-300 cursor-not-allowed"
+                onChange={handleChange}
+                className="flex-1 p-2 text-black rounded-lg"
               />
             </div>
           </div>
 
-          <div className="flex justify-center items-center mt-8 space-x-4 pb-4">
+          <div className="flex justify-center items-center mt-auto space-x-4 pb-4">
             <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md">
               Enregistrer les modifications
             </button>
             {id !== "new" && (
-              <button className="text-white text-4xl cursor-pointer" onClick={() => console.log("TODO: Supprimer le chien")}>
-                🗑
-              </button>
+              <button
+              onClick={handleDelete}
+              className="text-white text-4xl cursor-pointer hover:text-red-500 transition"
+              title="Supprimer le chien"
+            >
+              🗑
+            </button>
             )}
           </div>
         </div>

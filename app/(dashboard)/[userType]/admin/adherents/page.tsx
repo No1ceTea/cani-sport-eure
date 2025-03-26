@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/app/components/Auth/AuthProvider";
+import { useRouter } from "next/navigation";
 import SidebarAdmin from "../../../../components/SidebarAdmin";
 
 interface User {
@@ -18,6 +20,15 @@ export default function ListeAdherents() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { user, role, isLoading } = useAuth();
+  const router = useRouter();
+
+  // 🔐 Redirection si non-admin
+  useEffect(() => {
+    if (!isLoading && (!user || role !== "admin")) {
+      router.replace("/connexion");
+    }
+  }, [user, role, isLoading, router]);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -27,8 +38,11 @@ export default function ListeAdherents() {
         setUsers(data);
       }
     }
-    fetchUsers();
-  }, []);
+
+    if (user && role === "admin") {
+      fetchUsers();
+    }
+  }, [user, role]);
 
   async function saveUserEdits() {
     if (!selectedUser) return;
@@ -53,13 +67,13 @@ export default function ListeAdherents() {
   async function deleteUser(userId: string) {
     const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
     if (!confirmation) return;
-  
+
     const res = await fetch("/api/users", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: userId }),
     });
-  
+
     if (res.ok) {
       setUsers((prev) => prev.filter((user) => user.id !== userId));
       alert("Utilisateur supprimé avec succès !");
@@ -69,12 +83,12 @@ export default function ListeAdherents() {
     }
   }
 
+  if (isLoading || !user || role !== "admin") return null;
+
   return (
-    <div className="flex">
-      {/* Sidebar */}
+    <div className="flex h-screen overflow-hidden">
       <SidebarAdmin />
 
-      {/* Main Content */}
       <div className="flex-1 p-6">
         <div className="mb-4">
           <input
@@ -86,6 +100,7 @@ export default function ListeAdherents() {
           />
         </div>
 
+        <div className="grid grid-cols-1gap-4 max-h-[85vh] overflow-y-auto p-2">
         <table className="table w-full">
           <thead>
             <tr>
@@ -107,8 +122,8 @@ export default function ListeAdherents() {
               .map((user) => (
                 <tr key={user.id}>
                   <td>{user.last_name} {user.first_name}</td>
-                  <td>{user.birthdate || "N/A"}</td> 
-                  <td>{user.license_number || "N/A"}</td> 
+                  <td>{user.birthdate || "N/A"}</td>
+                  <td>{user.license_number || "N/A"}</td>
                   <td>{user.administrateur ? "Admin" : "Adhérent"}</td>
                   <td>
                     {user.statut_inscription === "inscrit" ? (
@@ -131,6 +146,7 @@ export default function ListeAdherents() {
               ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* MODAL DE MODIFICATION */}
@@ -139,8 +155,7 @@ export default function ListeAdherents() {
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-xl font-bold mb-4">Modifier l&apos;utilisateur</h2>
 
-            {/* Nom */}
-            <h2 className="text-l font-bold mb-2">Nom :</h2>
+            <label className="block mb-2 font-bold">Nom :</label>
             <input
               type="text"
               className="input input-bordered w-full mb-2"
@@ -150,8 +165,7 @@ export default function ListeAdherents() {
               }
             />
 
-            {/* Prénom */}
-            <h2 className="text-l font-bold mb-2">Prénom :</h2>
+            <label className="block mb-2 font-bold">Prénom :</label>
             <input
               type="text"
               className="input input-bordered w-full mb-2"
@@ -161,8 +175,7 @@ export default function ListeAdherents() {
               }
             />
 
-            {/* Email */}
-            <h2 className="text-l font-bold mb-2">Email :</h2>
+            <label className="block mb-2 font-bold">Email :</label>
             <input
               type="email"
               className="input input-bordered w-full mb-2"
@@ -172,8 +185,7 @@ export default function ListeAdherents() {
               }
             />
 
-            {/* Date de naissance */}
-            <h2 className="text-l font-bold mb-2">Date de naissance :</h2>
+            <label className="block mb-2 font-bold">Date de naissance :</label>
             <input
               type="date"
               className="input input-bordered w-full mb-2"
@@ -183,8 +195,7 @@ export default function ListeAdherents() {
               }
             />
 
-            {/* Numéro de licence */}
-            <h2 className="text-l font-bold mb-2">Numéro de licence :</h2>
+            <label className="block mb-2 font-bold">Numéro de licence :</label>
             <input
               type="text"
               className="input input-bordered w-full mb-2"
@@ -194,7 +205,6 @@ export default function ListeAdherents() {
               }
             />
 
-            {/* Administrateur (checkbox) */}
             <div className="flex items-center gap-2 mb-2">
               <input
                 type="checkbox"
@@ -204,16 +214,18 @@ export default function ListeAdherents() {
                   setSelectedUser({ ...selectedUser, administrateur: e.target.checked })
                 }
               />
-              <label className="text-l font-bold">Administrateur</label>
+              <label className="font-bold">Administrateur</label>
             </div>
 
-            {/* Statut d'inscription (select) */}
-            <h2 className="text-l font-bold mb-2">Statut d&apos;inscription :</h2>
+            <label className="block mb-2 font-bold">Statut d&apos;inscription :</label>
             <select
               className="select select-bordered w-full mb-2"
               value={selectedUser.statut_inscription}
               onChange={(e) =>
-                setSelectedUser({ ...selectedUser, statut_inscription: e.target.value as User["statut_inscription"] })
+                setSelectedUser({
+                  ...selectedUser,
+                  statut_inscription: e.target.value as User["statut_inscription"],
+                })
               }
             >
               <option value="en attente">En attente</option>
