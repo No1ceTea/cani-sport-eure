@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArticleCardAdmin, SearchBar, DateFilter } from "../components/ArticlesComponentsAdmin";
+import { ArticleCardAdmin, SearchBar } from "../components/ArticlesComponentsAdmin";
 import AddArticleModal from "../components/AddArticleModal";
 import EditArticleModal from "../components/EditArticleModal";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import SidebarAdmin from "../components/SidebarAdmin";
 import ModalConfirm from "../components/ModalConfirm";
+import { useAuth } from "@/app/components/Auth/AuthProvider";
 
 interface Article {
   id: string;
@@ -21,7 +22,10 @@ interface Article {
 }
 
 const ArticlesPage: React.FC = () => {
-  const supabase = createClientComponentClient(); // ✅ Correctement défini ici
+  const supabase = createClientComponentClient();
+  const { user, role, isLoading } = useAuth();
+  const router = useRouter();
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
@@ -29,11 +33,15 @@ const ArticlesPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentArticleId, setCurrentArticleId] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // ✅ Nouvel état pour la confirmation
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
-  const router = useRouter();
+
+  // 🔐 Sécurité : redirection si non admin
+  useEffect(() => {
+    if (!isLoading && (!user || role !== "admin")) {
+      router.replace("/connexion");
+    }
+  }, [user, role, isLoading, router]);
 
   const fetchArticles = async () => {
     const { data, error } = await supabase
@@ -47,15 +55,11 @@ const ArticlesPage: React.FC = () => {
 
     const articlesWithProfiles = await Promise.all(
       data.map(async (article) => {
-        const { data: profileData, error: profileError } = await supabase
+        const { data: profileData } = await supabase
           .from("profils")
           .select("nom, photo_profil")
           .eq("id", article.id_profil)
           .single();
-
-        if (profileError) {
-          console.error(`⚠️ Erreur lors de la récupération du profil pour id_profil=${article.id_profil}`, profileError);
-        }
 
         return {
           id: article.id,
@@ -74,28 +78,25 @@ const ArticlesPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchArticles();
-  }, []);
+    if (user && role === "admin") fetchArticles();
+  }, [user, role]);
 
-  // ✅ Fonction pour ouvrir la boîte de confirmation
   const confirmDelete = (id: string) => {
     setArticleToDelete(id);
     setIsConfirmOpen(true);
   };
 
-  // ✅ Fonction de suppression après confirmation
   const handleDelete = async () => {
     if (!articleToDelete) return;
     const { error } = await supabase.from("publication").delete().eq("id", articleToDelete);
 
     if (error) {
-      console.error("Erreur lors de la suppression de l'article:", error);
       alert("Erreur lors de la suppression de l'article.");
     } else {
-      setArticles((prevArticles) => prevArticles.filter((article) => article.id !== articleToDelete));
+      setArticles((prev) => prev.filter((a) => a.id !== articleToDelete));
     }
 
-    setIsConfirmOpen(false); // ✅ Ferme le modal après la suppression
+    setIsConfirmOpen(false);
     setArticleToDelete(null);
   };
 
@@ -104,14 +105,7 @@ const ArticlesPage: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
+  const handleCloseModal = () => setIsModalOpen(false);
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setCurrentArticleId(null);
@@ -125,22 +119,19 @@ const ArticlesPage: React.FC = () => {
     );
   });
 
+  if (isLoading || !user || role !== "admin") return null;
+
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar fixe */}
       <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
-      {/* Conteneur principal */}
       <div className="p-6 max-w-6xl mx-auto flex-1 flex flex-col">
-        {/* Titre */}
         <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
 
-        {/* Barre de recherche */}
         <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
           <SearchBar setSearchQuery={setSearchQuery} />
         </div>
 
-        {/* Conteneur scrollable des articles */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-h-[600px] overflow-y-auto p-2">
           {filteredArticles.map((article) => (
             <div key={article.id} className="cursor-pointer">
@@ -150,7 +141,6 @@ const ArticlesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ✅ Modal de confirmation */}
       <ModalConfirm
         isOpen={isConfirmOpen}
         title="Confirmer la suppression"
@@ -161,8 +151,8 @@ const ArticlesPage: React.FC = () => {
         onCancel={() => setIsConfirmOpen(false)}
       />
 
-      {/* ✅ Modal d'ajout d'article */}
       <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      {/* <EditArticleModal isOpen={isEditModalOpen} articleId={currentArticleId} onClose={handleCloseEditModal} /> */}
     </div>
   );
 };
