@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
+import WhiteBackground from "../components/backgrounds/WhiteBackground";
 
 const MapWithStats = dynamic(() => import("../components/MapWithStats"), { ssr: false });
 const Filter = dynamic(() => import("../components/SportFilter"), { ssr: false });
@@ -61,6 +62,7 @@ const SortiesPage = () => {
   return (
     
     <div className="">
+      <WhiteBackground>
       <div style={{ padding: "20px", textAlign: "center" }}>
         <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
         style={{
@@ -99,6 +101,7 @@ const SortiesPage = () => {
         </div>
       </div>
       <Sidebar />
+      </WhiteBackground>
       <Footer />
     </div>
   );
