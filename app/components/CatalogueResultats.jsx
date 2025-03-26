@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import ModalAdd from "../components/AddResultatModal";
-import ModalEditResultat from "../components/ModalEditResultat";
+import ModalAdd from "./AddResultatModal";
+import ModalEdit from "./ModalEdit";
 import ModalConfirm from "./ModalConfirm";
 
 export default function TableResultats({ isModalOpen, setIsModalOpen }) {
   const supabase = createClientComponentClient();
   const [resultats, setResultats] = useState([]);
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedResultat, setSelectedResultat] = useState(null);
@@ -29,7 +28,7 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
         `);
 
       if (error) {
-        console.error("❌ Erreur de récupération :", JSON.stringify(error, null, 2));
+        console.error("❌ Erreur de récupération :", error);
       } else if (data) {
         const formatedData = data.map((item) => {
           const profilNomComplet = item.profils
@@ -61,13 +60,10 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
 
   const confirmDelete = async () => {
     if (!selectedResultatId) return;
-    const { error } = await supabase
-      .from("resultats")
-      .delete()
-      .match({ id: selectedResultatId });
+    const { error } = await supabase.from("resultats").delete().match({ id: selectedResultatId });
 
     if (error) {
-      console.error("❌ Erreur de suppression :", JSON.stringify(error, null, 2));
+      console.error("❌ Erreur de suppression :", error);
     } else {
       setResultats((prev) => prev.filter((res) => res.id !== selectedResultatId));
       setIsDeleteModalOpen(false);
@@ -81,13 +77,9 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
   };
 
   return (
-    <div
-      className="p-6 bg-white rounded-lg max-w-[95vw] mx-auto mt-8"
-      style={{ fontFamily: "Calibri, sans-serif" }}
-    >
+    <div className="p-6 bg-white rounded-lg max-w-[95vw] mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
       <h2 className="text-xl font-bold mb-4">Liste des Résultats</h2>
 
-      {/* ✅ Scroll horizontal propre */}
       <div className="w-full overflow-x-auto px-2">
         <table className="min-w-[1200px] w-full text-sm text-gray-700 border border-gray-300 border-collapse">
           <thead className="bg-gray-100">
@@ -125,16 +117,10 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
                 <td className="p-4 text-center">{res.kmAR}</td>
                 <td className="p-4 text-center">{res.classement}</td>
                 <td className="p-4 flex justify-center gap-4">
-                  <button
-                    onClick={() => handleDeleteClick(res.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
+                  <button onClick={() => handleDeleteClick(res.id)} className="text-red-500 hover:text-red-700">
                     <FaTrash />
                   </button>
-                  <button
-                    onClick={() => handleEditClick(res)}
-                    className="text-green-500 hover:text-green-700"
-                  >
+                  <button onClick={() => handleEditClick(res)} className="text-green-500 hover:text-green-700">
                     <FaEdit />
                   </button>
                 </td>
@@ -144,9 +130,6 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
         </table>
       </div>
 
-
-
-      {/* Modals */}
       <ModalConfirm
         isOpen={isDeleteModalOpen}
         title="Voulez-vous vraiment supprimer ce résultat ?"
@@ -156,9 +139,24 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
         onCancel={() => setIsDeleteModalOpen(false)}
       />
 
-      <ModalAdd isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ModalAdd
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      onAdd={(newRes) => {
+        const formatted = {
+          ...newRes,
+          date: newRes.date ? new Date(newRes.date).toLocaleDateString() : "",
+          created_at: newRes.created_at ? new Date(newRes.created_at).toLocaleString() : "",
+          chienPrenom: newRes.chiens?.prenom || "",
+          profilNomComplet: newRes.profils ? `${newRes.profils.nom} ${newRes.profils.prenom}` : "",
+          categorieNom: newRes.categorieResultat?.nom_categorie || "",
+          typeNom: newRes.resultatType?.nom_resultat || "",
+        };
+        setResultats((prev) => [...prev, formatted]);
+      }}
+      />
 
-      <ModalEditResultat
+      <ModalEdit
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         data={selectedResultat}

@@ -1,19 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { useEffect, useState, useRef } from "react";
 import { FaTimes } from "react-icons/fa";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const ModalAdd = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  if (!isOpen) return null;
+interface ModalAddProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdd: (resultat: any) => void;
+}
 
+const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
   const [date, setDate] = useState("");
-  const [temps, setTemps] = useState(""); // 👈 Champ time
+  const [temps, setTemps] = useState("");
   const [vitesse, setVitesse] = useState("");
   const [distance, setDistance] = useState("");
   const [region, setRegion] = useState("");
@@ -21,19 +25,21 @@ const ModalAdd = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
   const [nomActivite, setNomActivite] = useState("");
   const [kmAR, setKmAR] = useState("");
   const [classement, setClassement] = useState("");
-
-  const [id_chien, setIdChien] = useState<string>("");
-  const [id_profil, setIdProfil] = useState<string>("");
-  const [id_categorie, setIdCategorie] = useState<string>("");
-  const [id_type, setIdType] = useState<string>("");
+  const [id_chien, setIdChien] = useState("");
+  const [id_profil, setIdProfil] = useState("");
+  const [id_categorie, setIdCategorie] = useState("");
+  const [id_type, setIdType] = useState("");
 
   const [chiens, setChiens] = useState<any[]>([]);
+  const [filteredChiens, setFilteredChiens] = useState<any[]>([]);
   const [profils, setProfils] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [types, setTypes] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +57,29 @@ const ModalAdd = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (id_profil) {
+      const relatedChiens = chiens.filter((chien) => chien.id_profil === id_profil);
+      setFilteredChiens(relatedChiens);
+      setIdChien("");
+    } else {
+      setFilteredChiens([]);
+      setIdChien("");
+    }
+  }, [id_profil, chiens]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const resetForm = () => {
+    setDate(""); setTemps(""); setVitesse(""); setDistance("");
+    setRegion(""); setLieu(""); setNomActivite(""); setKmAR(""); setClassement("");
+    setIdChien(""); setIdProfil(""); setIdCategorie(""); setIdType("");
+  };
+
   const handleAddResult = async () => {
     if (!date || !temps || !vitesse || !distance || !region || !lieu || !nomActivite || !id_chien || !id_profil || !id_categorie || !id_type) {
       setMessage("❌ Veuillez remplir tous les champs obligatoires.");
@@ -60,38 +89,54 @@ const ModalAdd = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
     setLoading(true);
     setMessage("");
 
-    const { error } = await supabase.from("resultats").insert([
-      {
-        date,
-        temps,
-        vitesse,
-        distance,
-        region,
-        lieu,
-        nomActivite,
-        kmAR,
-        classement,
-        id_chien,
-        id_profil,
-        id_categorie,
-        id_type,
-      },
-    ]);
+    const insertResponse = await supabase
+      .from("resultats")
+      .insert([{
+        date, temps, vitesse, distance, region, lieu,
+        nomActivite, kmAR, classement,
+        id_chien, id_profil, id_categorie, id_type,
+      }])
+      .select("id")
+      .single();
 
-    if (error) {
-      console.error("❌ Erreur d'insertion :", error);
+    if (insertResponse.error) {
+      console.error("❌ Erreur d'insertion :", insertResponse.error);
       setMessage("❌ Une erreur est survenue.");
+      setLoading(false);
+      return;
+    }
+
+    const { data: fullData, error: refetchError } = await supabase
+      .from("resultats")
+      .select(`
+        *,
+        chiens ( prenom ),
+        profils ( nom, prenom ),
+        categorieResultat ( nom_categorie ),
+        resultatType ( nom_resultat )
+      `)
+      .eq("id", insertResponse.data.id)
+      .single();
+
+    if (refetchError) {
+      console.error("❌ Erreur de récupération :", refetchError);
+      setMessage("❌ Résultat créé, mais erreur lors du rechargement.");
     } else {
-      setMessage("✅ Résultat ajouté avec succès !");
-      onClose();
-      window.location.reload();
+      onAdd(fullData);
+      setMessage("✅ Résultat ajouté !");
+      resetForm();
+      timeoutRef.current = setTimeout(() => onClose(), 2000);
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div
+      className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${
+        isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}
+    >
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
         <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
           <FaTimes />
@@ -101,62 +146,43 @@ const ModalAdd = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
         <hr className="mb-6 border-gray-300" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Relations */}
-          <select value={id_chien} onChange={(e) => setIdChien(e.target.value)} className="p-3 border border-gray-300 rounded">
-            <option value="">-- Sélectionner un chien --</option>
-            {chiens.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.prenom}
-              </option>
-            ))}
-          </select>
-
           <select value={id_profil} onChange={(e) => setIdProfil(e.target.value)} className="p-3 border border-gray-300 rounded">
             <option value="">-- Sélectionner un participant --</option>
             {profils.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nom} {p.prenom}
-              </option>
+              <option key={p.id} value={p.id}>{p.nom} {p.prenom}</option>
+            ))}
+          </select>
+
+          <select value={id_chien} onChange={(e) => setIdChien(e.target.value)} className="p-3 border border-gray-300 rounded">
+            <option value="">-- Sélectionner un chien --</option>
+            {filteredChiens.map((c) => (
+              <option key={c.id} value={c.id}>{c.prenom}</option>
             ))}
           </select>
 
           <select value={id_categorie} onChange={(e) => setIdCategorie(e.target.value)} className="p-3 border border-gray-300 rounded">
             <option value="">-- Sélectionner une catégorie --</option>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.nom_categorie}
-              </option>
+              <option key={cat.id} value={cat.id}>{cat.nom_categorie}</option>
             ))}
           </select>
 
           <select value={id_type} onChange={(e) => setIdType(e.target.value)} className="p-3 border border-gray-300 rounded">
             <option value="">-- Sélectionner un type --</option>
             {types.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.nom_resultat}
-              </option>
+              <option key={t.id} value={t.id}>{t.nom_resultat}</option>
             ))}
           </select>
 
-          {/* Champs simples */}
-          <input type="date" value={date ?? ""} onChange={(e) => setDate(e.target.value)} className="p-3 border border-gray-300 rounded" />
-          
-          <input
-            type="time"
-            step="1"
-            value={temps ?? ""}
-            onChange={(e) => setTemps(e.target.value)}
-            className="p-3 border border-gray-300 rounded"
-            placeholder="Temps"
-          />
-
-          <input type="text" value={vitesse ?? ""} onChange={(e) => setVitesse(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Vitesse" />
-          <input type="text" value={distance ?? ""} onChange={(e) => setDistance(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Distance" />
-          <input type="text" value={region ?? ""} onChange={(e) => setRegion(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Région" />
-          <input type="text" value={lieu ?? ""} onChange={(e) => setLieu(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Lieu" />
-          <input type="text" value={nomActivite ?? ""} onChange={(e) => setNomActivite(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Nom Activité" />
-          <input type="text" value={kmAR ?? ""} onChange={(e) => setKmAR(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="km Aller-Retour" />
-          <input type="text" value={classement ?? ""} onChange={(e) => setClassement(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Classement" />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="p-3 border border-gray-300 rounded" />
+          <input type="time" step="1" value={temps} onChange={(e) => setTemps(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Temps" />
+          <input type="text" value={vitesse} onChange={(e) => setVitesse(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Vitesse" />
+          <input type="text" value={distance} onChange={(e) => setDistance(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Distance" />
+          <input type="text" value={region} onChange={(e) => setRegion(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Région" />
+          <input type="text" value={lieu} onChange={(e) => setLieu(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Lieu" />
+          <input type="text" value={nomActivite} onChange={(e) => setNomActivite(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Nom Activité" />
+          <input type="text" value={kmAR} onChange={(e) => setKmAR(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="km Aller-Retour" />
+          <input type="text" value={classement} onChange={(e) => setClassement(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Classement" />
         </div>
 
         <div className="text-center mt-6">
