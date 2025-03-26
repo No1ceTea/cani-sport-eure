@@ -26,7 +26,9 @@ export default function Sidebar({ session = null }: SidebarProps) {
       <button
         className="fixed top-4 right-4 primary_button shadow-lg transition p-2 z-[9999]"
         onClick={() => {
-          document.getElementById("sidebar")?.classList.toggle("translate-x-full");
+          document
+            .getElementById("sidebar")
+            ?.classList.toggle("translate-x-full");
         }}
       >
         <Image
@@ -52,7 +54,9 @@ export default function Sidebar({ session = null }: SidebarProps) {
           <button
             className="absolute top-0 right-0 translate-y-[-90%] p-2 drop-shadow-lg"
             onClick={() => {
-              document.getElementById("sidebar")?.classList.add("translate-x-full");
+              document
+                .getElementById("sidebar")
+                ?.classList.add("translate-x-full");
             }}
           >
             <Image
@@ -86,56 +90,45 @@ export default function Sidebar({ session = null }: SidebarProps) {
               </a>
             </li>
             <li>
-              <a href="https://sublimtout.com/200-canisports-eure" className="hover:text-gray-300">
+              <a
+                href="https://sublimtout.com/200-canisports-eure"
+                className="hover:text-gray-300"
+              >
                 Boutique
               </a>
             </li>
+            <li>
+              <a href="/creation-profil" className="hover:text-gray-300">
+                Mon profil
+              </a>
+            </li>
+            <li>
+              <a href="/dashboard/client" className="hover:text-gray-300">
+                Tableau de bord
+              </a>
+            </li>
+            <li>
+              <a href="/Document" className="hover:text-gray-300">
+                Documents
+              </a>
+            </li>
 
-            {/* Ces liens sont affichés uniquement si l'utilisateur est connecté */}
-            {user && (
-              <>
-                <li>
-                  <a href="/creation-profil" className="hover:text-gray-300">
-                    Mon profil
-                  </a>
-                </li>
-                <li>
-                  <a href="/dashboard/client" className="hover:text-gray-300">
-                    Tableau de bord
-                  </a>
-                </li>
-                <li>
-                  <a href="/Document" className="hover:text-gray-300">
-                    Documents
-                  </a>
-                </li>
-              </>
-            )}
+            <li>
+              <a href="/dashboard/admin" className="hover:text-gray-300">
+                Admin
+              </a>
+            </li>
 
-            {/* Lien Admin (affiché uniquement si l'utilisateur est admin) */}
-            {isAdmin && (
-              <li>
-                <a href="/dashboard/admin" className="hover:text-gray-300">
-                  Admin
-                </a>
-              </li>
-            )}
-
-            {/* Affichage conditionnel pour "Se connecter" ou "Se déconnecter" */}
-            {!user && (
-              <li>
-                <a href="/connexion" className="hover:text-yellow_primary">
-                  Se connecter
-                </a>
-              </li>
-            )}
-            {user && (
-              <li>
-                <a href="/connexion#logout" className="hover:text-yellow_primary">
-                  Se déconnecter
-                </a>
-              </li>
-            )}
+            <li>
+              <a href="/login" className="hover:text-yellow_primary">
+                Se connecter
+              </a>
+            </li>
+            <li>
+              <a href="/connexion#logout" className="hover:text-yellow_primary">
+                Se déconnecter
+              </a>
+            </li>
           </ul>
         </div>
       </div>
