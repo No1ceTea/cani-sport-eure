@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import ModalAdd from "./AddResultatModal";
-import ModalEdit from "./ModalEdit";
+import ModalEdit from "./ModalEditResultat";
 import ModalConfirm from "./ModalConfirm";
 
 export default function TableResultats({ isModalOpen, setIsModalOpen }) {

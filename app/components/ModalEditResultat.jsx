@@ -10,24 +10,24 @@ const supabase = createClient(
 );
 
 const ModalEditResultat = ({ isOpen, onClose, data }) => {
-  if (!isOpen || !data) return null;
-
-  const [temps, setTemps] = useState(data.temps || "");
-  const [vitesse, setVitesse] = useState(data.vitesse || "");
-  const [distance, setDistance] = useState(data.distance || "");
-  const [region, setRegion] = useState(data.region || "");
-  const [lieu, setLieu] = useState(data.lieu || "");
-  const [nomActivite, setNomActivite] = useState(data.nomActivite || "");
-  const [classement, setClassement] = useState(data.classement || "");
+  const [temps, setTemps] = useState("");
+  const [vitesse, setVitesse] = useState("");
+  const [distance, setDistance] = useState("");
+  const [region, setRegion] = useState("");
+  const [lieu, setLieu] = useState("");
+  const [nomActivite, setNomActivite] = useState("");
+  const [classement, setClassement] = useState("");
 
   useEffect(() => {
-    setTemps(data.temps || "");
-    setVitesse(data.vitesse || "");
-    setDistance(data.distance || "");
-    setRegion(data.region || "");
-    setLieu(data.lieu || "");
-    setNomActivite(data.nomActivite || "");
-    setClassement(data.classement || "");
+    if (data) {
+      setTemps(data.temps || "");
+      setVitesse(data.vitesse || "");
+      setDistance(data.distance || "");
+      setRegion(data.region || "");
+      setLieu(data.lieu || "");
+      setNomActivite(data.nomActivite || "");
+      setClassement(data.classement || "");
+    }
   }, [data]);
 
   const handleUpdate = async () => {
@@ -48,21 +48,26 @@ const ModalEditResultat = ({ isOpen, onClose, data }) => {
       console.error("❌ Erreur de mise à jour :", error);
     } else {
       onClose();
-      window.location.reload(); // ou utilise un callback propre si tu veux éviter ça
+      window.location.reload();
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${
+        isOpen ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"
+      }`}
+    >
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative">
-        {/* Bouton de fermeture */}
-        <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+        >
           <FaTimes />
         </button>
 
         <h2 className="text-xl font-bold mb-4 text-center">Modifier un Résultat</h2>
 
-        {/* Formulaire */}
         <div className="grid grid-cols-1 gap-4">
           <input
             type="text"
@@ -71,7 +76,6 @@ const ModalEditResultat = ({ isOpen, onClose, data }) => {
             onChange={(e) => setTemps(e.target.value)}
             className="p-2 border border-gray-300 rounded"
           />
-
           <input
             type="text"
             placeholder="Vitesse"
@@ -79,7 +83,6 @@ const ModalEditResultat = ({ isOpen, onClose, data }) => {
             onChange={(e) => setVitesse(e.target.value)}
             className="p-2 border border-gray-300 rounded"
           />
-
           <input
             type="text"
             placeholder="Distance"
@@ -87,7 +90,6 @@ const ModalEditResultat = ({ isOpen, onClose, data }) => {
             onChange={(e) => setDistance(e.target.value)}
             className="p-2 border border-gray-300 rounded"
           />
-
           <input
             type="text"
             placeholder="Région"
@@ -95,7 +97,6 @@ const ModalEditResultat = ({ isOpen, onClose, data }) => {
             onChange={(e) => setRegion(e.target.value)}
             className="p-2 border border-gray-300 rounded"
           />
-
           <input
             type="text"
             placeholder="Lieu"
@@ -103,7 +104,6 @@ const ModalEditResultat = ({ isOpen, onClose, data }) => {
             onChange={(e) => setLieu(e.target.value)}
             className="p-2 border border-gray-300 rounded"
           />
-
           <input
             type="text"
             placeholder="Nom de l'activité"
@@ -111,7 +111,6 @@ const ModalEditResultat = ({ isOpen, onClose, data }) => {
             onChange={(e) => setNomActivite(e.target.value)}
             className="p-2 border border-gray-300 rounded"
           />
-
           <input
             type="text"
             placeholder="Classement"
@@ -121,7 +120,6 @@ const ModalEditResultat = ({ isOpen, onClose, data }) => {
           />
         </div>
 
-        {/* Bouton Update */}
         <button
           onClick={handleUpdate}
           className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
