@@ -20,7 +20,12 @@ interface EventData {
   allDay?: boolean;
 }
 
-export default function MyCalendar() {
+interface CalendarProps {
+  readOnly?: boolean;
+  hidePrivate?: boolean;
+}
+
+export default function MyCalendar({ readOnly = false, hidePrivate = false }: CalendarProps) {
   const [events, setEvents] = useState<EventData[]>([]);
   const [newTitle, setNewTitle] = useState("");
   const [newColor, setNewColor] = useState("#3b82f6");
@@ -28,12 +33,11 @@ export default function MyCalendar() {
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [visibility, setVisibility] = useState("public"); // 🔒 public ou private
+  const [visibility, setVisibility] = useState("public");
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-
 
   useEffect(() => {
     const fetchUserAndEvents = async () => {
@@ -42,7 +46,6 @@ export default function MyCalendar() {
       setUserToken(token);
       fetchEvents(token);
     };
-
     fetchUserAndEvents();
   }, []);
 
@@ -54,20 +57,25 @@ export default function MyCalendar() {
       const data = await res.json();
       if (Array.isArray(data)) {
         setEvents(
-          data.map((event: any) => {
-            const start = new Date(event.start.dateTime || event.start.date);
-            const end = new Date(event.end.dateTime || event.end.date);
-            const allDay = !event.start.dateTime;
+          data
+            .filter((event: any) => {
+              const isPrivate = event.visibility === "private";
+              return !(hidePrivate && isPrivate);
+            })
+            .map((event: any) => {
+              const start = new Date(event.start.dateTime || event.start.date);
+              const end = new Date(event.end.dateTime || event.end.date);
+              const allDay = !event.start.dateTime;
 
-            return {
-              id: event.id,
-              title: event.summary,
-              start,
-              end,
-              color: event.description || "#3b82f6",
-              allDay,
-            };
-          })
+              return {
+                id: event.id,
+                title: event.summary,
+                start,
+                end,
+                color: event.description || "#3b82f6",
+                allDay,
+              };
+            })
         );
       }
     } catch (err) {
@@ -76,49 +84,56 @@ export default function MyCalendar() {
   };
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
+    if (readOnly) return;
     setStartDate(start.toISOString().slice(0, 10));
     setStartTime(start.toTimeString().slice(0, 5));
     setEndDate(end.toISOString().slice(0, 10));
     setEndTime(end.toTimeString().slice(0, 5));
-    setShowModal(true); // 👉 on affiche la popup
+    setShowModal(true);
   };
-  
+
   const handleSelectEvent = (event: EventData) => {
+    if (readOnly) return;
     setSelectedEventId(event.id);
     setShowDeleteModal(true);
   };
-  
 
   const handleCreateEvent = async () => {
     if (!newTitle || !startDate || !startTime || !endDate || !endTime) {
       alert("Tous les champs sont obligatoires.");
       return;
     }
-
+  
     const start = new Date(`${startDate}T${startTime}`);
     const end = new Date(`${endDate}T${endTime}`);
-
+  
+    const fullColor = `${newColor}::${visibility}`;
+  
     const res = await fetch("/api/calendar", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(userToken && { Authorization: `Bearer ${userToken}` }), // 🔐 ajoute le token seulement s’il existe
       },
       body: JSON.stringify({
         title: newTitle,
         start,
         end,
-        color: newColor,
-        visibility,
+        color: fullColor,
       }),
     });
-
+  
     if (res.ok) {
       fetchEvents(userToken);
       resetForm();
+      setShowModal(false);
     } else {
+      const errorText = await res.text();
+      console.error("❌ Erreur lors de la création :", errorText);
       alert("Erreur lors de la création.");
     }
   };
+  
 
   const resetForm = () => {
     setNewTitle("");
@@ -160,23 +175,17 @@ export default function MyCalendar() {
   };
 
   const formatEventTime = (start: Date, end: Date) => {
-    const isSameDay =
-      start.toLocaleDateString() === end.toLocaleDateString();
-
-    const formatDate = (d: Date) =>
-      d.toLocaleDateString("fr-FR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-
-    const formatHour = (d: Date) =>
-      d.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-
+    const isSameDay = start.toLocaleDateString() === end.toLocaleDateString();
+    const formatDate = (d: Date) => d.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+    const formatHour = (d: Date) => d.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
     if (isSameDay) {
       return `${formatDate(start)} de ${formatHour(start)} à ${formatHour(end)}`;
     } else {
@@ -187,16 +196,15 @@ export default function MyCalendar() {
   return (
     <div className="p-4 bg-white shadow-md rounded-lg mx-auto">
       <h2 className="text-xl font-bold mb-4">📅 Agenda</h2>
-
       <Calendar
         localizer={localizer}
         events={events}
         startAccessor="start"
         endAccessor="end"
-        selectable
+        selectable={!readOnly}
         style={{ height: 500 }}
         onSelectSlot={handleSelectSlot}
-        onSelectEvent={handleSelectEvent} // 👈 ici
+        onSelectEvent={handleSelectEvent}
         eventPropGetter={eventStyleGetter}
         messages={{
           allDay: "Journée entière",
@@ -213,8 +221,7 @@ export default function MyCalendar() {
         }}
       />
 
-
-      {showModal && (
+      {showModal && !readOnly && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
             <h3 className="text-lg font-bold mb-4">Créer un événement</h3>
@@ -222,119 +229,63 @@ export default function MyCalendar() {
               onSubmit={(e) => {
                 e.preventDefault();
                 handleCreateEvent();
-                setShowModal(false); // Fermer après création
+                setShowModal(false);
               }}
             >
               <label className="block mb-2">
                 Titre :
-                <input
-                  type="text"
-                  required
-                  className="ml-2 border p-1 w-full"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                />
+                <input type="text" required className="ml-2 border p-1 w-full" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
               </label>
-
               <label className="block mb-2">
                 Début :
-                <input
-                  type="date"
-                  required
-                  className="ml-2 border p-1"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-                <input
-                  type="time"
-                  required
-                  className="ml-2 border p-1"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                />
+                <input type="date" required className="ml-2 border p-1" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                <input type="time" required className="ml-2 border p-1" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
               </label>
-
               <label className="block mb-2">
                 Fin :
-                <input
-                  type="date"
-                  required
-                  className="ml-2 border p-1"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-                <input
-                  type="time"
-                  required
-                  className="ml-2 border p-1"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                />
+                <input type="date" required className="ml-2 border p-1" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                <input type="time" required className="ml-2 border p-1" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
               </label>
-
               <label className="block mb-2">
                 Couleur :
-                <input
-                  type="color"
-                  className="ml-2 border p-1 w-16"
-                  value={newColor}
-                  onChange={(e) => setNewColor(e.target.value)}
-                />
+                <input type="color" className="ml-2 border p-1 w-16" value={newColor} onChange={(e) => setNewColor(e.target.value)} />
               </label>
-
               <label className="block mb-4">
                 Visibilité :
-                <select
-                  className="ml-2 border p-1"
-                  value={visibility}
-                  onChange={(e) => setVisibility(e.target.value)}
-                >
+                <select className="ml-2 border p-1" value={visibility} onChange={(e) => setVisibility(e.target.value)}>
                   <option value="public">🌍 Public</option>
                   <option value="private">🔒 Réservé aux membres</option>
                 </select>
               </label>
-
               <div className="flex gap-2 justify-end">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                  ➕ Créer
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    resetForm();
-                    setShowModal(false);
-                  }}
-                  className="bg-gray-400 text-white px-4 py-2 rounded"
-                >
-                  ❌ Annuler
-                </button>
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">➕ Créer</button>
+                <button type="button" onClick={() => { resetForm(); setShowModal(false); }} className="bg-gray-400 text-white px-4 py-2 rounded">❌ Annuler</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      <ModalConfirm
-        isOpen={showDeleteModal}
-        title="Supprimer l'événement ?"
-        message="Cette action est irréversible."
-        confirmText="Confirmer"
-        cancelText="Annuler"
-        onConfirm={() => {
-          if (selectedEventId) {
-            deleteEvent(selectedEventId);
+      {!readOnly && (
+        <ModalConfirm
+          isOpen={showDeleteModal}
+          title="Supprimer l'événement ?"
+          message="Cette action est irréversible."
+          confirmText="Confirmer"
+          cancelText="Annuler"
+          onConfirm={() => {
+            if (selectedEventId) {
+              deleteEvent(selectedEventId);
+              setShowDeleteModal(false);
+              setSelectedEventId(null);
+            }
+          }}
+          onCancel={() => {
             setShowDeleteModal(false);
             setSelectedEventId(null);
-          }
-        }}
-        onCancel={() => {
-          setShowDeleteModal(false);
-          setSelectedEventId(null);
-        }}
-      />
+          }}
+        />
+      )}
     </div>
   );
 }
