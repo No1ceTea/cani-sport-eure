@@ -126,7 +126,6 @@ const ArticlesPage: React.FC = () => {
       <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
       <div className="p-6 max-w-6xl mx-auto flex-1 flex flex-col">
-        <h1 className="text-3xl font-bold mb-6 text-center">Articles</h1>
 
         <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
           <SearchBar setSearchQuery={setSearchQuery} />
