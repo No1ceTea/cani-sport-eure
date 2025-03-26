@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import supabase from "../../lib/supabaseClient";
+import Image from "next/image";
 
 interface Article {
   id: string;
@@ -44,12 +45,17 @@ const LastestArticles = () => {
 
   return (
     <div className="mx-auto px-16 py-16">
-      <h2 className="text-3xl font-semibold primary_title_black mb-8">Nos derniers articles</h2>
+      <h2 className="text-3xl font-semibold primary_title_black mb-8">
+        Nos derniers articles
+      </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 py-8">
         {articles.map((article) => (
-          <div key={article.id} className="bg-white shadow-md p-4 rounded-lg max-w-sm">
-            <img
+          <div
+            key={article.id}
+            className="bg-white shadow-md p-4 rounded-lg max-w-sm"
+          >
+            <Image
               src={article.image_url}
               alt={article.titre}
               className="w-full h-40 object-cover rounded-md"

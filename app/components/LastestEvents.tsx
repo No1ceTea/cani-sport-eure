@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import EventCard from "./EventCard";
+import EventCard from "./addevent/EventCard";
 import supabase from "@/lib/supabaseClient";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";

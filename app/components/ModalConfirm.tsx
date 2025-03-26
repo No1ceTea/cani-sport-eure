@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -27,10 +27,16 @@ const ModalConfirm: React.FC<ModalProps> = ({
       <div className="bg-white p-6 rounded-lg shadow-lg w-[28rem] text-center">
         <h2 className="text-lg font-semibold mb-4">{title}</h2>
         <div className="flex justify-center gap-4">
-          <Button className="bg-blue-900 text-white px-4 py-2 rounded-full" onClick={onCancel}>
+          <Button
+            className="bg-blue-900 text-white px-4 py-2 rounded-full"
+            onClick={onCancel}
+          >
             {cancelText}
           </Button>
-          <Button className="bg-blue-900 text-white px-4 py-2 rounded-full" onClick={onConfirm}>
+          <Button
+            className="bg-blue-900 text-white px-4 py-2 rounded-full"
+            onClick={onConfirm}
+          >
             {confirmText}
           </Button>
         </div>
