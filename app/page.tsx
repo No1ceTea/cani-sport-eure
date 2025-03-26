@@ -53,7 +53,7 @@ export default function HomePage() {
       <LastestArticles />
 
       {/* Transmet la session à Sidebar */}
-      <Sidebar session={session} />
+      <Sidebar />
       <Footer />
     </main>
   );
