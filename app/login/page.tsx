@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const redirectToSignup = () => {
-    router.push("/inscription"); // Redirection vers la page d'inscription
+    router.push("/signup"); // Redirection vers la page d'inscription
   };
 
   return (
