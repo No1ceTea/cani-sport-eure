@@ -1,8 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
+// src/lib/supabaseClient.ts
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createBrowserSupabaseClient(); // il lit automatiquement les clés .env
 
 export default supabase;
