@@ -2,7 +2,7 @@ import BlueBackground from "../backgrounds/BlueBackground";
 
 export default function Footer() {
   return (
-    <footer className="bg-blue-900 text-white">
+    <footer className="bg-blue-900 text-white add_border bottom-0">
       <BlueBackground>
         <div className="py-10 px-5">
           <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-start text-center md:text-left">
@@ -39,7 +39,7 @@ export default function Footer() {
                 <div>
                   <h3 className="primary_title">Évènements</h3>
                   <ul className="text-sm space-y-2">
-                    <li><a href="/evenements" className="primary_text hover:underline">Évènements</a></li>
+                    <li><a href="/listeEvenement" className="primary_text hover:underline">Évènements</a></li>
                     <li><a href="/dashboard/client" className="primary_text hover:underline">Tableau de bord</a></li>
                   </ul>
                 </div>

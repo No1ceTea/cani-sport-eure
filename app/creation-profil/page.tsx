@@ -96,7 +96,7 @@ export default function UserProfileForm() {
     setPhotoPreview(URL.createObjectURL(file));
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm(prevForm => ({ ...prevForm, [name]: value }));
   };
@@ -151,7 +151,22 @@ export default function UserProfileForm() {
     setLoading(false);
   };
 
-  if (!isMounted) return null;
+  if (!isMounted) return null; 
+
+  const getAge = (dateString: string): number => {
+    if (!dateString) return 0;
+    const today = new Date();
+    const birthDate = new Date(dateString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+  
+  const age = getAge(form.date_de_naissance);
+  
 
   return (
     <div>
@@ -181,7 +196,25 @@ export default function UserProfileForm() {
             <div className="flex items-center"><label className="text-sm w-40 text-white">Ville</label><input type="text" name="ville" value={form.ville} disabled className="flex-1 p-2 text-gray-500 bg-gray-300 rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Date de naissance</label><input type="date" name="date_de_naissance" value={form.date_de_naissance} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Date de renouvellement</label><input type="date" name="date_renouvellement" value={form.date_renouvellement} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Licence</label><input type="text" name="licence" value={form.licence} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
+            {/* LICENCE SELECT */}
+            <div className="flex items-center">
+              <label className="text-sm w-40 text-white">Licence</label>
+              <select
+                name="licence"
+                value={form.licence}
+                onChange={handleChange}
+                className="flex-1 p-2 text-black rounded-lg"
+              >
+                <option value="">-- Sélectionner une licence --</option>
+                {age >= 17 && (
+                  <option value="Licence adulte">Licence adulte</option>
+                )}
+                {age < 17 && (
+                  <option value="Licence enfant">Licence enfant</option>
+                )}
+                <option value="Licence handicapé">Licence handicapé</option>
+              </select>
+            </div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Email</label><input name="email" value={form.email} className="flex-1 p-2 text-gray-500 bg-gray-300 rounded-lg" disabled /></div>
           </div>
 

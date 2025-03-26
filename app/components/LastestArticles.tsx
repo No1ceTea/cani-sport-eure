@@ -74,7 +74,7 @@ const LastestArticles = () => {
         <div className="max-w-sm flex items-center justify-center">
           <button
             onClick={handleGoToArticles}
-            className="bg-blue-900 text-white px-6 py-3 rounded-full text-sm flex items-center gap-2 hover:bg-blue-800"
+            className="bg-blue-900 text-white px-6 py-3 rounded-full text-sm flex items-center gap-2 hover:bg-blue-800 add_border"
           >
             Plus d’articles <span>➔</span>
           </button>
