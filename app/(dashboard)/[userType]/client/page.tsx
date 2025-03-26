@@ -22,10 +22,16 @@ const ClientDashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data: userSession } = await supabase.auth.getSession();
-      if (!userSession.session) return router.replace("/connexion");
+      if (!userSession.session) {
+        console.log("🔴 Pas de session !");
+        return router.replace("/connexion");
+      }
 
       const { data: userData, error } = await supabase.auth.getUser();
-      if (error || !userData?.user) return router.replace("/connexion");
+      if (error || !userData?.user) {
+        console.log("❌ Erreur utilisateur :", error);
+        return router.replace("/connexion");
+      }
 
       const uid = userData.user.id;
       setUserId(uid);
@@ -37,11 +43,12 @@ const ClientDashboardPage: React.FC = () => {
 
       const { data: results } = await supabase
         .from("resultats")
-        .select(`nomActivite, lieu, distance, classement, date, id_type, type:titre`)
+        .select("nomActivite, lieu, distance, classement, date, id_type")
         .eq("id_profil", uid)
         .order("date", { ascending: false })
         .limit(5);
 
+      console.log("resultsData:", results);
       if (results) setResultsData(results);
 
       const { data: participations } = await supabase
@@ -86,10 +93,10 @@ const ClientDashboardPage: React.FC = () => {
         .from("resultats")
         .select("distance")
         .eq("id_profil", userId)
-        .eq("nomActivite", selectedEvent);
+        .eq("id_evenement", eventId);
 
       const kmParcourus = distances?.reduce((sum: number, res: any) => sum + parseFloat(res.distance || 0), 0) || 0;
-      const kmMax = (participants?.length || 0) * 15; // valeur hypothétique
+      const kmMax = (participants?.length || 0) * 15;
 
       setEventStats({
         participants: participants?.length || 0,
@@ -102,9 +109,9 @@ const ClientDashboardPage: React.FC = () => {
   }, [selectedEvent, userId, supabase, eventMap]);
 
   if (isLoading) return <p>Chargement...</p>;
-  if (!userType) return null;
+  if (!userType) return <p>Non autorisé</p>;
 
-  const pourcentage = Math.round((eventStats.kmParcourus / eventStats.kmMax) * 100);
+  const pourcentage = eventStats.kmMax > 0 ? Math.round((eventStats.kmParcourus / eventStats.kmMax) * 100) : 0;
 
   return (
     <div>
@@ -122,7 +129,6 @@ const ClientDashboardPage: React.FC = () => {
               <thead className="bg-blue-600 text-white">
                 <tr>
                   <th>Compétition</th>
-                  <th>Type</th>
                   <th>Lieu</th>
                   <th>Distance</th>
                   <th>Classement</th>
@@ -133,7 +139,6 @@ const ClientDashboardPage: React.FC = () => {
                 {resultsData.map((res, index) => (
                   <tr key={index} className="border-b">
                     <td>{res.nomActivite}</td>
-                    <td>{res.type || "N/A"}</td>
                     <td>{res.lieu}</td>
                     <td>{res.distance} km</td>
                     <td>{res.classement}</td>
@@ -163,6 +168,18 @@ const ClientDashboardPage: React.FC = () => {
                 <div className="bg-blue-500 h-6 rounded-lg" style={{ width: `${pourcentage}%` }}></div>
               </div>
               <p className="text-2xl font-bold mt-2 text-blue-700">{pourcentage}%</p>
+
+              {/* Légende */}
+              <div className="mt-4 space-y-1 text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                  <span>Km parcourus par les participants ({eventStats.kmParcourus.toFixed(1)} km)</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
+                  <span>Km parcourus maximal ({eventStats.kmMax.toFixed(1)} km)</span>
+                </div>
+              </div>
             </div>
           </div>
 
