@@ -58,6 +58,8 @@ const LastestArticles = () => {
             <Image
               src={article.image_url}
               alt={article.titre}
+              width={400}
+              height={400}
               className="w-full h-40 object-cover rounded-md"
             />
             <h3 className="text-lg font-bold mt-4">{article.titre}</h3>
