@@ -71,6 +71,9 @@ export default function Sidebar() {
               <a href="/SortieCanine" className="hover:text-gray-300">Catalogue des sorties</a>
             </li>
             <li>
+              <a href="/resultats" className="hover:text-gray-300">Resultats</a>
+            </li>
+            <li>
               <a href="/agenda" className="hover:text-gray-300">
                 Agenda
               </a>
