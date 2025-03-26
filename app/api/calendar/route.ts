@@ -2,35 +2,40 @@ import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// ─── AUTH Supabase depuis requête ─────────────────────────────
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-async function getUserFromRequest(req: NextRequest): Promise<boolean> {
-  const authHeader = req.headers.get("Authorization");
-  const token = authHeader?.replace("Bearer ", "");
-
-  if (!token) return false;
-
-  const { data } = await supabase.auth.getUser(token);
-  return !!data?.user;
-}
-
-// ─── Google Calendar Auth ─────────────────────────────────────
+// ─── Google Calendar Auth ───────────────────────────────────────────
 const auth = new google.auth.JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
   key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
-
 const calendar = google.calendar({ version: "v3", auth });
 
-// ─── GET ─────────────────────────────────────────────────────────────
+// ─── Fonction d'authentification Supabase ───────────────────────────
+async function getUserFromRequest(req: NextRequest) {
+  const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+  if (!token) return null;
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    }
+  );
+
+  const { data } = await supabase.auth.getUser();
+  return data.user;
+}
+
+// ─── GET : Récupérer les événements ─────────────────────────────
 export async function GET(req: NextRequest) {
   try {
-    const isAuthenticated = await getUserFromRequest(req); // 🧠 vérifie token Supabase
+    const user = await getUserFromRequest(req);
+    const isAuthenticated = !!user;
 
     const response = await calendar.events.list({
       calendarId: process.env.GOOGLE_CALENDAR_ID!,
@@ -64,16 +69,21 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ─── POST ─────────────────────────────────────────────────────────────
+// ─── POST : Ajouter un événement ────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
     const { title, start, end, color, visibility } = await req.json();
+    const user = await getUserFromRequest(req);
+
+    // ✅ On autorise "private" seulement si connecté
+    const isAuthenticated = !!user;
+    const safeVisibility = visibility === "private" && isAuthenticated ? "private" : "public";
 
     const event = {
       summary: title,
       start: { dateTime: new Date(start).toISOString(), timeZone: "Europe/Paris" },
       end: { dateTime: new Date(end).toISOString(), timeZone: "Europe/Paris" },
-      description: `${color || "#3b82f6"}::${visibility || "public"}`,
+      description: `${color || "#3b82f6"}::${safeVisibility}`,
     };
 
     const response = await calendar.events.insert({
@@ -88,7 +98,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ─── DELETE ───────────────────────────────────────────────────────────
+// ─── DELETE : Supprimer un événement ────────────────────────────────
 export async function DELETE(req: NextRequest) {
   try {
     const { id } = await req.json();
