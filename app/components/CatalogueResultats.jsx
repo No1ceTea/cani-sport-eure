@@ -78,7 +78,7 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
 
   return (
     <div className="p-6 bg-white rounded-lg max-w-[95vw] mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
-      <h2 className="text-xl font-bold mb-4">Liste des Résultats</h2>
+
 
       <div className="w-full overflow-x-auto px-2">
         <table className="min-w-[1200px] w-full text-sm text-gray-700 border border-gray-300 border-collapse">

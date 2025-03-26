@@ -86,7 +86,7 @@ export default function ListeAdherents() {
   if (isLoading || !user || role !== "admin") return null;
 
   return (
-    <div className="flex">
+    <div className="flex h-screen overflow-hidden">
       <SidebarAdmin />
 
       <div className="flex-1 p-6">
@@ -100,6 +100,7 @@ export default function ListeAdherents() {
           />
         </div>
 
+        <div className="grid grid-cols-1gap-4 max-h-[85vh] overflow-y-auto p-2">
         <table className="table w-full">
           <thead>
             <tr>
@@ -145,6 +146,7 @@ export default function ListeAdherents() {
               ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* MODAL DE MODIFICATION */}

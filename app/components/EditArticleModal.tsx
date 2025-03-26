@@ -6,10 +6,12 @@ import supabase from "../../lib/supabaseClient";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onUpdate: () => void; // ✅ nouveau
   articleId: string;
 }
 
-const EditArticleModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) => {
+
+const EditArticleModal: React.FC<ModalProps> = ({ isOpen, onClose, onUpdate, articleId }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null); // État pour l'image
@@ -87,6 +89,7 @@ const EditArticleModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) 
       console.log("Article mis à jour avec succès:", data);
       alert("Article mis à jour avec succès!");
       onClose(); // Fermer la modal
+      onUpdate(); // ✅ Recharger les articles
     }
   };
 

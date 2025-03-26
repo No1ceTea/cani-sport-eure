@@ -31,14 +31,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
       const isAdmin = userData.user.user_metadata?.administrateur === true;
 
-      if (isAdmin) {
-        console.log("🔴 Admin détecté, redirection vers /dashboard/admin");
-        router.replace("/dashboard/admin");
-      } else {
-        console.log("✅ Utilisateur adhérent détecté, accès autorisé !");
-        setIsAuthorized(true);
-        setIsLoading(false);
-      }
+      console.log("✅ Utilisateur adhérent détecté, accès autorisé !");
+      setIsAuthorized(true);
+      setIsLoading(false);
+      
     };
 
     checkUserRole();

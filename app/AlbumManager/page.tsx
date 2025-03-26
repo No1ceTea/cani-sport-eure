@@ -5,6 +5,8 @@ import { FaTrash, FaFolder, FaChevronRight, FaTimes, FaPlus, FaUpload} from "rea
 import { createClient } from "@supabase/supabase-js";
 import Sidebar from "../components/SidebarAdmin";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/components/Auth/AuthProvider";
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
@@ -30,6 +32,8 @@ interface Photo {
 }
 
 export default function AlbumManager() {
+  const { role, isLoading } = useAuth();
+  const router = useRouter();
   const [albums, setAlbums] = useState<Album[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [albumPath, setAlbumPath] = useState<{ id: string | null; name: string }[]>([
@@ -43,6 +47,13 @@ export default function AlbumManager() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    if (!isLoading && role !== "admin") {
+      router.push("/connexion");
+    }
+  }, [role, isLoading, router]);
+
+  useEffect(() => {
+    if (role !== "admin") return;
     const fetchAlbumsAndPhotos = async () => {
       setLoading(true);
       setErrorMessage(null);
