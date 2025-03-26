@@ -26,7 +26,7 @@ export default function SidebarAdmin({ onAdd }: SidebarAdminProps) {
     { name: "Événements", path: "/evenements" },
     { name: "Agenda", path: "/agendar" },
     { name: "Adhérents", path: "/dashboard/admin/adherents" },
-    { name: "Résultats", path: "/resultats" },
+    { name: "Résultats", path: "/resultatAdmin" },
     { name: "Articles", path: "/articleAdmin" },
     { name: "Stockage", path: "/DocumentManager" },
     { name: "Album", path: "/AlbumManager" },

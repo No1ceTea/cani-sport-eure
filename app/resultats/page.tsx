@@ -8,7 +8,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
 );
 
-// Pour les sous-catégories
 const subCategoryMap: Record<string, number> = {
   Cross: 1,
   Trail: 2,
@@ -20,17 +19,15 @@ const ResultsPage: React.FC = () => {
   const [resultatTypes, setResultatTypes] = useState<{ id: number; nom_resultat: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedTabComp, setSelectedTabComp] = useState("Cross");
-  const [selectedTabEvent, setSelectedTabEvent] = useState("Cross");
   const [data, setData] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const selectedFilter = selectedCategory !== null ? selectedTabComp : "";
 
-  // ⏬ FETCH des catégories dynamiquement depuis ResultatType
   useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase
-        .from("resultatType") // ⚠️ respecte bien la casse ici
+        .from("resultatType")
         .select("id, nom_resultat");
 
       if (error) {
@@ -46,7 +43,6 @@ const ResultsPage: React.FC = () => {
     fetchCategories();
   }, []);
 
-  // ⏬ FETCH des résultats
   useEffect(() => {
     if (selectedCategory === null) return;
 
@@ -79,7 +75,6 @@ const ResultsPage: React.FC = () => {
       <h1 className="text-3xl font-bold mb-6 w-full text-left">Résultats</h1>
 
       <div className="bg-[#475C99] p-8 rounded-3xl w-full max-w-7xl border-2 border-black min-h-[500px]">
-        {/* 🟩 MENU DEROULANT DYNAMIQUE */}
         <div className="mb-6 text-center">
           <label className="text-white text-lg font-semibold">Afficher :</label>
           <select
