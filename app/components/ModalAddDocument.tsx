@@ -64,6 +64,7 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
           size: fileSize,
           created_at: new Date().toISOString(),
           parent_id: currentFolderId, // 🔹 Utilisation du dossier actuel
+          access_level: visibility, // ✅ on l'ajoute ici
         }
       ]);
 
