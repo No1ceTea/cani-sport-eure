@@ -74,11 +74,6 @@ export default function Sidebar() {
               <a href="/resultats" className="hover:text-gray-300">Resultats</a>
             </li>
             <li>
-              <a href="/agenda" className="hover:text-gray-300">
-                Agenda
-              </a>
-            </li>
-            <li>
               <a href="/Document" className="hover:text-gray-300">Documents</a>
             </li>
             <li>
@@ -90,6 +85,11 @@ export default function Sidebar() {
               <>
                 <li>
                   <a href="/album" className="hover:text-gray-300">Album</a>
+                </li>
+                <li>
+                  <a href="/agenda" className="hover:text-gray-300">
+                    Agenda
+                  </a>
                 </li>
                 <li>
                   <a href="/creation-profil" className="hover:text-gray-300">Mon profil</a>
