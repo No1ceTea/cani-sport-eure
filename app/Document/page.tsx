@@ -105,7 +105,7 @@ export default function Document() {
 
   return (
     <div className="">
-      <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
+      <div className="p-6 bg-white min-h-screen rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
         <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
         style={{
           fontSize: "36px",
