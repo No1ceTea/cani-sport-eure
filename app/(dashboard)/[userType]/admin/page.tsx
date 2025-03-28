@@ -55,15 +55,11 @@ export default function DashboardPage() {
 
   const kmPourcentage = kmMax > 0 ? Math.min((kmParcourus / kmMax) * 100, 100) : 0;
 
-  console.log("Page admin — isLoading:", isLoading, "role:", role);
-
   useEffect(() => {
     if (!isLoading && role !== "admin") {
       router.push("/connexion");
     }
   }, [isLoading, role]);  
-  
-
 
   if (isLoading) {
     return (
@@ -72,15 +68,17 @@ export default function DashboardPage() {
       </div>
     );
   }
-  
-  
+
+  const countByType = (type: string) => evenements.filter(ev => ev.type?.toLowerCase() === type.toLowerCase()).length;
+  const total = evenements.length;
+  const externe = countByType("externe");
+  const pourcentageExterne = total > 0 ? Math.round((externe / total) * 100) : 0;
 
   return (
     <div className="flex h-screen bg-gray-100">
       <SidebarAdmin />
       <main className="flex-1 p-8 overflow-auto">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
 
           {/* Résultats du club */}
           <div className="bg-white shadow-md rounded-lg p-6 overflow-auto">
@@ -142,11 +140,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Nombre de participants par événements */}
-          <div className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-lg font-bold mb-3">Nombre de participants par événements</h3>
+          {/* Nombre de participants par événements - version maquette */}
+          <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col items-center">
+            <h3 className="text-md font-semibold mb-4">Nombre de participants par évènements</h3>
             <select
-              className="select select-bordered w-full mb-4"
+              className="select select-bordered w-full max-w-xs mb-4"
               value={selectedEvent}
               onChange={(e) => setSelectedEvent(e.target.value)}
             >
@@ -155,11 +153,10 @@ export default function DashboardPage() {
                 <option key={ev.id}>{ev.titre}</option>
               ))}
             </select>
-            <div className="flex flex-col items-center">
-              <div className="radial-progress text-blue-500" style={{ "--value": eventParticipantCount * 10 } as React.CSSProperties}>
-                {eventParticipantCount}
+            <div className="relative w-20 h-20">
+              <div className="radial-progress text-[#2f4591]" style={{ "--value": eventParticipantCount * 10, "--size": "5rem", "--thickness": "8px" } as React.CSSProperties}>
+                <span className="text-black text-lg">{eventParticipantCount * 10} %</span>
               </div>
-              <p className="mt-2 text-sm text-gray-600">participants</p>
             </div>
           </div>
 
@@ -185,22 +182,28 @@ export default function DashboardPage() {
             <p className="text-sm text-gray-600">Km parcourus maximal ({kmMax.toFixed(1)} km)</p>
           </div>
 
-          {/* Nombre d'événements */}
-          <div className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-lg font-bold mb-3">Nombre d&apos;événements</h3>
-            <div className="flex items-center space-x-3">
-              <div className="h-4 w-4 bg-blue-500"></div>
-              <span>Externe</span>
-              <div className="h-4 w-4 bg-gray-300"></div>
-              <span>Interne</span>
-            </div>
-            <div className="flex flex-col items-center mt-4">
-              <div className="radial-progress text-blue-500" style={{ "--value": evenements.length * 10 } as React.CSSProperties}>
-                {evenements.length}
+           {/* Nombre d'événements (style maquette) */}
+           <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col items-center justify-center">
+            <h3 className="text-md font-semibold mb-4">Nombre d’évènement</h3>
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-[#2f4591] rounded-sm" />
+                  <span className="text-sm italic text-gray-800">Externe</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-[#d9e1f2] rounded-sm" />
+                  <span className="text-sm italic text-gray-800">Interne</span>
+                </div>
               </div>
-              <p className="mt-2 text-sm text-gray-600">événements</p>
+              <div className="relative w-20 h-20">
+                <div className="radial-progress text-[#2f4591]" style={{ "--value": pourcentageExterne, "--size": "5rem", "--thickness": "8px" } as React.CSSProperties}>
+                  <span className="text-black text-lg">{pourcentageExterne} %</span>
+                </div>
+              </div>
             </div>
           </div>
+
         </div>
       </main>
     </div>
