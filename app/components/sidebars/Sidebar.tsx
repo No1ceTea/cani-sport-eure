@@ -74,9 +74,7 @@ export default function Sidebar() {
               <a href="/resultats" className="hover:text-gray-300">Resultats</a>
             </li>
             <li>
-              <a href="/agenda" className="hover:text-gray-300">
-                Agenda
-              </a>
+              <a href="/Document" className="hover:text-gray-300">Documents</a>
             </li>
             <li>
               <a href="https://sublimtout.com/200-canisports-eure" className="hover:text-gray-300">Boutique</a>
@@ -86,13 +84,18 @@ export default function Sidebar() {
             {(role === "adherent" || role === "admin") && (
               <>
                 <li>
+                  <a href="/album" className="hover:text-gray-300">Album</a>
+                </li>
+                <li>
+                  <a href="/agenda" className="hover:text-gray-300">
+                    Agenda
+                  </a>
+                </li>
+                <li>
                   <a href="/creation-profil" className="hover:text-gray-300">Mon profil</a>
                 </li>
                 <li>
                   <a href="/dashboard/client" className="hover:text-gray-300">Tableau de bord</a>
-                </li>
-                <li>
-                  <a href="/Document" className="hover:text-gray-300">Documents</a>
                 </li>
               </>
             )}

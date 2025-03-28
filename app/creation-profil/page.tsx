@@ -5,11 +5,13 @@ import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
+import { useAuth } from "@/app/components/Auth/AuthProvider";
 
 const supabase = createClientComponentClient();
 
 export default function UserProfileForm() {
   const router = useRouter();
+  const { role, isLoading } = useAuth();
 
   const [form, setForm] = useState({
     id: "",
@@ -31,6 +33,17 @@ export default function UserProfileForm() {
   const [loading, setLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [chiens, setChiens] = useState<{ id: string; prenom: string }[]>([]);
+
+  useEffect(() => {
+    if (!isLoading && role !== "admin" && role !== "adherent") {
+      router.push("/connexion");
+    }
+  }, [role, isLoading, router]);
+
+  useEffect(() => {
+    if (role !== "admin" && role !== "adherent") return;
+  });
+
 
   useEffect(() => {
     setIsMounted(true);
