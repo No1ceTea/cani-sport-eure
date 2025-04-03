@@ -193,6 +193,10 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
     }
   };
 
+  console.log("GOOGLE_SERVICE_ACCOUNT_EMAIL:", process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+  console.log("GOOGLE_CALENDAR_ID:", process.env.GOOGLE_CALENDAR_ID);
+  console.log("GOOGLE_PRIVATE_KEY exists:", !!process.env.GOOGLE_PRIVATE_KEY);
+
   return (
     <div className="p-4 bg-white shadow-md rounded-lg mx-auto">
       <h2 className="text-xl font-bold mb-4">📅 Agenda</h2>
