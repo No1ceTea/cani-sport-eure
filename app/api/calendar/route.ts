@@ -8,6 +8,14 @@ const auth = new google.auth.JWT({
   key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
+
+try {
+  await auth.authorize();
+  console.log("Authentification Google réussie");
+} catch (error) {
+  console.error("Erreur d'authentification Google:", error);
+}
+
 const calendar = google.calendar({ version: "v3", auth });
 
 // ─── Fonction d'authentification Supabase ───────────────────────────
