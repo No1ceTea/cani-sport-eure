@@ -6,7 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 console.log("GOOGLE_SERVICE_ACCOUNT_EMAIL:", process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
 console.log("GOOGLE_CALENDAR_ID:", process.env.GOOGLE_CALENDAR_ID);
 console.log("GOOGLE_PRIVATE_KEY exists:", !!process.env.GOOGLE_PRIVATE_KEY);
-console.log("GOOGLE_PRIVATE_KEY (partielle):", process.env.GOOGLE_PRIVATE_KEY?.slice(0, 50));
+console.log("GOOGLE_PRIVATE_KEY (partielle):", process.env.GOOGLE_PRIVATE_KEY?.slice(0, 100));
 
 const auth = new google.auth.JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
