@@ -27,6 +27,7 @@ export async function GET() {
       birthdate: user.user_metadata?.birthdate || "",
       license_number: user.user_metadata?.license_number || "",
       administrateur: user.user_metadata?.administrateur || false,
+      comptable: user.user_metadata.comptable === true,
       statut_inscription: user.user_metadata?.statut_inscription || "en attente",
     }));
 
@@ -39,7 +40,7 @@ export async function GET() {
 // 🔹 Mise à jour des informations d'un utilisateur (PUT)
 export async function PUT(req: Request) {
   try {
-    const { id, first_name, last_name, email, birthdate, license_number, statut_inscription, administrateur } = await req.json();
+    const { id, first_name, last_name, email, birthdate, license_number, statut_inscription, administrateur, comptable } = await req.json();
 
     if (!id) {
       return NextResponse.json({ error: "L'ID de l'utilisateur est requis." }, { status: 400 });
@@ -63,6 +64,7 @@ export async function PUT(req: Request) {
         license_number: license_number || "",
         statut_inscription: statut_inscription || "en attente",
         administrateur: administrateur || false, // Ajout de la gestion de l'admin ici ✅
+        comptable: comptable === true,
       },
     });
 
