@@ -12,7 +12,7 @@ export default function Presentation() {
 
           <p className="mb-8 text-lg leading-relaxed primary_text_black text-left">
             Nous sommes une association passionnée par les sports canins. Notre objectif est de promouvoir le cani-cross,
-            le cani-trail, la randonnée avec chiens et d&apos;autres disciplines adaptées aux duos humain-chien.
+            le cani-trail, la marche avec chiens et d&apos;autres disciplines adaptées aux duos humain-chien.
           </p>
 
           {/* Image mise en avant avec titre */}
@@ -56,7 +56,7 @@ export default function Presentation() {
               title: "Marche",
               img: "/cani-marche.png",
               description:
-                "La cani-randonnée est une activité douce et accessible à tous. Elle permet d'explorer la nature tout en partageant un moment privilégié avec son chien, sans contrainte de vitesse."
+                "La cani-marche est une activité douce et accessible à tous. Elle permet d'explorer la nature tout en partageant un moment privilégié avec son chien, sans contrainte de vitesse."
             },
             {
               title: "VTT",

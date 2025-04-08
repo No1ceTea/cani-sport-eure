@@ -31,8 +31,12 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
       } else {
         setTitle(data.titre);
         setContent(data.contenu);
-        setDate(data.date); // Récupérer la date
-        setIsInternal(data.type === "interne"); // Si le type est 'interne', le switch sera activé
+        // Formater la date au format "YYYY-MM-DD"
+      if (data.date) {
+        const formattedDate = new Date(data.date).toISOString().split("T")[0];
+        setDate(formattedDate);
+      }
+      setIsInternal(data.type === "interne");
       }
     };
 

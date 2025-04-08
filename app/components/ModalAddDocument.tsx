@@ -21,6 +21,7 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
   const [message, setMessage] = useState("");
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState("public");
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   if (!isOpen) return null;
   
@@ -33,11 +34,12 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
     setUploading(true);
     setMessage("📡 Upload en cours...");
 
-    const filePath = `club-documents/${currentFolderId ? currentFolderId + '/' : ''}${file.name}`;
+    const cleanFileName = sanitizeFileName(file.name);
+    const filePath = `club-documents/${currentFolderId ? currentFolderId + '/' : ''}${cleanFileName}`;
 
     const { data, error } = await supabase.storage
       .from("club-documents")
-      .upload(`documents/${file.name}`, file, { upsert: true });
+      .upload(filePath, file, { upsert: true });
 
     if (error) {
       console.error("❌ Erreur d'upload :", error);
@@ -50,7 +52,7 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
     const { data: publicUrlData } = supabase.storage.from("club-documents").getPublicUrl(filePath);
 
     const fileSize = file.size;
-    const fileType = file.type.split("/")[1]; // ✅ On garde juste l'extension
+    const extension = file.name.split(".").pop()?.toLowerCase() || "file";
     const publicUrl = publicUrlData.publicUrl;
 
     // 📌 Étape 3 : Ajout dans la base de données avec le bon dossier parent
@@ -60,7 +62,7 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
         {
           name: title,
           file_url: publicUrl,
-          type: fileType,
+          type: extension,
           size: fileSize,
           created_at: new Date().toISOString(),
           parent_id: currentFolderId, // 🔹 Utilisation du dossier actuel
@@ -73,10 +75,30 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
       setMessage("❌ Erreur d'insertion en base.");
     } else {
       setMessage("✅ Fichier ajouté avec succès !");
+      setUploadSuccess(true); // ✅ bloque le bouton
+      setTimeout(() => {
+        onClose(); // ✅ fermeture automatique après un court délai
+        // 🔄 optionnel : reset les champs
+        setTitle("");
+        setFile(null);
+        setMessage("");
+        setVisibility("public");
+      }, 500); // petit délai pour laisser le message apparaître
     }
 
     setUploading(false);
   };
+  
+  const sanitizeFileName = (name: string): string => {
+    return name
+      .normalize("NFD")                           // décompose les accents
+      .replace(/[\u0300-\u036f]/g, "")           // supprime les accents
+      .replace(/[^a-zA-Z0-9.\-_]/g, "-")         // remplace tout caractère non valide par "-"
+      .replace(/-+/g, "-")                       // évite les tirets multiples
+      .replace(/^-+|-+$/g, "")                   // supprime les tirets au début/fin
+      .toLowerCase();                            // tout en minuscule
+  };
+  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" style={{ zIndex: 1000 }}>
@@ -119,11 +141,14 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
         {/* Bouton Upload */}
         <button
           onClick={handleUpload}
-          disabled={uploading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          disabled={uploading || uploadSuccess}
+          className={`w-full py-2 rounded-lg text-white ${
+            uploading || uploadSuccess ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           {uploading ? "Upload en cours..." : "Ajouter un document"}
         </button>
+
 
         {/* Message d'état */}
         <p className="text-center text-sm mt-2">{message}</p>

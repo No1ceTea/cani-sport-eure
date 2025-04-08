@@ -30,8 +30,12 @@ export default function Document() {
   const [folderPath, setFolderPath] = useState<{ id: string | null; name: string }[]>([
     { id: null, name: "Dossier Racine" },
   ]);
-  const { role, isLoading } = useAuth();
+  const { role, user, isLoading } = useAuth();
   const router = useRouter();
+
+  const isAdmin = role === "admin";
+  const isComptable = user?.user_metadata?.comptable === true;
+  const hasComptabiliteAccess = isAdmin && isComptable;
 
   // 📁 Récupérer les fichiers du dossier courant avec filtrage selon le rôle
   useEffect(() => {
@@ -46,12 +50,14 @@ export default function Document() {
       }
 
       // 🔐 Appliquer les filtres d'accès selon le rôle
-      if (role === "admin") {
+      if (hasComptabiliteAccess) {
+        query = query.in("access_level", ["public", "adherent", "admin", "admin_comptable"]);
+      } else if (isAdmin) {
         query = query.in("access_level", ["public", "adherent", "admin"]);
       } else if (role === "adherent") {
         query = query.in("access_level", ["public", "adherent"]);
       } else {
-        query = query.eq("access_level", "public"); // utilisateur non connecté
+        query = query.eq("access_level", "public");
       }
 
       const { data, error } = await query;
@@ -60,17 +66,25 @@ export default function Document() {
         console.error("❌ Erreur de récupération :", error);
       } else {
         setFiles(
-          data.map((file) => ({
-            id: file.id,
-            name: file.name,
-            size: file.size ? (file.size / 1024).toFixed(2) + " KB" : "-",
-            type: file.type || "Dossier",
-            createdAt: file.created_at ? new Date(file.created_at).toLocaleString() : "-",
-            updatedAt: file.updated_at ? new Date(file.updated_at).toLocaleString() : "-",
-            url: file.file_url,
-            is_folder: file.is_folder,
-            parent_id: file.parent_id,
-          }))
+          data
+            .filter((file) => {
+              // 🔐 Masquer les dossiers/fichiers "admin_comptable" si pas admin + comptable
+              if (file.access_level === "admin_comptable" && !hasComptabiliteAccess) {
+                return false;
+              }
+              return true;
+            })
+            .map((file) => ({
+              id: file.id,
+              name: file.name,
+              size: file.size ? (file.size / 1024).toFixed(2) + " KB" : "-",
+              type: file.type || "Dossier",
+              createdAt: file.created_at ? new Date(file.created_at).toLocaleString() : "-",
+              updatedAt: file.updated_at ? new Date(file.updated_at).toLocaleString() : "-",
+              url: file.file_url,
+              is_folder: file.is_folder,
+              parent_id: file.parent_id,
+            }))
         );
       }
     };
