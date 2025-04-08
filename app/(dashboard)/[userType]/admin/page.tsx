@@ -18,13 +18,24 @@ export default function DashboardPage() {
   const [kmParcourus, setKmParcourus] = useState(0);
   const [kmMax, setKmMax] = useState(0);
   const supabase = createClientComponentClient();
-  const { role, isLoading } = useAuth(); 
+  const { role, isLoading } = useAuth();
+  const [activityNames, setActivityNames] = useState<string[]>([]);
+  const [selectedActivity, setSelectedActivity] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
       const { data: resultatsData } = await supabase.from("resultats").select("*, profils(prenom, nom)");
       const { data: evenementsData } = await supabase.from("evenements").select("*");
       const { data: participationData } = await supabase.from("participation").select("*");
+      const { data: allResults } = await supabase
+        .from("resultats")
+        .select("nomActivite");
+
+      if (allResults) {
+        const uniqueActivities = [...new Set(allResults.map((res: any) => res.nomActivite).filter(Boolean))];
+        setActivityNames(uniqueActivities);
+        if (uniqueActivities.length > 0) setSelectedActivity(uniqueActivities[0]);
+      }
 
       setResultats(resultatsData || []);
       setEvenements(evenementsData || []);
@@ -59,7 +70,7 @@ export default function DashboardPage() {
     if (!isLoading && role !== "admin") {
       router.push("/connexion");
     }
-  }, [isLoading, role]);  
+  }, [isLoading, role]);
 
   if (isLoading) {
     return (
@@ -182,8 +193,8 @@ export default function DashboardPage() {
             <p className="text-sm text-gray-600">Km parcourus maximal ({kmMax.toFixed(1)} km)</p>
           </div>
 
-           {/* Nombre d'événements (style maquette) */}
-           <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col items-center justify-center">
+          {/* Nombre d'événements (style maquette) */}
+          <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col items-center justify-center">
             <h3 className="text-md font-semibold mb-4">Nombre d’évènement</h3>
             <div className="flex items-center gap-6">
               <div className="flex flex-col gap-1">
@@ -202,6 +213,27 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Statistiques par activité (via nomActivite) */}
+          <div className="bg-white shadow-lg rounded-lg p-4 col-span-1">
+            <h2 className="font-semibold">Activité : statistiques</h2>
+            <select
+              className="select select-bordered w-full mt-2"
+              value={selectedActivity}
+              onChange={(e) => setSelectedActivity(e.target.value)}
+            >
+              {activityNames.map((name, index) => (
+                <option key={index} value={name}>{name}</option>
+              ))}
+            </select>
+
+            {selectedActivity && (
+              <div className="mt-4">
+                <p className="text-gray-700 text-sm">Activité sélectionnée : <strong>{selectedActivity}</strong></p>
+                {/* Tu peux ajouter ici d'autres infos, ou des stats personnalisées à partir de selectedActivity */}
+              </div>
+            )}
           </div>
 
         </div>
