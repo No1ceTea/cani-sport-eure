@@ -9,17 +9,17 @@ export default function Sponsor() {
         <div className="flex justify-center items-center gap-10 flex-wrap">
           {/* Logos des sponsors */}
           {[
-            { src: "/SponsorImg/carrefour.png", alt: "Carrefour" },
-            { src: "/SponsorImg/bk.png", alt: "Burger King" },
-            { src: "/SponsorImg/fnac.png", alt: "Fnac" },
-            { src: "/SponsorImg/decathlon.png", alt: "Decathlon" }
+            { src: "/SponsorImg/vernon.png", alt: "Vernon" },
+            { src: "/SponsorImg/normandie.png", alt: "Région Normandie" },
+            { src: "/SponsorImg/assurance.png", alt: "Asuurance poitiers" },
+            { src: "/SponsorImg/ffslc.jpg", alt: "FFSLC" }
           ].map((sponsor, index) => (
-            <div key={index} className="w-40 h-24 flex justify-center">
+            <div key={index} className="w-60 h-24 flex justify-center">
               <Image
                 src={sponsor.src}
                 alt={sponsor.alt}
-                width={150}
-                height={100}
+                width={400}
+                height={400}
                 className="object-contain"
               />
             </div>
