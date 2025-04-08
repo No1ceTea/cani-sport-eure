@@ -77,59 +77,56 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg max-w-[95vw] mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
-
-
-      <div className="w-full overflow-x-auto px-2">
-        <table className="min-w-[1200px] w-full text-sm text-gray-700 border border-gray-300 border-collapse">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-4 text-center">Date</th>
-              <th className="p-4 text-center">Chien</th>
-              <th className="p-4 text-center">Participant</th>
-              <th className="p-4 text-center">Catégorie</th>
-              <th className="p-4 text-center">Type</th>
-              <th className="p-4 text-center">Temps</th>
-              <th className="p-4 text-center">Vitesse</th>
-              <th className="p-4 text-center">Distance</th>
-              <th className="p-4 text-center">Région</th>
-              <th className="p-4 text-center">Lieu</th>
-              <th className="p-4 text-center">Nom Activité</th>
-              <th className="p-4 text-center">kmAR</th>
-              <th className="p-4 text-center">Classement</th>
-              <th className="p-4 text-center">Actions</th>
+    <div className="p-6 bg-white rounded-lg w-full overflow-x-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
+      <table className="min-w-[1300px] w-full text-sm text-gray-700 border border-gray-300 border-collapse">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="p-4 text-center">Date</th>
+            <th className="p-4 text-center">Chien</th>
+            <th className="p-4 text-center">Participant</th>
+            <th className="p-4 text-center">Catégorie</th>
+            <th className="p-4 text-center">Type</th>
+            <th className="p-4 text-center">Temps</th>
+            <th className="p-4 text-center">Vitesse</th>
+            <th className="p-4 text-center">Distance</th>
+            <th className="p-4 text-center">Région</th>
+            <th className="p-4 text-center">Lieu</th>
+            <th className="p-4 text-center">Nom Activité</th>
+            <th className="p-4 text-center">kmAR</th>
+            <th className="p-4 text-center">Classement</th>
+            <th className="p-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {resultats.map((res) => (
+            <tr key={res.id} className="hover:bg-gray-50">
+              <td className="p-4 text-center">{res.date}</td>
+              <td className="p-4 text-center">{res.chienPrenom}</td>
+              <td className="p-4 text-center">{res.profilNomComplet}</td>
+              <td className="p-4 text-center">{res.categorieNom}</td>
+              <td className="p-4 text-center">{res.typeNom}</td>
+              <td className="p-4 text-center">{res.temps}</td>
+              <td className="p-4 text-center">{res.vitesse}</td>
+              <td className="p-4 text-center">{res.distance}</td>
+              <td className="p-4 text-center">{res.region}</td>
+              <td className="p-4 text-center">{res.lieu}</td>
+              <td className="p-4 text-center">{res.nomActivite}</td>
+              <td className="p-4 text-center">{res.kmAR}</td>
+              <td className="p-4 text-center">{res.classement}</td>
+              <td className="p-4 flex justify-center gap-4">
+                <button onClick={() => handleDeleteClick(res.id)} className="text-red-500 hover:text-red-700">
+                  <FaTrash />
+                </button>
+                <button onClick={() => handleEditClick(res)} className="text-green-500 hover:text-green-700">
+                  <FaEdit />
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {resultats.map((res) => (
-              <tr key={res.id} className="hover:bg-gray-50">
-                <td className="p-4 text-center">{res.date}</td>
-                <td className="p-4 text-center">{res.chienPrenom}</td>
-                <td className="p-4 text-center">{res.profilNomComplet}</td>
-                <td className="p-4 text-center">{res.categorieNom}</td>
-                <td className="p-4 text-center">{res.typeNom}</td>
-                <td className="p-4 text-center">{res.temps}</td>
-                <td className="p-4 text-center">{res.vitesse}</td>
-                <td className="p-4 text-center">{res.distance}</td>
-                <td className="p-4 text-center">{res.region}</td>
-                <td className="p-4 text-center">{res.lieu}</td>
-                <td className="p-4 text-center">{res.nomActivite}</td>
-                <td className="p-4 text-center">{res.kmAR}</td>
-                <td className="p-4 text-center">{res.classement}</td>
-                <td className="p-4 flex justify-center gap-4">
-                  <button onClick={() => handleDeleteClick(res.id)} className="text-red-500 hover:text-red-700">
-                    <FaTrash />
-                  </button>
-                  <button onClick={() => handleEditClick(res)} className="text-green-500 hover:text-green-700">
-                    <FaEdit />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
 
+      {/* Modals */}
       <ModalConfirm
         isOpen={isDeleteModalOpen}
         title="Voulez-vous vraiment supprimer ce résultat ?"
@@ -140,20 +137,20 @@ export default function TableResultats({ isModalOpen, setIsModalOpen }) {
       />
 
       <ModalAdd
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      onAdd={(newRes) => {
-        const formatted = {
-          ...newRes,
-          date: newRes.date ? new Date(newRes.date).toLocaleDateString() : "",
-          created_at: newRes.created_at ? new Date(newRes.created_at).toLocaleString() : "",
-          chienPrenom: newRes.chiens?.prenom || "",
-          profilNomComplet: newRes.profils ? `${newRes.profils.nom} ${newRes.profils.prenom}` : "",
-          categorieNom: newRes.categorieResultat?.nom_categorie || "",
-          typeNom: newRes.resultatType?.nom_resultat || "",
-        };
-        setResultats((prev) => [...prev, formatted]);
-      }}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdd={(newRes) => {
+          const formatted = {
+            ...newRes,
+            date: newRes.date ? new Date(newRes.date).toLocaleDateString() : "",
+            created_at: newRes.created_at ? new Date(newRes.created_at).toLocaleString() : "",
+            chienPrenom: newRes.chiens?.prenom || "",
+            profilNomComplet: newRes.profils ? `${newRes.profils.nom} ${newRes.profils.prenom}` : "",
+            categorieNom: newRes.categorieResultat?.nom_categorie || "",
+            typeNom: newRes.resultatType?.nom_resultat || "",
+          };
+          setResultats((prev) => [...prev, formatted]);
+        }}
       />
 
       <ModalEdit
