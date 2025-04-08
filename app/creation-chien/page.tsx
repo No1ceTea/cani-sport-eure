@@ -11,7 +11,7 @@ const supabase = createClientComponentClient();
 
 export default function PetProfileForm() {
   const router = useRouter();
-  const { id } = useParams(); // ✅ Récupère l'ID du chien depuis l'URL
+  const { id } = useParams();
 
   const [form, setForm] = useState<{ [key: string]: string | number }>({
     prenom: "",
@@ -19,6 +19,7 @@ export default function PetProfileForm() {
     race: "",
     date_de_naissance: "",
     numero_de_puce: "",
+    numero_de_tatouage: "",
     photo_chien: "",
   });
 
@@ -53,7 +54,15 @@ export default function PetProfileForm() {
     if (error) {
       console.error("Erreur lors de la récupération du chien:", error.message);
     } else {
-      setForm(data);
+      setForm({
+        prenom: data.prenom ?? "",
+        age: data.age ?? 0,
+        race: data.race ?? "",
+        date_de_naissance: data.date_de_naissance ?? "",
+        numero_de_puce: data.numero_de_puce ?? "",
+        numero_de_tatouage: data.numero_de_tatouage ?? "",
+        photo_chien: data.photo_chien ?? "",
+      });
       if (data.photo_chien) {
         setPhotoPreview(data.photo_chien);
       }
@@ -69,10 +78,26 @@ export default function PetProfileForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prevForm) => ({
-      ...prevForm,
-      [name]: name === "age" ? parseInt(value, 10) || 0 : value,
-    }));
+
+    setForm((prevForm) => {
+      const updatedForm = {
+        ...prevForm,
+        [name]: value ?? "",
+      };
+
+      if (name === "date_de_naissance") {
+        const today = new Date();
+        const birthDate = new Date(value);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        updatedForm.age = Math.max(age, 0);
+      }
+
+      return updatedForm;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,10 +108,30 @@ export default function PetProfileForm() {
       return;
     }
 
+    const chienId = typeof id === "string" && id !== "new" ? id : uuidv4();
+
+    const numeroPuce = form.numero_de_puce as string;
+    const numeroTatouage = form.numero_de_tatouage as string;
+
+    if (numeroPuce.length > 15) {
+      alert("⚠️ Le numéro de puce ne peut pas dépasser 15 caractères.");
+      return;
+    }
+
+    if (numeroTatouage && numeroTatouage.length < 6) {
+      alert("⚠️ Le numéro de tatouage doit contenir au moins 6 caractères.");
+      return;
+    }
+
     let imageUrl = form.photo_chien as string;
 
     if (image) {
-      const uniqueFileName = `${uuidv4()}-${image.name}`;
+      const cleanFileName = image.name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9._-]/g, "_");
+      const uniqueFileName = `${uuidv4()}-${cleanFileName}`;
+
       const { data, error } = await supabase.storage.from("images").upload(`chiens/${uniqueFileName}`, image);
 
       if (error) {
@@ -100,7 +145,7 @@ export default function PetProfileForm() {
 
     const { error } = await supabase.from("chiens").upsert([
       {
-        id: id !== "new" ? id : uuidv4(), // Si modification, conserve l'ID, sinon en génère un
+        id: chienId,
         ...form,
         photo_chien: imageUrl,
         id_profil: userId,
@@ -119,28 +164,27 @@ export default function PetProfileForm() {
   const handleDelete = async () => {
     const confirmDelete = confirm("❗ Êtes-vous sûr de vouloir supprimer ce chien ?");
     if (!confirmDelete) return;
-  
+
     const { error } = await supabase.from("chiens").delete().eq("id", id);
-  
+
     if (error) {
       console.error("❌ Erreur lors de la suppression :", error.message);
       alert("Erreur lors de la suppression.");
     } else {
       alert("🐾 Chien supprimé avec succès !");
-      router.push("/creation-profil"); // Redirige vers la liste après suppression
+      router.push("/creation-profil");
     }
   };
 
-  
   return (
     <div className="">
-      <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
-        <h1 className="absolute top-6 left-6 text-4xl primary_title !text-black">
+      <div className="relative flex items-center justify-center min-h-screen bg-gray-100 py-12 px-4">
+        <h1 className="absolute top-6 left-6 text-4xl font-bold text-black">
           {id !== "new" ? "Modifier le profil du chien" : "Créer un profil chien"}
         </h1>
 
-        <div className="flex flex-col items-center h-[600px] w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
-          <div className="flex flex-col items-center mb-4">
+        <div className="flex flex-col items-center w-full max-w-xl bg-[#475C99] text-black p-8 rounded-2xl shadow-2xl border-4 border-black space-y-6">
+          <div className="flex flex-col items-center">
             <label htmlFor="photo-upload" className="cursor-pointer">
               {photoPreview ? (
                 <img src={photoPreview} alt="Photo du chien" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
@@ -153,48 +197,77 @@ export default function PetProfileForm() {
             <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
           </div>
 
-          <div className="space-y-6 w-full">
-            {["prenom", "race", "date_de_naissance", "numero_de_puce"].map((field) => (
-              <div key={field} className="flex items-center">
-                <label className="text-sm w-40 text-white capitalize">{field.replace(/_/g, " ")}</label>
-                <input
-                  name={field}
-                  value={form[field] as string} // 🔹 Type assertion pour éviter l'erreur
-                  onChange={handleChange}
-                  className="flex-1 p-2 text-black rounded-lg"
-                />
-              </div>
-            ))}
-            <div className="flex items-center">
+          <div className="space-y-4 w-full">
+            <div className="flex items-center gap-4">
+              <label className="text-sm w-40 text-white">Prénom</label>
+              <input name="prenom" value={form.prenom as string} onChange={handleChange} className="flex-1 p-2 rounded-lg text-black" />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <label className="text-sm w-40 text-white">Race</label>
+              <input name="race" value={form.race as string} onChange={handleChange} className="flex-1 p-2 rounded-lg text-black" />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <label className="text-sm w-40 text-white">Date de naissance</label>
+              <input
+                type="date"
+                name="date_de_naissance"
+                value={form.date_de_naissance as string}
+                onChange={handleChange}
+                max={new Date().toISOString().split("T")[0]}
+                className="flex-1 p-2 rounded-lg text-black"
+              />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <label className="text-sm w-40 text-white">Numéro de puce</label>
+              <input
+                name="numero_de_puce"
+                value={form.numero_de_puce as string}
+                onChange={handleChange}
+                maxLength={15}
+                className="flex-1 p-2 rounded-lg text-black"
+              />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <label className="text-sm w-40 text-white">Numéro de tatouage</label>
+              <input
+                name="numero_de_tatouage"
+                value={form.numero_de_tatouage as string}
+                onChange={handleChange}
+                minLength={6}
+                className="flex-1 p-2 rounded-lg text-black"
+              />
+            </div>
+
+            <div className="flex items-center gap-4">
               <label className="text-sm w-40 text-white">Âge</label>
               <input
                 type="number"
                 name="age"
                 value={form.age as number}
-                onChange={handleChange}
-                className="flex-1 p-2 text-black rounded-lg"
+                readOnly
+                className="flex-1 p-2 rounded-lg bg-gray-300 text-black cursor-not-allowed"
               />
             </div>
           </div>
 
-          <div className="flex justify-center items-center mt-auto space-x-4 pb-4">
-            <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md">
+          <div className="flex justify-center items-center mt-6 space-x-4">
+            <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-semibold shadow-md">
               Enregistrer les modifications
             </button>
             {id !== "new" && (
-              <button
-              onClick={handleDelete}
-              className="text-white text-4xl cursor-pointer hover:text-red-500 transition"
-              title="Supprimer le chien"
-            >
-              🗑
-            </button>
+              <button onClick={handleDelete} className="text-white text-4xl cursor-pointer hover:text-red-500 transition" title="Supprimer le chien">
+                🗑
+              </button>
             )}
           </div>
         </div>
       </div>
       <Sidebar />
-      <Footer />    
+      <Footer />
     </div>
   );
 }
