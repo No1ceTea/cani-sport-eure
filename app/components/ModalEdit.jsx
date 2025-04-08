@@ -17,11 +17,24 @@ const ModalEdit = ({ isOpen, onClose, sortie }) => {
   const [sport, setSport] = useState(sortie.categorie);
   const [uploadDate, setUploadDate] = useState(sortie.date + "T" + sortie.heure);
 
+  // 🧠 Met à jour les champs quand une nouvelle sortie est passée en prop
   useEffect(() => {
     setTitle(sortie.titre);
     setSport(sortie.categorie);
     setUploadDate(sortie.date + "T" + sortie.heure);
   }, [sortie]);
+
+  // 🔒 Empêcher le scroll arrière-plan
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
 
   const handleUpdate = async () => {
     const { error } = await supabase
@@ -37,15 +50,18 @@ const ModalEdit = ({ isOpen, onClose, sortie }) => {
       console.error("❌ Erreur de mise à jour :", error);
     } else {
       onClose();
-      window.location.reload(); // ✅ Recharge la page pour voir les changements
+      window.location.reload(); // ✅ Recharge la page après mise à jour
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative">
         {/* Bouton de fermeture */}
-        <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+        >
           <FaTimes />
         </button>
 
@@ -57,11 +73,15 @@ const ModalEdit = ({ isOpen, onClose, sortie }) => {
           placeholder="Titre"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded mb-4"
+          className="w-full p-3 border border-gray-300 rounded mb-4"
         />
 
         {/* Catégorie */}
-        <select value={sport} onChange={(e) => setSport(e.target.value)} className="w-full p-2 border border-gray-300 rounded mb-4">
+        <select
+          value={sport}
+          onChange={(e) => setSport(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded mb-4"
+        >
           <option value="Cross">Cross</option>
           <option value="Marche">Marche</option>
           <option value="Trail">Trail</option>
@@ -70,10 +90,18 @@ const ModalEdit = ({ isOpen, onClose, sortie }) => {
         </select>
 
         {/* Date et heure */}
-        <input type="datetime-local" value={uploadDate} onChange={(e) => setUploadDate(e.target.value)} className="w-full p-2 border border-gray-300 rounded mb-4" />
+        <input
+          type="datetime-local"
+          value={uploadDate}
+          onChange={(e) => setUploadDate(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded mb-4"
+        />
 
         {/* Bouton Update */}
-        <button onClick={handleUpdate} className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+        <button
+          onClick={handleUpdate}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700"
+        >
           Mettre à jour
         </button>
       </div>

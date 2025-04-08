@@ -1,9 +1,11 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import "./AddEvent.css"; // Assurez-vous du bon chemin
+import "./AddEvent.css";
 
 interface ModalProps {
   isOpen: boolean;
@@ -21,6 +23,18 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
   const supabase = createClientComponentClient();
   const router = useRouter();
+
+  // 🧠 Bloque le scroll de fond quand modal ouverte
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -42,7 +56,7 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     };
 
     checkUser();
-  }, []); // Suppression de `supabase` des dépendances
+  }, []);
 
   if (!isOpen) return null;
 
@@ -94,14 +108,17 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg w-[780px] h-[571px] shadow-lg relative flex flex-col justify-between">
+        {/* En-tête */}
         <div className="flex justify-between items-center border-b border-black pb-2">
           <h2 className="text-xl font-semibold">Ajouter un événement</h2>
           <button className="text-gray-600 hover:text-gray-800" onClick={onClose}>
             <X size={24} />
           </button>
         </div>
+
+        {/* Formulaire */}
         <div>
           <div className="mb-3 flex items-center justify-between">
             <div className="w-[65%]">
@@ -152,8 +169,13 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             <input type="file" className="border p-2" onChange={handleImageChange} />
           </div>
         </div>
+
+        {/* Bouton Submit */}
         <div className="flex justify-center pb-4">
-          <button className="bg-blue-700 text-white py-2 px-6 rounded" onClick={handleSubmit}>
+          <button
+            className="bg-blue-700 text-white py-2 px-6 rounded hover:bg-blue-800 transition"
+            onClick={handleSubmit}
+          >
             Créer un événement
           </button>
         </div>
