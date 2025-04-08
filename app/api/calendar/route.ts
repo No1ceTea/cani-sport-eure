@@ -7,12 +7,15 @@ console.log("GOOGLE_SERVICE_ACCOUNT_EMAIL:", process.env.GOOGLE_SERVICE_ACCOUNT_
 console.log("GOOGLE_CALENDAR_ID:", process.env.GOOGLE_CALENDAR_ID);
 console.log("GOOGLE_PRIVATE_KEY exists:", !!process.env.GOOGLE_PRIVATE_KEY);
 console.log("GOOGLE_PRIVATE_KEY (partielle):", process.env.GOOGLE_PRIVATE_KEY?.slice(0, 100));
+console.log("GOOGLE_PRIVATE_KEY (longueur):", process.env.GOOGLE_PRIVATE_KEY?.length);
 
 const auth = new google.auth.JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
   key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
+
+console.log("Compte utilisé pour auth Google :", auth.email);
 
 try {
   await auth.authorize();
