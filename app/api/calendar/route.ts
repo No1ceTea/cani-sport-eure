@@ -2,12 +2,6 @@ import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// ─── Google Calendar Auth ───────────────────────────────────────────
-console.log("GOOGLE_SERVICE_ACCOUNT_EMAIL:", process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
-console.log("GOOGLE_CALENDAR_ID:", process.env.GOOGLE_CALENDAR_ID);
-console.log("GOOGLE_PRIVATE_KEY exists:", !!process.env.GOOGLE_PRIVATE_KEY);
-console.log("GOOGLE_PRIVATE_KEY (partielle):", process.env.GOOGLE_PRIVATE_KEY?.slice(0, 100));
-console.log("GOOGLE_PRIVATE_KEY (longueur):", process.env.GOOGLE_PRIVATE_KEY?.length);
 
 const auth = new google.auth.JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -15,7 +9,15 @@ const auth = new google.auth.JWT({
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
 
+// ─── Google Calendar Auth ───────────────────────────────────────────
+console.log("GOOGLE_SERVICE_ACCOUNT_EMAIL:", process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+console.log("GOOGLE_CALENDAR_ID:", process.env.GOOGLE_CALENDAR_ID);
+console.log("GOOGLE_PRIVATE_KEY exists:", !!process.env.GOOGLE_PRIVATE_KEY);
+console.log("GOOGLE_PRIVATE_KEY (partielle):", process.env.GOOGLE_PRIVATE_KEY?.slice(0, 100));
+console.log("GOOGLE_PRIVATE_KEY (longueur):", process.env.GOOGLE_PRIVATE_KEY?.length);
 console.log("Compte utilisé pour auth Google :", auth.email);
+console.log("Scopes utilisés pour auth Google :", auth.scopes);
+
 
 try {
   await auth.authorize();
