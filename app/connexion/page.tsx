@@ -8,13 +8,14 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Sidebar from "../components/sidebars/Sidebar";
 import { useAuth } from "../components/Auth/AuthProvider";
 
-
 export default function LoginPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
   const { role, isLoading } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +23,22 @@ export default function LoginPage() {
 
   useEffect(() => {
     setIsClient(true);
+
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedPassword = localStorage.getItem("rememberedPassword");
+
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+
+    if (savedPassword) {
+      try {
+        setPassword(atob(savedPassword)); // ✅ déchiffre
+      } catch (e) {
+        console.warn("Mot de passe corrompu dans le localStorage");
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -29,7 +46,7 @@ export default function LoginPage() {
       if (role === "admin") {
         router.push("/dashboard/admin");
       } else if (role === "adherent") {
-        router.push("/"); // ou autre page pour adhérents
+        router.push("/");
       }
     }
   }, [role, isLoading]);
@@ -75,7 +92,15 @@ export default function LoginPage() {
       return;
     }
 
-    // Récupérer les infos utilisateur
+    // ✅ Sauvegarde si la case est cochée
+    if (rememberMe) {
+      localStorage.setItem("rememberedEmail", email);
+      localStorage.setItem("rememberedPassword", btoa(password)); // ✅ encodage
+    } else {
+      localStorage.removeItem("rememberedEmail");
+      localStorage.removeItem("rememberedPassword");
+    }
+
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
     if (userError || !userData?.user) {
@@ -91,7 +116,7 @@ export default function LoginPage() {
     if (isAdmin) {
       router.push("/dashboard/admin");
     } else if (isAdherent) {
-      router.push("/"); // ou la page d’accueil adhérents
+      router.push("/");
     } else {
       setError("Votre compte n'est pas encore validé.");
     }
@@ -168,6 +193,19 @@ export default function LoginPage() {
                     {showPassword ? "🙈" : "👁️"}
                   </button>
                 </div>
+              </div>
+
+              {/* ✅ Case "Se souvenir de moi" */}
+              <div className="form-control mb-4">
+                <label className="cursor-pointer flex items-center gap-2 text-white">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={() => setRememberMe(!rememberMe)}
+                    className="checkbox checkbox-primary border-white"
+                  />
+                  <span>Se souvenir de moi</span>
+                </label>
               </div>
 
               <button
