@@ -18,13 +18,12 @@ console.log("GOOGLE_PRIVATE_KEY (longueur):", process.env.GOOGLE_PRIVATE_KEY?.le
 console.log("Compte utilisé pour auth Google :", auth.email);
 console.log("Scopes utilisés pour auth Google :", auth.scopes);
 
-
-await auth.authorize().then(() => {
-  console.log("✅ Token généré avec succès");
-}).catch((err) => {
-  console.error("❌ Erreur JWT Google:", err.response?.data || err.message);
-});
-
+try {
+  await auth.authorize();
+  console.log("Authentification Google réussie");
+} catch (error) {
+  console.error("Erreur d'authentification Google:", error);
+}
 
 const calendar = google.calendar({ version: "v3", auth });
 
