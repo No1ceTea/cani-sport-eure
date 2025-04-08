@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import supabase from "@/lib/supabaseClient";
 import Image from "next/image";
-import NavigationBar from "../components/NavigationBar";
+import Sidebar from "../components/sidebars/Sidebar";
+import { useAuth } from "@/app/components/Auth/AuthProvider";
+
 
 interface AlbumData {
   name: string;
@@ -19,6 +21,17 @@ const AlbumsPage = () => {
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { role, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && role !== "admin" && role !== "adherent") {
+      router.push("/connexion");
+    }
+  }, [role, isLoading, router]);
+
+  useEffect(() => {
+    if (role !== "admin" && role !== "adherent") return;
+  });
 
   useEffect(() => {
     const fetchAlbums = async () => {
@@ -90,8 +103,8 @@ const AlbumsPage = () => {
   });
 
   return (
-    <div className="min-h-screen pr-8 pl-8" style={{ backgroundImage: "url('/fond.png')", backgroundSize: "cover" }}>
-      <NavigationBar />
+    <div className="min-h-screen pr-8 pl-8 py-12" style={{ backgroundImage: "url('/fond.png')", backgroundSize: "cover" }}>
+      <Sidebar />
       <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
       style={{
         fontSize: "36px",

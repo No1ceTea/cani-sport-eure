@@ -1,21 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaTrash, FaEye, FaUpload, FaSort, FaFolderOpen, FaFolder, FaChevronRight, FaPlus, FaTimes } from "react-icons/fa";
-import { createClient } from "@supabase/supabase-js";
+import { FaFolder, FaChevronRight } from "react-icons/fa";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from 'next/image';
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
 import { useAuth } from "../components/Auth/AuthProvider";
 import { useRouter } from "next/navigation";
 
-
 // 📌 Connexion à Supabase
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
+const supabase = createClientComponentClient();
 
 // ✅ Définition du type des fichiers et dossiers
 interface DocumentFile {
@@ -32,24 +27,31 @@ interface DocumentFile {
 
 export default function Document() {
   const [files, setFiles] = useState<DocumentFile[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [folderPath, setFolderPath] = useState<{ id: string | null; name: string }[]>([
     { id: null, name: "Dossier Racine" },
   ]);
-  const [newFolderName, setNewFolderName] = useState("");
   const { role, isLoading } = useAuth();
   const router = useRouter();
 
-
+  // 📁 Récupérer les fichiers du dossier courant avec filtrage selon le rôle
   useEffect(() => {
     const fetchFiles = async () => {
       let query = supabase.from("club_documents").select("*");
 
+      // 📁 Filtrer par dossier courant
       if (folderPath.length > 1) {
-        query = query.eq("parent_id", folderPath[folderPath.length - 1].id); // Dossier actuel
+        query = query.eq("parent_id", folderPath[folderPath.length - 1].id);
       } else {
-        query = query.is("parent_id", null); // Dossier racine
+        query = query.is("parent_id", null);
+      }
+
+      // 🔐 Appliquer les filtres d'accès selon le rôle
+      if (role === "admin") {
+        query = query.in("access_level", ["public", "adherent", "admin"]);
+      } else if (role === "adherent") {
+        query = query.in("access_level", ["public", "adherent"]);
+      } else {
+        query = query.eq("access_level", "public"); // utilisateur non connecté
       }
 
       const { data, error } = await query;
@@ -74,18 +76,7 @@ export default function Document() {
     };
 
     fetchFiles();
-  }, [folderPath]);
-
-  // 📌 Supprimer un fichier/dossier
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("club_documents").delete().match({ id });
-
-    if (error) {
-      console.error("❌ Erreur de suppression :", error);
-    } else {
-      setFiles(files.filter((file) => file.id !== id));
-    }
-  };
+  }, [folderPath, role]);
 
   // 📌 Naviguer dans un dossier
   const handleFolderClick = (folderId: string, folderName: string) => {
@@ -97,37 +88,14 @@ export default function Document() {
     setFolderPath(folderPath.slice(0, index + 1));
   };
 
-  const handleAddFolder = async () => {
-    if (!newFolderName.trim()) return;
-
-    const { data, error } = await supabase
-      .from("club_documents")
-      .insert([
-        {
-          name: newFolderName,
-          is_folder: true,
-          parent_id: folderPath[folderPath.length - 1].id, // Ajout au dossier courant
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select();
-
-    if (error) {
-      console.error("❌ Erreur d'ajout du dossier :", error);
-    } else {
-      setFiles([...files, { ...data[0], size: "-", type: "Dossier", createdAt: new Date().toLocaleString() }]);
-      setIsFolderModalOpen(false);
-      setNewFolderName("");
-    }
-  };
-
+  // 📌 Rediriger si l'utilisateur connecté n'a pas de rôle valide
   useEffect(() => {
-    if (!isLoading && role !== "adherent" && role !== "admin") {
-      router.push("/connexion"); // ou une page "Accès refusé"
+    if (!isLoading && role !== "adherent" && role !== "admin" && role !== null) {
+      router.push("/connexion");
     }
   }, [isLoading, role]);
-  
-  if (isLoading || (role !== "adherent" && role !== "admin")) {
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <p className="text-lg">Chargement...</p>
@@ -137,15 +105,14 @@ export default function Document() {
 
   return (
     <div className="">
-      <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
-      
-      <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
-      style={{
-        fontSize: "36px",
-        fontFamily: "opendyslexic, sans-serif",
-      }}>Documents</h1>
+      <div className="p-6 bg-white min-h-screen rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
+        <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
+        style={{
+          fontSize: "36px",
+          fontFamily: "opendyslexic, sans-serif",
+        }}>Documents</h1>
 
-        {/* 📌 Navigation (Fil d'Ariane) et Actions alignées à droite */}
+        {/* 📌 Fil d’Ariane */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2 text-gray-700 text-lg">
             {folderPath.map((folder, index) => (
@@ -157,18 +124,9 @@ export default function Document() {
               </span>
             ))}
           </div>
-
-          <div className="flex gap-4">
-            {/* <button className="text-gray-600 flex items-center gap-2">
-              <FaEye /> Vues
-            </button>
-            <button className="text-gray-600 flex items-center gap-2">
-              <FaSort /> Trier
-            </button> */}
-          </div>
         </div>
 
-        {/* 📌 Tableau des fichiers et dossiers */}
+        {/* 📄 Tableau des fichiers */}
         <div className="overflow-auto max-h-[600px] border border-gray-300 rounded-md">
           <table className="w-full border border-gray-300 text-gray-700">
             <thead className="bg-gray-100">
@@ -213,23 +171,6 @@ export default function Document() {
             </tbody>
           </table>
         </div>
-
-        {/* Modal d'ajout de dossier */}
-        {isFolderModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg relative">
-              <button onClick={() => setIsFolderModalOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-                <FaTimes />
-              </button>
-              <h2 className="text-lg font-bold mb-4">Créer un dossier</h2>
-              <input type="text" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} className="border p-2 w-full" placeholder="Nom du dossier" />
-              <button onClick={handleAddFolder} className="bg-green-600 text-white px-4 py-2 mt-4 rounded-lg">Créer</button>
-            </div>
-          </div>
-        )}
-
-        {/* Affichage du modal */}
-        {/* <ModalAddDocument isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> */}
       </div>
       <Sidebar/>
       <Footer/>
