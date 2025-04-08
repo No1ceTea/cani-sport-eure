@@ -19,7 +19,7 @@ serve(async (req: Request) => {
     const body = await req.json();
     console.log("📩 Données reçues :", body);
 
-    const { email, password, first_name, last_name } = body;
+    const { email, password, first_name, last_name, comptable } = body;
 
     if (!email || !password || !first_name || !last_name) {
       console.error("❌ Tous les champs sont requis.");
@@ -67,7 +67,8 @@ serve(async (req: Request) => {
         first_name, 
         last_name, 
         administrateur: false, 
-        statut_inscription: "en attente" // ✅ Ajout du champ
+        statut_inscription: "en attente",
+        comptable // ✅ Ajout du champ
       },
       email_confirm: true,
     });
