@@ -175,6 +175,14 @@ export default function DocumentManager() {
     console.log("🔹 auth.uid() retourné par Supabase :", data, error);
   };
   useEffect(() => { testAuthUid(); }, []);
+
+  const getIconName = (type?: string) => {
+    const t = type?.toLowerCase() || "file";
+    if (["xls", "xlsx"].includes(t)) return t;
+    if (["doc", "docx"].includes(t)) return t;
+    if (t === "pdf") return "pdf";
+    return "file"; // fallback générique
+  };
   
   if (isLoading || !role) return <div>Chargement...</div>;
 
@@ -237,10 +245,10 @@ export default function DocumentManager() {
                     <FaFolder className="text-yellow-500" />
                   ) : (
                     <Image
-                      src={`/${file.type?.toLowerCase() || "file"}.png`}
+                      src={`/${getIconName(file.type)}.png`}
                       alt="icon"
-                      width="20"
-                      height="20"
+                      width={20}
+                      height={20}
                     />
                   )}
                   <span className="text-blue-500 hover:underline">{file.name}</span>
