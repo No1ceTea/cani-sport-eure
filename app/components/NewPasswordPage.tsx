@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 export default function NouveauMotDePassePage() {
   const supabase = createClientComponentClient()
@@ -14,7 +15,9 @@ export default function NouveauMotDePassePage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // 🔐 Set session temporaire avec access_token du lien reçu par email
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const access_token = params.get('access_token')
@@ -42,7 +45,6 @@ export default function NouveauMotDePassePage() {
     setError(null)
     setMessage(null)
 
-    // Vérification de la sécurité du mot de passe
     const hasNumber = /\d/.test(password)
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
 
@@ -94,32 +96,54 @@ export default function NouveauMotDePassePage() {
         )}
 
         <form onSubmit={handleUpdatePassword}>
+          {/* Nouveau mot de passe */}
           <div className="form-control mb-4">
             <label className="label">
               <span>Nouveau mot de passe</span>
             </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
-            />
+            <div className="flex items-center bg-white border border-gray-300 rounded-lg px-3 focus-within:border-blue-500">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-white flex-1 py-3 focus:outline-none"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
+
+          {/* Confirmer le mot de passe */}
           <div className="form-control mb-4">
             <label className="label">
               <span>Confirmer le mot de passe</span>
             </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
-            />
+            <div className="flex items-center bg-white border border-gray-300 rounded-lg px-3 focus-within:border-blue-500">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="bg-white flex-1 py-3 focus:outline-none"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
+
           <button
             type="submit"
             className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
