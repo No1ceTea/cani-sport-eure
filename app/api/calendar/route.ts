@@ -11,9 +11,10 @@ console.log("GOOGLE_PRIVATE_KEY (longueur):", process.env.GOOGLE_PRIVATE_KEY?.le
 
 const auth = new google.auth.JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-  key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\n/g, '\n'),
-  scopes: ['https://www.googleapis.com/auth/calendar'],
+  key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  scopes: ["https://www.googleapis.com/auth/calendar"],
 });
+
 console.log("Compte utilisé pour auth Google :", auth.email);
 
 try {
