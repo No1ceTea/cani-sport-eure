@@ -228,7 +228,7 @@ export default function UserProfileForm() {
             <div className="flex items-center"><label className="text-sm w-40 text-white">Téléphone</label><input type="text" name="telephone" value={form.telephone} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Adresse</label><input type="text" name="adresse" value={form.adresse} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Code postal</label><input type="text" name="code_postal" value={form.code_postal} onChange={handleChangeCodePostal} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Ville</label><input type="text" name="ville" value={form.ville} disabled className="flex-1 p-2 text-gray-500 bg-gray-300 rounded-lg" /></div>
+            <div className="flex items-center"><label className="text-sm w-40 text-white">Ville</label><input type="text" name="ville" value={form.ville} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Date de naissance</label><input type="date" name="date_de_naissance" value={form.date_de_naissance} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Date de renouvellement</label><input type="date" name="date_renouvellement" value={form.date_renouvellement} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             {/* LICENCE SELECT */}
@@ -242,12 +242,16 @@ export default function UserProfileForm() {
               >
                 <option value="">-- Sélectionner une licence --</option>
                 {age >= 17 && (
-                  <option value="Licence adulte">Licence adulte</option>
+                  <>
+                  <option value="Licence adulte">Licence loisir adulte</option>
+                  <option value="Licence adulte">Licence loisir adulte handisport</option>
+                  <option value="Licence adulte">Licence compétition adulte</option>
+                  <option value="Licence adulte">Licence compétition adulte handisport</option>
+                  </>
                 )}
                 {age < 17 && (
                   <option value="Licence enfant">Licence enfant</option>
                 )}
-                <option value="Licence handicapé">Licence handicapé</option>
               </select>
             </div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Email</label><input name="email" value={form.email} className="flex-1 p-2 text-gray-500 bg-gray-300 rounded-lg" disabled /></div>

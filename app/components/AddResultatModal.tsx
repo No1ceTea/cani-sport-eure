@@ -174,8 +174,16 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
             ))}
           </select>
 
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="p-3 border border-gray-300 rounded" />
-          <input type="time" step="1" value={temps} onChange={(e) => setTemps(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Temps" />
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Date compétition / événements</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="p-3 border border-gray-300 rounded w-full" />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Temps de parcours du participant</label>
+            <input type="time" step="1" value={temps} onChange={(e) => setTemps(e.target.value)} className="p-3 border border-gray-300 rounded w-full" placeholder="Temps" />
+          </div>
+
           <input type="text" value={vitesse} onChange={(e) => setVitesse(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Vitesse" />
           <input type="text" value={distance} onChange={(e) => setDistance(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Distance" />
           <input type="text" value={region} onChange={(e) => setRegion(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Région" />
