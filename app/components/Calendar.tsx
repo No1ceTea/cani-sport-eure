@@ -51,6 +51,9 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [mode, setMode] = useState<"create" | "edit">("create");
+  const [eventToEdit, setEventToEdit] = useState<EventData | null>(null);
+  const [showActionModal, setShowActionModal] = useState(false);
 
   useEffect(() => {
     const fetchUserAndEvents = async () => {
@@ -112,7 +115,8 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
   const handleSelectEvent = (event: EventData) => {
     if (readOnly) return;
     setSelectedEventId(event.id);
-    setShowDeleteModal(true);
+    setEventToEdit(event);
+    setShowActionModal(true);
   };
 
   const handleCreateEvent = async () => {
@@ -151,7 +155,39 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
       alert("Erreur lors de la création.");
     }
   };
-  
+
+  const handleUpdateEvent = async () => {
+    if (!eventToEdit) return;
+
+    const start = new Date(`${startDate}T${startTime}`);
+    const end = new Date(`${endDate}T${endTime}`);
+    const fullColor = `${newColor}::${visibility}::${details}`;
+
+    const res = await fetch("/api/calendar", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(userToken && { Authorization: `Bearer ${userToken}` }),
+      },
+      body: JSON.stringify({
+        id: eventToEdit.id,
+        title: newTitle,
+        start,
+        end,
+        color: fullColor,
+        location,
+        description: details,
+      }),
+    });
+
+    if (res.ok) {
+      fetchEvents(userToken);
+      resetForm();
+      setShowModal(false);
+    } else {
+      alert("Erreur lors de la mise à jour.");
+    }
+  };
 
   const resetForm = () => {
     setNewTitle("");
@@ -163,6 +199,8 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
     setVisibility("public");
     setLocation("");
     setDetails("");
+    setMode("create");
+    setEventToEdit(null);
   };
 
   const deleteEvent = async (eventId: string) => {
@@ -249,17 +287,80 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
         }}
       />
 
-      {showModal && !readOnly && (
+      {/* Modal Action Modifier / Supprimer */}
+      {showActionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg text-center">
+            <h3 className="text-lg font-bold mb-4">Que voulez-vous faire de cet événement ?</h3>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  if (eventToEdit) {
+                    setNewTitle(eventToEdit.title);
+                    setStartDate(eventToEdit.start.toISOString().slice(0, 10));
+                    setStartTime(eventToEdit.start.toTimeString().slice(0, 5));
+                    setEndDate(eventToEdit.end.toISOString().slice(0, 10));
+                    setEndTime(eventToEdit.end.toTimeString().slice(0, 5));
+                    setNewColor(eventToEdit.color || "#3b82f6");
+                    setLocation(eventToEdit.location || "");
+                    setDetails(eventToEdit.description || "");
+                    setMode("edit");
+                    setShowModal(true);
+                    setShowActionModal(false);
+                  }
+                }}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                ✏️ Modifier
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(true);
+                  setShowActionModal(false);
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded"
+              >
+                🗑️ Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Confirm Delete */}
+      {!readOnly && (
+        <ModalConfirm
+          isOpen={showDeleteModal}
+          title="Supprimer l'événement ?"
+          message="Cette action est irréversible."
+          confirmText="Confirmer"
+          cancelText="Annuler"
+          onConfirm={() => {
+            if (selectedEventId) {
+              deleteEvent(selectedEventId);
+              setShowDeleteModal(false);
+              setSelectedEventId(null);
+            }
+          }}
+          onCancel={() => {
+            setShowDeleteModal(false);
+            setSelectedEventId(null);
+          }}
+        />
+      )}
+
+      {/* Modal Create / Edit */}
+      {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h3 className="text-lg font-bold mb-4">Créer un événement</h3>
+            <h3 className="text-lg font-bold mb-4">{mode === "edit" ? "Modifier l'événement" : "Créer un événement"}</h3>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleCreateEvent();
-
+                mode === "edit" ? handleUpdateEvent() : handleCreateEvent();
               }}
             >
+              {/* champs du formulaire (identiques à avant, juste ajout du titre dynamique) */}
               <label className="block mb-2">
                 Titre :
                 <input type="text" required className="ml-2 border p-1 w-full" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
@@ -294,34 +395,16 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
                 </select>
               </label>
               <div className="flex gap-2 justify-end">
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">➕ Créer</button>
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+                  {mode === "edit" ? "💾 Mettre à jour" : "➕ Créer"}
+                </button>
                 <button type="button" onClick={() => { resetForm(); setShowModal(false); }} className="bg-gray-400 text-white px-4 py-2 rounded">❌ Annuler</button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      {!readOnly && (
-        <ModalConfirm
-          isOpen={showDeleteModal}
-          title="Supprimer l'événement ?"
-          message="Cette action est irréversible."
-          confirmText="Confirmer"
-          cancelText="Annuler"
-          onConfirm={() => {
-            if (selectedEventId) {
-              deleteEvent(selectedEventId);
-              setShowDeleteModal(false);
-              setSelectedEventId(null);
-            }
-          }}
-          onCancel={() => {
-            setShowDeleteModal(false);
-            setSelectedEventId(null);
-          }}
-        />
-      )}
+      
     </div>
   );
 }

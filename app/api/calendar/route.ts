@@ -2,7 +2,7 @@ import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// ─── Authentification Google ───
+// ─── Google Calendar Auth ───
 const auth = new google.auth.JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
   key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
@@ -11,17 +11,7 @@ const auth = new google.auth.JWT({
 
 const calendar = google.calendar({ version: "v3", auth });
 
-// ─── Utilitaire pour décoder la description ───
-function parseColorVisibility(description: string = "#3b82f6::public::") {
-  const [color, visibility, details] = description.split("::");
-  return {
-    color: color || "#3b82f6",
-    visibility: visibility || "public",
-    details: details || "",
-  };
-}
-
-// ─── Auth Supabase ───
+// ─── Supabase User Auth ───
 async function getUserFromRequest(req: NextRequest) {
   const token = req.headers.get("Authorization")?.replace("Bearer ", "");
   if (!token) return null;
@@ -31,9 +21,7 @@ async function getUserFromRequest(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       },
     }
   );
@@ -42,7 +30,17 @@ async function getUserFromRequest(req: NextRequest) {
   return data.user;
 }
 
-// ─── GET : récupérer les événements ───
+// ─── Utilitaire : Extraire données d'une description ───
+function parseColorVisibility(description: string = "#3b82f6::public::") {
+  const [color, visibility, details] = description.split("::");
+  return {
+    color: color || "#3b82f6",
+    visibility: visibility || "public",
+    details: details || "",
+  };
+}
+
+// ─── GET : Récupérer les événements ───
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req);
@@ -83,7 +81,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ─── POST : ajouter un événement ───
+// ─── POST : Créer un événement ───
 export async function POST(req: NextRequest) {
   try {
     const { title, start, end, color, location, description } = await req.json();
@@ -97,14 +95,8 @@ export async function POST(req: NextRequest) {
       summary: title,
       location: location || "",
       description: `${parsedColor}::${safeVisibility}::${description || ""}`,
-      start: {
-        dateTime: new Date(start).toISOString(),
-        timeZone: "Europe/Paris",
-      },
-      end: {
-        dateTime: new Date(end).toISOString(),
-        timeZone: "Europe/Paris",
-      },
+      start: { dateTime: new Date(start).toISOString(), timeZone: "Europe/Paris" },
+      end: { dateTime: new Date(end).toISOString(), timeZone: "Europe/Paris" },
     };
 
     const response = await calendar.events.insert({
@@ -119,7 +111,41 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ─── DELETE : supprimer un événement ───
+// ─── PUT : Modifier un événement ───
+export async function PUT(req: NextRequest) {
+  try {
+    const { id, title, start, end, color, location, description } = await req.json();
+    const user = await getUserFromRequest(req);
+    if (!user) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    await calendar.events.update({
+      calendarId: process.env.GOOGLE_CALENDAR_ID!,
+      eventId: id,
+      requestBody: {
+        summary: title,
+        location: location || "",
+        description: color, // déjà formaté en "color::visibility::desc"
+        start: {
+          dateTime: new Date(start).toISOString(),
+          timeZone: "Europe/Paris",
+        },
+        end: {
+          dateTime: new Date(end).toISOString(),
+          timeZone: "Europe/Paris",
+        },
+      },
+    });
+
+    return NextResponse.json({ message: "Événement mis à jour avec succès" });
+  } catch (error) {
+    console.error("Erreur mise à jour événement:", error);
+    return NextResponse.json({ error: "Impossible de mettre à jour l'événement" }, { status: 500 });
+  }
+}
+
+// ─── DELETE : Supprimer un événement ───
 export async function DELETE(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req);
