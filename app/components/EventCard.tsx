@@ -23,6 +23,7 @@ interface Event {
 
 interface EventCardProps {
   event: Event;
+  isEditable?: boolean;
 }
 
 // Fonction pour calculer le temps écoulé depuis la publication
@@ -39,7 +40,7 @@ const timeSince = (date: string) => {
   return `Il y a ${days} jours`;
 };
 
-const EventCard: React.FC<EventCardProps> = ({ event }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, isEditable = false }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
@@ -65,10 +66,13 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
   return (
     <div className="bg-white shadow-lg rounded-lg p-4 border relative flex flex-col h-[500px]">
       {/* Boutons Modifier/Supprimer */}
-      <div className="absolute top-3 right-3 flex space-x-2 text-gray-600">
-        <FaTrash className="cursor-pointer hover:text-red-500" onClick={handleOpenDeleteConfirm} />
-        <FaEdit className="cursor-pointer hover:text-blue-500" onClick={handleOpenEditModal} />
-      </div>
+      {isEditable && (
+        <div className="absolute top-3 right-3 flex space-x-2 text-gray-600">
+          <FaTrash className="cursor-pointer hover:text-red-500" onClick={handleOpenDeleteConfirm} />
+          <FaEdit className="cursor-pointer hover:text-blue-500" onClick={handleOpenEditModal} />
+        </div>
+      )}
+
 
       {/* Auteur */}
       <div className="flex items-center mb-3">
