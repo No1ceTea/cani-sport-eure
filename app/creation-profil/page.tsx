@@ -25,6 +25,7 @@ export default function UserProfileForm() {
     photo_profil: "",
     date_de_naissance: "",
     date_renouvellement: "",
+    numero_licence: "",
     licence: "",
   });
 
@@ -33,6 +34,7 @@ export default function UserProfileForm() {
   const [loading, setLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [chiens, setChiens] = useState<{ id: string; prenom: string }[]>([]);
+  const [numeroLicenceError, setNumeroLicenceError] = useState("");
 
   useEffect(() => {
     if (!isLoading && role !== "admin" && role !== "adherent") {
@@ -43,7 +45,6 @@ export default function UserProfileForm() {
   useEffect(() => {
     if (role !== "admin" && role !== "adherent") return;
   });
-
 
   useEffect(() => {
     setIsMounted(true);
@@ -56,7 +57,7 @@ export default function UserProfileForm() {
       const { data: { session }, error } = await supabase.auth.getSession();
 
       if (error) {
-        console.error("Erreur lors de la récupération de la session:", error.message);
+        console.error("Erreur session:", error.message);
         return;
       }
 
@@ -69,7 +70,7 @@ export default function UserProfileForm() {
           .single();
 
         if (profileError) {
-          console.error("Erreur lors de la récupération du profil:", profileError.message);
+          console.error("Erreur profil:", profileError.message);
         } else {
           setForm(prevForm => ({
             ...prevForm,
@@ -137,32 +138,37 @@ export default function UserProfileForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
+
+    // ✅ Ne bloque pas, mais remplace par "" si non valide
+    if (form.numero_licence.length !== 15) {
+      setNumeroLicenceError("Le numéro de licence doit contenir exactement 15 caractères.");
+      form.numero_licence = ""; // enregistrer vide
+    } else {
+      setNumeroLicenceError("");
+    }
+
     let imageUrl = form.photo_profil;
-  
-    // Fonction pour sécuriser le nom du fichier
+
     const sanitizeFileName = (name: string) =>
       name
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[^a-zA-Z0-9.\-_]/g, "_");
-  
+
     if (image) {
       const uniqueFileName = `${uuidv4()}-${sanitizeFileName(image.name)}`;
-      console.log("Nom du fichier sécurisé :", uniqueFileName); // 🔍 debug
-  
       const { data, error } = await supabase
         .storage
         .from("images")
         .upload(`profils/${uniqueFileName}`, image);
-  
+
       if (error) {
         alert("Erreur lors du téléchargement de l'image.");
         console.error("Erreur image:", error.message);
         setLoading(false);
         return;
       }
-  
+
       imageUrl = supabase
         .storage
         .from("images")
@@ -170,23 +176,22 @@ export default function UserProfileForm() {
         .data
         .publicUrl;
     }
-  
+
     const { error } = await supabase.from("profils").upsert([
       { ...form, photo_profil: imageUrl, id: form.id },
     ]);
-  
+
     if (error) {
       alert("Erreur lors de l'enregistrement.");
       console.error("Erreur:", error.message);
     } else {
       alert("Le profil a été enregistré avec succès !");
     }
-  
+
     setLoading(false);
   };
-  
 
-  if (!isMounted) return null; 
+  if (!isMounted) return null;
 
   const getAge = (dateString: string): number => {
     if (!dateString) return 0;
@@ -199,9 +204,8 @@ export default function UserProfileForm() {
     }
     return age;
   };
-  
+
   const age = getAge(form.date_de_naissance);
-  
 
   return (
     <div>
@@ -221,7 +225,6 @@ export default function UserProfileForm() {
             <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
           </div>
 
-          {/* FORMULAIRE CHAMP PAR CHAMP */}
           <div className="space-y-4 w-full">
             <div className="flex items-center"><label className="text-sm w-40 text-white">Nom</label><input type="text" name="nom" value={form.nom} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Prénom</label><input type="text" name="prenom" value={form.prenom} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
@@ -231,7 +234,29 @@ export default function UserProfileForm() {
             <div className="flex items-center"><label className="text-sm w-40 text-white">Ville</label><input type="text" name="ville" value={form.ville} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Date de naissance</label><input type="date" name="date_de_naissance" value={form.date_de_naissance} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
             <div className="flex items-center"><label className="text-sm w-40 text-white">Date de renouvellement</label><input type="date" name="date_renouvellement" value={form.date_renouvellement} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            {/* LICENCE SELECT */}
+            
+            {/* ✅ Numéro de licence avec compteur et message sans blocage */}
+            <div className="flex flex-col">
+              <div className="flex items-center">
+                <label className="text-sm w-40 text-white">Numéro de licence</label>
+                <input
+                  type="text"
+                  name="numero_licence"
+                  value={form.numero_licence}
+                  onChange={handleChange}
+                  maxLength={15}
+                  className="flex-1 p-2 text-black rounded-lg"
+                />
+              </div>
+              <div className="ml-40 mt-1">
+                {numeroLicenceError ? (
+                  <p className="text-red-500 text-sm">{numeroLicenceError}</p>
+                ) : (
+                  <p className="text-white text-xs">{form.numero_licence.length} / 15 caractères</p>
+                )}
+              </div>
+            </div>
+
             <div className="flex items-center">
               <label className="text-sm w-40 text-white">Licence</label>
               <select
@@ -243,10 +268,10 @@ export default function UserProfileForm() {
                 <option value="">-- Sélectionner une licence --</option>
                 {age >= 17 && (
                   <>
-                  <option value="Licence adulte">Licence loisir adulte</option>
-                  <option value="Licence adulte">Licence loisir adulte handisport</option>
-                  <option value="Licence adulte">Licence compétition adulte</option>
-                  <option value="Licence adulte">Licence compétition adulte handisport</option>
+                    <option value="Licence adulte">Licence loisir adulte</option>
+                    <option value="Licence adulte">Licence loisir adulte handisport</option>
+                    <option value="Licence adulte">Licence compétition adulte</option>
+                    <option value="Licence adulte">Licence compétition adulte handisport</option>
                   </>
                 )}
                 {age < 17 && (
@@ -257,7 +282,6 @@ export default function UserProfileForm() {
             <div className="flex items-center"><label className="text-sm w-40 text-white">Email</label><input name="email" value={form.email} className="flex-1 p-2 text-gray-500 bg-gray-300 rounded-lg" disabled /></div>
           </div>
 
-          {/* CHIENS */}
           <div className="mt-4 flex flex-wrap gap-2">
             {chiens.map((chien) => (
               <button 
@@ -271,7 +295,6 @@ export default function UserProfileForm() {
             <button onClick={() => router.push("/creation-chien")} className="bg-white px-3 py-1 rounded-full text-black shadow-md">+</button>
           </div>
 
-          {/* BOUTON ENREGISTRER */}
           <div className="flex justify-center items-center mt-6 space-x-4 pb-4">
             <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md">
               Enregistrer les modifications
