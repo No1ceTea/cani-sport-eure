@@ -78,7 +78,7 @@ const LatestEvents = () => {
                     key={event.id}
                     className="border-2 border-blue-900 rounded-xl p-4 mb-4 shadow-md"
                   >
-                    <EventCard event={event} />
+                    <EventCard event={event} isEditable={false} />
                   </div>
                 ))}
               </div>
