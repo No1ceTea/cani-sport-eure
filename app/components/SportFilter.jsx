@@ -14,84 +14,42 @@ const sportImages = {
 const SportFilters = ({ selectedSport, onSportChange }) => {
   return (
     <div
+      className="flex overflow-x-auto sm:justify-center gap-4 p-4 rounded-full bg-[#3D4A89] mb-6 w-full sm:w-fit sm:mx-auto"
       style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: "15px",
-        padding: "15px",
-        borderRadius: "50px",
-        backgroundColor: "#3D4A89",
-        marginBottom: "20px",
-        width: "fit-content",
-        margin: "auto",
+        scrollbarWidth: "none", // Firefox
+        msOverflowStyle: "none", // IE
       }}
     >
+      {/* hide scrollbar for Webkit (Chrome/Safari) */}
+      <style jsx>{`
+        div::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+
       {Object.keys(sportImages).map((sport) => (
         <div
           key={sport}
           onClick={() => onSportChange(sport === selectedSport ? null : sport)}
+          className="relative min-w-[80px] min-h-[80px] sm:w-[100px] sm:h-[100px] rounded-full overflow-hidden cursor-pointer transition-transform duration-300 flex-shrink-0"
           style={{
-            position: "relative",
-            width: "100px",
-            height: "100px",
-            borderRadius: "50%",
-            overflow: "hidden",
-            cursor: "pointer",
-            transition: "transform 0.3s ease",
             border: selectedSport === sport ? "2px solid yellow" : "none",
           }}
         >
           <Image
             src={sportImages[sport]}
             alt={sport}
-            width={70}
-            height={70}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              transition: "opacity 0.3s ease",
-            }}
+            width={100}
+            height={100}
+            className="w-full h-full object-cover"
           />
           <div
-            style={{
-              position: "absolute",
-              top: "0",
-              left: "0",
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              opacity: "0",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              transition: "opacity 0.3s ease",
-            }}
+            className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity duration-300"
           >
-            <span
-              style={{
-                color: "white",
-                fontSize: "14px",
-                fontWeight: "bold",
-                textAlign: "center",
-                textShadow: "2px 2px 0px black, -2px -2px 0px black, -2px 2px 0px black, 2px -2px 0px black",
-              }}
-            >
+            <span className="text-white text-xs font-bold text-center drop-shadow-md">
               {sport}
             </span>
           </div>
-          <div
-            style={{
-              position: "absolute",
-              top: "0",
-              left: "0",
-              width: "100%",
-              height: "100%",
-              transition: "opacity 0.3s ease",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.previousSibling.style.opacity = "1")}
-            onMouseLeave={(e) => (e.currentTarget.previousSibling.style.opacity = "0")}
-          />
         </div>
       ))}
     </div>
