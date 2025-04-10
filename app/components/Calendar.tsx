@@ -18,11 +18,22 @@ interface EventData {
   end: Date;
   color?: string;
   allDay?: boolean;
+  location?: string;
+  description?: string;
 }
 
 interface CalendarProps {
   readOnly?: boolean;
   hidePrivate?: boolean;
+}
+
+function parseColorVisibility(description: string = "#3b82f6::public::") {
+  const [color, visibility, details] = description.split("::");
+  return {
+    color: color || "#3b82f6",
+    visibility: visibility || "public",
+    description: details || "",
+  };
 }
 
 export default function MyCalendar({ readOnly = false, hidePrivate = false }: CalendarProps) {
@@ -34,6 +45,8 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
   const [visibility, setVisibility] = useState("public");
+  const [location, setLocation] = useState("");
+  const [details, setDetails] = useState("");
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -59,10 +72,11 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
         setEvents(
           data
             .filter((event: any) => {
-              const isPrivate = event.visibility === "private";
-              return !(hidePrivate && isPrivate);
+              const { visibility } = parseColorVisibility(event.description || "");
+              return !(hidePrivate && visibility === "private");
             })
             .map((event: any) => {
+              const { color, description } = parseColorVisibility(event.description || "");
               const start = new Date(event.start.dateTime || event.start.date);
               const end = new Date(event.end.dateTime || event.end.date);
               const allDay = !event.start.dateTime;
@@ -72,14 +86,17 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
                 title: event.summary,
                 start,
                 end,
-                color: event.description || "#3b82f6",
+                color,
                 allDay,
+                location: event.location,
+                description,
               };
             })
         );
       }
     } catch (err) {
       console.error("Erreur API Calendar:", err);
+      alert("Impossible de charger les événements.");
     }
   };
 
@@ -103,26 +120,27 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
       alert("Tous les champs sont obligatoires.");
       return;
     }
-  
+
     const start = new Date(`${startDate}T${startTime}`);
     const end = new Date(`${endDate}T${endTime}`);
-  
-    const fullColor = `${newColor}::${visibility}`;
-  
+    const fullColor = `${newColor}::${visibility}::${details}`;
+
     const res = await fetch("/api/calendar", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(userToken && { Authorization: `Bearer ${userToken}` }), // 🔐 ajoute le token seulement s’il existe
+        ...(userToken && { Authorization: `Bearer ${userToken}` }),
       },
       body: JSON.stringify({
         title: newTitle,
         start,
         end,
         color: fullColor,
+        location,
+        description: details,
       }),
     });
-  
+
     if (res.ok) {
       fetchEvents(userToken);
       resetForm();
@@ -143,6 +161,8 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
     setEndDate("");
     setEndTime("");
     setVisibility("public");
+    setLocation("");
+    setDetails("");
   };
 
   const deleteEvent = async (eventId: string) => {
@@ -150,7 +170,10 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
 
     const res = await fetch("/api/calendar", {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(userToken && { Authorization: `Bearer ${userToken}` }),
+      },
       body: JSON.stringify({ id: eventId }),
     });
 
@@ -176,16 +199,18 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
 
   const formatEventTime = (start: Date, end: Date) => {
     const isSameDay = start.toLocaleDateString() === end.toLocaleDateString();
-    const formatDate = (d: Date) => d.toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-    const formatHour = (d: Date) => d.toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    const formatDate = (d: Date) =>
+      d.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    const formatHour = (d: Date) =>
+      d.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
     if (isSameDay) {
       return `${formatDate(start)} de ${formatHour(start)} à ${formatHour(end)}`;
     } else {
@@ -206,6 +231,9 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
         onSelectSlot={handleSelectSlot}
         onSelectEvent={handleSelectEvent}
         eventPropGetter={eventStyleGetter}
+        tooltipAccessor={(event) =>
+          `${event.title}\n${formatEventTime(event.start, event.end)}\nLieu: ${event.location || "Non renseigné"}\n${event.description || ""}`
+        }
         messages={{
           allDay: "Journée entière",
           previous: "Précédent",
@@ -229,7 +257,7 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
               onSubmit={(e) => {
                 e.preventDefault();
                 handleCreateEvent();
-                setShowModal(false);
+
               }}
             >
               <label className="block mb-2">
@@ -245,6 +273,14 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
                 Fin :
                 <input type="date" required className="ml-2 border p-1" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                 <input type="time" required className="ml-2 border p-1" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+              </label>
+              <label className="block mb-2">
+                Lieu :
+                <input type="text" className="ml-2 border p-1 w-full" value={location} onChange={(e) => setLocation(e.target.value)} />
+              </label>
+              <label className="block mb-2">
+                Description :
+                <textarea className="ml-2 border p-1 w-full" rows={3} value={details} onChange={(e) => setDetails(e.target.value)} />
               </label>
               <label className="block mb-2">
                 Couleur :

@@ -2,15 +2,26 @@ import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// ─── Google Calendar Auth ───────────────────────────────────────────
+// ─── Authentification Google ───
 const auth = new google.auth.JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
   key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
+
 const calendar = google.calendar({ version: "v3", auth });
 
-// ─── Fonction d'authentification Supabase ───────────────────────────
+// ─── Utilitaire pour décoder la description ───
+function parseColorVisibility(description: string = "#3b82f6::public::") {
+  const [color, visibility, details] = description.split("::");
+  return {
+    color: color || "#3b82f6",
+    visibility: visibility || "public",
+    details: details || "",
+  };
+}
+
+// ─── Auth Supabase ───
 async function getUserFromRequest(req: NextRequest) {
   const token = req.headers.get("Authorization")?.replace("Bearer ", "");
   if (!token) return null;
@@ -23,7 +34,7 @@ async function getUserFromRequest(req: NextRequest) {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     }
   );
 
@@ -31,7 +42,7 @@ async function getUserFromRequest(req: NextRequest) {
   return data.user;
 }
 
-// ─── GET : Récupérer les événements ─────────────────────────────
+// ─── GET : récupérer les événements ───
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req);
@@ -45,22 +56,25 @@ export async function GET(req: NextRequest) {
       orderBy: "startTime",
     });
 
-    const events = (response.data.items || []).filter((event) => {
-      const [, visibility] = (event.description || "#3b82f6::public").split("::");
-      return visibility === "public" || isAuthenticated;
-    }).map((event) => {
-      const [color, visibility] = (event.description || "#3b82f6::public").split("::");
+    const events = (response.data.items || [])
+      .filter((event) => {
+        const { visibility } = parseColorVisibility(event.description || "");
+        return visibility === "public" || isAuthenticated;
+      })
+      .map((event) => {
+        const { color, visibility, details } = parseColorVisibility(event.description || "");
+        const start = event.start?.dateTime || (event.start?.date ? new Date(event.start.date + "T00:00:00").toISOString() : null);
+        const end = event.end?.dateTime || (event.end?.date ? new Date(new Date(event.end.date).getTime() - 1).toISOString() : null);
 
-      const start = event.start?.dateTime || (event.start?.date ? new Date(event.start.date + "T00:00:00").toISOString() : null);
-      const end = event.end?.dateTime || (event.end?.date ? new Date(new Date(event.end.date).getTime() - 1).toISOString() : null);
-
-      return {
-        ...event,
-        description: `${color}::${visibility}`,
-        start: { dateTime: start },
-        end: { dateTime: end },
-      };
-    });
+        return {
+          id: event.id,
+          summary: event.summary,
+          description: `${color}::${visibility}::${details}`,
+          start: { dateTime: start },
+          end: { dateTime: end },
+          location: event.location || "",
+        };
+      });
 
     return NextResponse.json(events);
   } catch (error) {
@@ -69,21 +83,28 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ─── POST : Ajouter un événement ────────────────────────────────────
+// ─── POST : ajouter un événement ───
 export async function POST(req: NextRequest) {
   try {
-    const { title, start, end, color, visibility } = await req.json();
+    const { title, start, end, color, location, description } = await req.json();
     const user = await getUserFromRequest(req);
-
-    // ✅ On autorise "private" seulement si connecté
     const isAuthenticated = !!user;
+
+    const { color: parsedColor, visibility } = parseColorVisibility(color);
     const safeVisibility = visibility === "private" && isAuthenticated ? "private" : "public";
 
     const event = {
       summary: title,
-      start: { dateTime: new Date(start).toISOString(), timeZone: "Europe/Paris" },
-      end: { dateTime: new Date(end).toISOString(), timeZone: "Europe/Paris" },
-      description: `${color || "#3b82f6"}::${safeVisibility}`,
+      location: location || "",
+      description: `${parsedColor}::${safeVisibility}::${description || ""}`,
+      start: {
+        dateTime: new Date(start).toISOString(),
+        timeZone: "Europe/Paris",
+      },
+      end: {
+        dateTime: new Date(end).toISOString(),
+        timeZone: "Europe/Paris",
+      },
     };
 
     const response = await calendar.events.insert({
@@ -98,9 +119,14 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ─── DELETE : Supprimer un événement ────────────────────────────────
+// ─── DELETE : supprimer un événement ───
 export async function DELETE(req: NextRequest) {
   try {
+    const user = await getUserFromRequest(req);
+    if (!user) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
     const { id } = await req.json();
     if (!id) {
       return NextResponse.json({ error: "ID de l'événement requis" }, { status: 400 });
