@@ -21,6 +21,7 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
   const [message, setMessage] = useState("");
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState("public");
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   if (!isOpen) return null;
   
@@ -74,6 +75,15 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
       setMessage("❌ Erreur d'insertion en base.");
     } else {
       setMessage("✅ Fichier ajouté avec succès !");
+      setUploadSuccess(true); // ✅ bloque le bouton
+      setTimeout(() => {
+        onClose(); // ✅ fermeture automatique après un court délai
+        // 🔄 optionnel : reset les champs
+        setTitle("");
+        setFile(null);
+        setMessage("");
+        setVisibility("public");
+      }, 500); // petit délai pour laisser le message apparaître
     }
 
     setUploading(false);
@@ -131,11 +141,14 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
         {/* Bouton Upload */}
         <button
           onClick={handleUpload}
-          disabled={uploading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          disabled={uploading || uploadSuccess}
+          className={`w-full py-2 rounded-lg text-white ${
+            uploading || uploadSuccess ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           {uploading ? "Upload en cours..." : "Ajouter un document"}
         </button>
+
 
         {/* Message d'état */}
         <p className="text-center text-sm mt-2">{message}</p>

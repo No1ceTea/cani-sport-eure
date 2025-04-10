@@ -13,6 +13,7 @@ interface User {
   birthdate: string;
   license_number: string;
   administrateur: boolean;
+  comptable: boolean;
   statut_inscription: "en attente" | "inscrit" | "refusé";
 }
 
@@ -108,6 +109,7 @@ export default function ListeAdherents() {
               <th>Naissance</th>
               <th>Licence</th>
               <th>Rôle</th>
+              <th>Comptable</th>
               <th>Statut</th>
               <th>Actions</th>
             </tr>
@@ -125,6 +127,7 @@ export default function ListeAdherents() {
                   <td>{user.birthdate || "N/A"}</td>
                   <td>{user.license_number || "N/A"}</td>
                   <td>{user.administrateur ? "Admin" : "Adhérent"}</td>
+                  <td>{user.comptable ? "Oui" : "Non"}</td>
                   <td>
                     {user.statut_inscription === "inscrit" ? (
                       <span className="badge badge-success">Inscrit</span>
@@ -215,6 +218,21 @@ export default function ListeAdherents() {
                 }
               />
               <label className="font-bold">Administrateur</label>
+            </div>
+
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary"
+                checked={selectedUser.comptable}
+                onChange={(e) =>
+                  setSelectedUser({
+                    ...selectedUser,
+                    comptable: e.target.checked
+                  })
+                }
+              />
+              <label className="font-bold">Comptabilité</label>
             </div>
 
             <label className="block mb-2 font-bold">Statut d&apos;inscription :</label>

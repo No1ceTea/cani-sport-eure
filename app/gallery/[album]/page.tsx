@@ -20,36 +20,35 @@ const GalleryPage = () => {
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [previewImage, setPreviewImage] = useState<string | null>(null); // ✅ Ajout de l'aperçu d'image
+  const decodedAlbum = decodeURIComponent(album as string);
 
   useEffect(() => {
     const fetchImages = async () => {
-      if (!album) return;
-
+      if (!decodedAlbum) return;
+  
       setLoading(true);
-      const { data, error } = await supabase.storage.from("photo").list(album as string);
-
+      const { data, error } = await supabase.storage.from("photo").list(decodedAlbum);
+  
       if (error) {
         console.error("Erreur lors de la récupération des images :", error);
         setLoading(false);
         return;
       }
-
-      console.log("🔍 Images récupérées depuis Supabase :", data);
-
+  
       const imageUrls = data
         .filter((file) => file.name.match(/\.(png|jpe?g|gif|bmp|webp)$/i))
         .map((file) => ({
-          url: supabase.storage.from("photo").getPublicUrl(`${album}/${file.name}`).data.publicUrl || "",
+          url: supabase.storage.from("photo").getPublicUrl(`${decodedAlbum}/${file.name}`).data.publicUrl || "",
           name: file.name,
           createdAt: file.created_at || "",
         }));
-
+  
       setImages(imageUrls);
       setLoading(false);
     };
-
+  
     fetchImages();
-  }, [album]);
+  }, [decodedAlbum]);
 
   // 🔹 FILTRAGE AVEC DATES CORRECTES 🔹
   const filteredImages = images.filter((image) => {
@@ -85,7 +84,7 @@ const GalleryPage = () => {
       style={{
         fontSize: "36px",
         fontFamily: "opendyslexic, sans-serif",
-      }}>Galerie de {album}</h1>
+      }}>Galerie de {decodedAlbum}</h1>
 
       {/* Filtres */}
       <div className="flex flex-wrap gap-4 mb-8">
