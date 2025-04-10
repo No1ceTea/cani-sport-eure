@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/components/Auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import SidebarAdmin from "../../../../components/SidebarAdmin";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import ModalConfirm from "@/app/components/ModalConfirm";
 
 interface User {
   id: string;
@@ -23,6 +25,9 @@ export default function ListeAdherents() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { user, role, isLoading } = useAuth();
   const router = useRouter();
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
 
   // 🔐 Redirection si non-admin
   useEffect(() => {
@@ -65,6 +70,33 @@ export default function ListeAdherents() {
     }
   }
 
+  function openDeleteModal(user: User) {
+    setUserToDelete(user);
+    setIsDeleteModalOpen(true);
+  }
+
+  async function deleteUserConfirmed() {
+    if (!userToDelete) return;
+  
+    const res = await fetch("/api/users", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userToDelete.id }),
+    });
+  
+    if (res.ok) {
+      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
+      alert("Utilisateur supprimé avec succès !");
+    } else {
+      const errorData = await res.json();
+      alert("Erreur lors de la suppression : " + errorData.error);
+    }
+  
+    setIsDeleteModalOpen(false);
+    setUserToDelete(null);
+  }
+  
+  
   async function deleteUser(userId: string) {
     const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
     if (!confirmation) return;
@@ -138,11 +170,19 @@ export default function ListeAdherents() {
                     )}
                   </td>
                   <td className="flex gap-2">
-                    <button className="btn btn-secondary" onClick={() => setSelectedUser(user)}>
-                      Modifier
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => setSelectedUser(user)}
+                      title="Modifier"
+                    >
+                      <FaEdit size={20} />
                     </button>
-                    <button className="btn btn-error" onClick={() => deleteUser(user.id)}>
-                      Supprimer
+                    <button
+                      className="text-red-600 hover:text-red-800"
+                      onClick={() => openDeleteModal(user)}
+                      title="Supprimer"
+                    >
+                      <FaTrash size={20} />
                     </button>
                   </td>
                 </tr>
@@ -151,6 +191,17 @@ export default function ListeAdherents() {
         </table>
         </div>
       </div>
+
+      <ModalConfirm
+        isOpen={isDeleteModalOpen}
+        title="Confirmation de suppression"
+        message={`Voulez-vous vraiment supprimer ${userToDelete?.first_name} ${userToDelete?.last_name} ?`}
+        onCancel={() => {
+          setIsDeleteModalOpen(false);
+          setUserToDelete(null);
+        }}
+        onConfirm={deleteUserConfirmed}
+      />
 
       {/* MODAL DE MODIFICATION */}
       {selectedUser && (
