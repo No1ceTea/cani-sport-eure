@@ -139,7 +139,7 @@ const AlbumsPage = () => {
       ) : filteredAlbums.length > 0 ? (
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
           {filteredAlbums.map((album) => (
-            <div key={album.name} className="relative group cursor-pointer mb-4" onClick={() => router.push(`/gallery/${album.name}`)}>
+            <div key={album.name} className="relative group cursor-pointer mb-4" onClick={() => router.push(`/gallery/${encodeURIComponent(album.name)}`)}>
               <Image src={album.coverUrl} alt={album.name} width={500} height={500} className="w-full h-auto object-cover border-2 border-black rounded-lg" />
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">
                 <p className="text-white font-bold text-lg">{album.name}</p>
