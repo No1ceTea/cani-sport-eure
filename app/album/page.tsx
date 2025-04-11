@@ -6,6 +6,7 @@ import supabase from "@/lib/supabaseClient";
 import Image from "next/image";
 import Sidebar from "../components/sidebars/Sidebar";
 import { useAuth } from "@/app/components/Auth/AuthProvider";
+import Footer from "../components/sidebars/Footer";
 
 
 interface AlbumData {
@@ -103,6 +104,7 @@ const AlbumsPage = () => {
   });
 
   return (
+    <div>
     <div className="min-h-screen pr-8 pl-8 py-12" style={{ backgroundImage: "url('/fond.png')", backgroundSize: "cover" }}>
       <Sidebar />
       <h1 className="text-3xl font-bold mb-8 text-left text-black font-opendyslexic" 
@@ -150,6 +152,8 @@ const AlbumsPage = () => {
       ) : (
         <p className="text-gray-500 font-calibri text-left">Aucun album disponible.</p>
       )}
+    </div>
+    <Footer />
     </div>
   );
 };
