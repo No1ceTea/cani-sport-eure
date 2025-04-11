@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { v4 as uuidv4 } from "uuid"; // Importation de la fonction uuidv4
+import { v4 as uuidv4 } from "uuid";
 import supabase from "../../lib/supabaseClient";
-import './AddEvent.css'
+import './AddEvent.css';
 
 interface ModalProps {
   isOpen: boolean;
@@ -13,43 +13,75 @@ interface ModalProps {
 const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState<File | null>(null); // État pour l'image
-  const [date, setDate] = useState<string>(""); // État pour la date
-  const [isInternal, setIsInternal] = useState<boolean>(false); // État pour le switch interne/externe
+  const [image, setImage] = useState<File | null>(null);
+  const [date, setDate] = useState<string>("");
+  const [startTime, setStartTime] = useState("10:00");
+  const [endTime, setEndTime] = useState("11:00");
+  const [isInternal, setIsInternal] = useState<boolean>(false);
+  const [idGoogle, setIdGoogle] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchArticle = async () => {
       const { data, error } = await supabase
         .from("evenements")
-        .select("titre, contenu, image_url, date, type")
+        .select("titre, contenu, image_url, date, type, id_google, heure_debut, heure_fin")
         .eq("id", articleId)
         .single();
 
       if (error) {
-        console.error("Erreur lors de la récupération de l'article:", error);
+        console.error("Erreur récupération événement :", error);
       } else {
         setTitle(data.titre);
         setContent(data.contenu);
-        // Formater la date au format "YYYY-MM-DD"
-      if (data.date) {
-        const formattedDate = new Date(data.date).toISOString().split("T")[0];
-        setDate(formattedDate);
-      }
-      setIsInternal(data.type === "interne");
+        setDate(data.date?.split("T")[0] || "");
+        setStartTime(data.heure_debut || "10:00");
+        setEndTime(data.heure_fin || "11:00");
+        setIsInternal(data.type === "interne");
+        setIdGoogle(data.id_google || null);
       }
     };
 
-    if (articleId) {
-      fetchArticle();
-    }
+    if (articleId) fetchArticle();
   }, [articleId]);
 
-  if (!isOpen) return null;
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files ? e.target.files[0] : null;
-    if (file) setImage(file);
+    const file = e.target.files?.[0] || null;
+    setImage(file);
+  };
+
+  const updateGoogleCalendar = async () => {
+    if (!idGoogle) return;
+
+    const session = await supabase.auth.getSession();
+    const accessToken = session.data.session?.access_token;
+    
+    if (!accessToken) {
+      alert("Impossible d'obtenir l'access token Google.");
+    }
+    const startDateTime = new Date(`${date}T${startTime}`);
+    const endDateTime = new Date(`${date}T${endTime}`);
+
+    const res = await fetch("/api/calendar", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        id: idGoogle,
+        title,
+        description: content,
+        start: startDateTime,
+        end: endDateTime,
+      }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      console.error("Erreur Google Calendar :", error);
+      alert("Mise à jour dans Google Calendar échouée.");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,48 +90,48 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
 
     let imageUrl = "";
 
-    // Si une image est sélectionnée, on la télécharge
     if (image) {
-      const uniqueFileName = `${uuidv4()}-${image.name}`; // Génération d'un nom unique pour l'image
-
+      const uniqueFileName = `${uuidv4()}-${image.name}`;
       const { data, error } = await supabase.storage
-        .from("images") // Nom du bucket dans Supabase
-        .upload(`event/${uniqueFileName}`, image); // Utilisation du nom unique pour l'image
+        .from("images")
+        .upload(`event/${uniqueFileName}`, image);
 
       if (error) {
-        console.error("Erreur lors du téléchargement de l'image:", error.message);
-        alert("Erreur lors du téléchargement de l'image.");
+        console.error("Erreur image :", error);
+        alert("Échec du téléchargement d'image.");
         setLoading(false);
         return;
       }
 
-      // Si l'image est téléchargée avec succès, on obtient l'URL publique
-      imageUrl = data?.path ? supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl : "";
+      imageUrl = supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl;
     }
 
-    // Mettre à jour l'article dans la base de données, avec ou sans image
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("evenements")
       .update({
         titre: title,
         contenu: content,
-        date: date, // Ajouter la date
-        type: isInternal ? "interne" : "externe", // Mettre à jour le type en fonction du switch
-        image_url: imageUrl || undefined, // On ajoute l'URL de l'image à la publication si elle existe
+        date,
+        type: isInternal ? "interne" : "externe",
+        image_url: imageUrl || undefined,
+        heure_debut: startTime,
+        heure_fin: endTime,
       })
       .eq("id", articleId);
 
-    setLoading(false);
-
     if (error) {
-      console.error("Erreur lors de la mise à jour de l'article:", error); // Affichage complet de l'erreur
-      alert("Erreur lors de la mise à jour de l'article.");
+      console.error("Erreur Supabase :", error);
+      alert("Erreur lors de la mise à jour.");
     } else {
-      console.log("Article mis à jour avec succès:", data);
-      alert("Article mis à jour avec succès!");
-      onClose(); // Fermer la modal
+      await updateGoogleCalendar();
+      alert("Événement mis à jour !");
+      onClose();
     }
+
+    setLoading(false);
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed z-[9999] inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -111,13 +143,11 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
           </button>
         </div>
         <div>
-          {/* Align Title and Date on the Same Line */}
           <div className="mb-3 flex items-center justify-between">
             <div className="w-[65%]">
               <label className="block text-gray-700 mb-1">Titre</label>
               <input
                 type="text"
-                placeholder="Titre"
                 className="w-full p-2 border rounded"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -127,9 +157,23 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
               <label className="block text-gray-700 mb-1">Date</label>
               <input
                 type="date"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded mb-2"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+              />
+              <label className="block text-gray-700 mb-1">Heure de début</label>
+              <input
+                type="time"
+                className="w-full p-2 border rounded mb-2"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
+              <label className="block text-gray-700 mb-1">Heure de fin</label>
+              <input
+                type="time"
+                className="w-full p-2 border rounded"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
               />
             </div>
           </div>
@@ -137,14 +181,12 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
           <div className="mb-3">
             <label className="block text-gray-700 mb-1">Contenu</label>
             <textarea
-              placeholder="Contenu"
               className="w-full p-2 border rounded h-32"
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
           </div>
 
-          {/* Switch for internal/external */}
           <div className="mb-3 flex items-center">
             <label className="block text-gray-700 mb-1 mr-2">Statut</label>
             <label className="switch">
@@ -159,11 +201,7 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
           </div>
 
           <div className="flex items-center justify-start">
-            <input
-              type="file"
-              className="border p-2"
-              onChange={handleImageChange}
-            />
+            <input type="file" className="border p-2" onChange={handleImageChange} />
           </div>
         </div>
         <div className="flex justify-center pb-4">
@@ -172,7 +210,7 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            {loading ? "Enregistrement..." : "Enregistrer les modifications"}
           </button>
         </div>
       </div>
