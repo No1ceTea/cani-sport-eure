@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "@/lib/supabaseClient";
 import Image from "next/image";
-import NavigationBar from "../../components/NavigationBar";
+import Footer from "@/app/components/sidebars/Footer";
+import Sidebar from "@/app/components/sidebars/Sidebar";
 
 interface ImageData {
   url: string;
@@ -78,8 +79,9 @@ const GalleryPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen pr-8 pl-8" style={{ backgroundImage: "url('/fond.png')", backgroundSize: "cover" }}>
-      <NavigationBar />
+    <div>
+    <div className="min-h-screen pr-8 pl-8 py-12" style={{ backgroundImage: "url('/fond.png')", backgroundSize: "cover" }}>
+      <Sidebar />
       <h1 className="text-3xl font-bold mb-8 text-left text-black" 
       style={{
         fontSize: "36px",
@@ -152,6 +154,8 @@ const GalleryPage = () => {
           </div>
         </div>
       )}
+    </div>
+    <Footer />
     </div>
   );
 };
