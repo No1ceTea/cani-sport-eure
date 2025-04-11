@@ -56,14 +56,20 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
   const [showActionModal, setShowActionModal] = useState(false);
 
   useEffect(() => {
-    const fetchUserAndEvents = async () => {
+    const getToken = async () => {
       const { data } = await supabase.auth.getSession();
       const token = data.session?.access_token || null;
       setUserToken(token);
-      fetchEvents(token);
     };
-    fetchUserAndEvents();
+    getToken();
   }, []);
+  
+  useEffect(() => {
+    if (userToken !== null) {
+      fetchEvents(userToken);
+    }
+  }, [userToken]);
+  
 
   const fetchEvents = async (token: string | null = null) => {
     try {
