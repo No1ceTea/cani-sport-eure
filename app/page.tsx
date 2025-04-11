@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClientComponentClient, Session } from "@supabase/auth-helpers-nextjs";
 import Title from "./components/accueil/TitleSection";
 import Presentation from "./components/accueil/PresentationSection";
-import AgendaHome from "./components/agendaHome";
+import AgendaHome from "./components/accueil/AgendaSection";
 import Sponsor from "./components/accueil/SponsorSection";
 import Sidebar from "./components/sidebars/Sidebar";
 import Footer from "./components/sidebars/Footer";

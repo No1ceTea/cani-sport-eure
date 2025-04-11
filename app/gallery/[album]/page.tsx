@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "@/lib/supabaseClient";
 import Image from "next/image";
-import NavigationBar from "../../components/NavigationBar";
+import Footer from "@/app/components/sidebars/Footer";
+import Sidebar from "@/app/components/sidebars/Sidebar";
 
 interface ImageData {
   url: string;
@@ -20,36 +21,35 @@ const GalleryPage = () => {
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [previewImage, setPreviewImage] = useState<string | null>(null); // ✅ Ajout de l'aperçu d'image
+  const decodedAlbum = decodeURIComponent(album as string);
 
   useEffect(() => {
     const fetchImages = async () => {
-      if (!album) return;
-
+      if (!decodedAlbum) return;
+  
       setLoading(true);
-      const { data, error } = await supabase.storage.from("photo").list(album as string);
-
+      const { data, error } = await supabase.storage.from("photo").list(decodedAlbum);
+  
       if (error) {
         console.error("Erreur lors de la récupération des images :", error);
         setLoading(false);
         return;
       }
-
-      console.log("🔍 Images récupérées depuis Supabase :", data);
-
+  
       const imageUrls = data
         .filter((file) => file.name.match(/\.(png|jpe?g|gif|bmp|webp)$/i))
         .map((file) => ({
-          url: supabase.storage.from("photo").getPublicUrl(`${album}/${file.name}`).data.publicUrl || "",
+          url: supabase.storage.from("photo").getPublicUrl(`${decodedAlbum}/${file.name}`).data.publicUrl || "",
           name: file.name,
           createdAt: file.created_at || "",
         }));
-
+  
       setImages(imageUrls);
       setLoading(false);
     };
-
+  
     fetchImages();
-  }, [album]);
+  }, [decodedAlbum]);
 
   // 🔹 FILTRAGE AVEC DATES CORRECTES 🔹
   const filteredImages = images.filter((image) => {
@@ -79,13 +79,14 @@ const GalleryPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen pr-8 pl-8" style={{ backgroundImage: "url('/fond.png')", backgroundSize: "cover" }}>
-      <NavigationBar />
+    <div>
+    <div className="min-h-screen pr-8 pl-8 py-12" style={{ backgroundImage: "url('/fond.png')", backgroundSize: "cover" }}>
+      <Sidebar />
       <h1 className="text-3xl font-bold mb-8 text-left text-black" 
       style={{
         fontSize: "36px",
         fontFamily: "opendyslexic, sans-serif",
-      }}>Galerie de {album}</h1>
+      }}>Galerie de {decodedAlbum}</h1>
 
       {/* Filtres */}
       <div className="flex flex-wrap gap-4 mb-8">
@@ -153,6 +154,8 @@ const GalleryPage = () => {
           </div>
         </div>
       )}
+    </div>
+    <Footer />
     </div>
   );
 };

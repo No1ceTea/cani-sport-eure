@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/components/Auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import SidebarAdmin from "../../../../components/SidebarAdmin";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import ModalConfirm from "@/app/components/ModalConfirm";
+import { FaSearch } from "react-icons/fa";
 
 interface User {
   id: string;
@@ -23,6 +26,9 @@ export default function ListeAdherents() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { user, role, isLoading } = useAuth();
   const router = useRouter();
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
 
   // 🔐 Redirection si non-admin
   useEffect(() => {
@@ -65,6 +71,33 @@ export default function ListeAdherents() {
     }
   }
 
+  function openDeleteModal(user: User) {
+    setUserToDelete(user);
+    setIsDeleteModalOpen(true);
+  }
+
+  async function deleteUserConfirmed() {
+    if (!userToDelete) return;
+  
+    const res = await fetch("/api/users", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userToDelete.id }),
+    });
+  
+    if (res.ok) {
+      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
+      alert("Utilisateur supprimé avec succès !");
+    } else {
+      const errorData = await res.json();
+      alert("Erreur lors de la suppression : " + errorData.error);
+    }
+  
+    setIsDeleteModalOpen(false);
+    setUserToDelete(null);
+  }
+  
+  
   async function deleteUser(userId: string) {
     const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
     if (!confirmation) return;
@@ -91,15 +124,16 @@ export default function ListeAdherents() {
       <SidebarAdmin />
 
       <div className="flex-1 p-6">
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Rechercher un adhérent"
-            className="input input-bordered w-full max-w-md"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <div className="relative w-full flex justify-left mb-6">
+                  <input
+                    type="text"
+                    placeholder="Rechercher un article"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-[50%] py-2 pl-4 pr-10 text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
+                  />
+                  <FaSearch className="absolute right-[52%] top-1/2 transform -translate-y-1/2 text-blue-900 text-lg" />
+                </div>
 
         <div className="grid grid-cols-1gap-4 max-h-[85vh] overflow-y-auto p-2">
         <table className="table w-full">
@@ -138,11 +172,19 @@ export default function ListeAdherents() {
                     )}
                   </td>
                   <td className="flex gap-2">
-                    <button className="btn btn-secondary" onClick={() => setSelectedUser(user)}>
-                      Modifier
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => setSelectedUser(user)}
+                      title="Modifier"
+                    >
+                      <FaEdit size={20} />
                     </button>
-                    <button className="btn btn-error" onClick={() => deleteUser(user.id)}>
-                      Supprimer
+                    <button
+                      className="text-red-600 hover:text-red-800"
+                      onClick={() => openDeleteModal(user)}
+                      title="Supprimer"
+                    >
+                      <FaTrash size={20} />
                     </button>
                   </td>
                 </tr>
@@ -151,6 +193,17 @@ export default function ListeAdherents() {
         </table>
         </div>
       </div>
+
+      <ModalConfirm
+        isOpen={isDeleteModalOpen}
+        title="Confirmation de suppression"
+        message={`Voulez-vous vraiment supprimer ${userToDelete?.first_name} ${userToDelete?.last_name} ?`}
+        onCancel={() => {
+          setIsDeleteModalOpen(false);
+          setUserToDelete(null);
+        }}
+        onConfirm={deleteUserConfirmed}
+      />
 
       {/* MODAL DE MODIFICATION */}
       {selectedUser && (
