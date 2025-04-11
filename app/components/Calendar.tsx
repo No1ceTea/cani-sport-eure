@@ -295,43 +295,51 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
 
       {/* Modal Action Modifier / Supprimer */}
       {showActionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg text-center">
-            <h3 className="text-lg font-bold mb-4">Que voulez-vous faire de cet événement ?</h3>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => {
-                  if (eventToEdit) {
-                    setNewTitle(eventToEdit.title);
-                    setStartDate(eventToEdit.start.toISOString().slice(0, 10));
-                    setStartTime(eventToEdit.start.toTimeString().slice(0, 5));
-                    setEndDate(eventToEdit.end.toISOString().slice(0, 10));
-                    setEndTime(eventToEdit.end.toTimeString().slice(0, 5));
-                    setNewColor(eventToEdit.color || "#3b82f6");
-                    setLocation(eventToEdit.location || "");
-                    setDetails(eventToEdit.description || "");
-                    setMode("edit");
-                    setShowModal(true);
-                    setShowActionModal(false);
-                  }
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                ✏️ Modifier
-              </button>
-              <button
-                onClick={() => {
-                  setShowDeleteModal(true);
-                  setShowActionModal(false);
-                }}
-                className="bg-red-600 text-white px-4 py-2 rounded"
-              >
-                🗑️ Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg text-center relative">
+      <h3 className="text-lg font-bold mb-4">Que voulez-vous faire de cet événement ?</h3>
+
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => {
+            if (eventToEdit) {
+              setNewTitle(eventToEdit.title);
+              setStartDate(eventToEdit.start.toISOString().slice(0, 10));
+              setStartTime(eventToEdit.start.toTimeString().slice(0, 5));
+              setEndDate(eventToEdit.end.toISOString().slice(0, 10));
+              setEndTime(eventToEdit.end.toTimeString().slice(0, 5));
+              setNewColor(eventToEdit.color || "#3b82f6");
+              setLocation(eventToEdit.location || "");
+              setDetails(eventToEdit.description || "");
+              setMode("edit");
+              setShowModal(true);
+              setShowActionModal(false);
+            }
+          }}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          ✏️ Modifier
+        </button>
+        <button
+          onClick={() => {
+            setShowDeleteModal(true);
+            setShowActionModal(false);
+          }}
+          className="bg-red-600 text-white px-4 py-2 rounded"
+        >
+          🗑️ Supprimer
+        </button>
+        <button
+          onClick={() => setShowActionModal(false)}
+          className="bg-gray-400 text-white px-4 py-2 rounded"
+        >
+          ❌ Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Modal Confirm Delete */}
       {!readOnly && (
