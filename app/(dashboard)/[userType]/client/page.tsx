@@ -19,6 +19,9 @@ const ClientDashboardPage: React.FC = () => {
   const [eventNames, setEventNames] = useState<string[]>([]);
   const [eventMap, setEventMap] = useState<Record<string, number>>({});
   const [selectedEvent, setSelectedEvent] = useState<string>("");
+  const [activityNames, setActivityNames] = useState<string[]>([]);
+  const [selectedActivity, setSelectedActivity] = useState<string>("");
+  const [dog, setDog] = useState<any | null>(null);
 
   useEffect(() => {
     if (!isLoading) {
@@ -35,12 +38,22 @@ const ClientDashboardPage: React.FC = () => {
 
       setUserId(uid);
 
+      const { data: allResults } = await supabase
+        .from("resultats")
+        .select("nomActivite")
+        .eq("id_profil", uid);
+
+      if (allResults) {
+        const uniqueActivities = [...new Set(allResults.map((res: any) => res.nomActivite).filter(Boolean))];
+        setActivityNames(uniqueActivities);
+        if (uniqueActivities.length > 0) setSelectedActivity(uniqueActivities[0]);
+      }
+
       const { data: results } = await supabase
         .from("resultats")
         .select("nomActivite, lieu, distance, classement, date, id_type")
         .eq("id_profil", uid)
-        .order("date", { ascending: false })
-        .limit(5);
+        .order("date", { ascending: false });
 
       if (results) setResultsData(results);
 
@@ -64,6 +77,15 @@ const ClientDashboardPage: React.FC = () => {
       setEventMap(map);
 
       if (names.length > 0) setSelectedEvent(names[0]);
+
+      const { data: chien } = await supabase
+        .from("chiens")
+        .select("*")
+        .eq("id_profil", uid)
+        .limit(1)
+        .single();
+
+      setDog(chien || null);
     };
 
     if (!isLoading && user) {
@@ -110,13 +132,57 @@ const ClientDashboardPage: React.FC = () => {
   }
 
   const pourcentage = eventStats.kmMax > 0 ? Math.round((eventStats.kmParcourus / eventStats.kmMax) * 100) : 0;
+  const totalKm = resultsData.reduce((sum, r) => sum + parseFloat(r.distance || 0), 0);
+  const bestRank = resultsData.reduce((min, r) => {
+    const val = parseInt(r.classement || "999");
+    return val < min ? val : min;
+  }, 999);
+  const podiums = resultsData.filter((r) => parseInt(r.classement || "999") <= 3).length;
+  const lastResult = resultsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
   return (
     <div>
       <div className="min-h-screen bg-gray-100 p-6">
         <h1 className="text-3xl font-bold mb-4">Tableau de bord</h1>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {/* Résumé utilisateur */}
+          <div className="bg-white shadow-lg rounded-lg p-4">
+            <h2 className="text-lg font-semibold mb-2">Dernière compétition</h2>
+            {lastResult ? (
+              <p>{lastResult.nomActivite} à {lastResult.lieu} – {lastResult.distance} km – Classement : {lastResult.classement}</p>
+            ) : <p>Aucune donnée.</p>}
+          </div>
+
+          <div className="bg-white shadow-lg rounded-lg p-4">
+            <h2 className="text-lg font-semibold mb-2">Distance totale parcourue</h2>
+            <p className="text-2xl text-blue-700 font-bold">{totalKm.toFixed(1)} km</p>
+          </div>
+
+          <div className="bg-white shadow-lg rounded-lg p-4">
+            <h2 className="text-lg font-semibold mb-2">Podiums</h2>
+            <p className="text-2xl text-blue-700 font-bold">{podiums}</p>
+          </div>
+
+          <div className="bg-white shadow-lg rounded-lg p-4">
+            <h2 className="text-lg font-semibold mb-2">Meilleur classement</h2>
+            <p className="text-2xl text-blue-700 font-bold">{bestRank === 999 ? "N/A" : bestRank}ᵉ</p>
+          </div>
+
+          <div className="bg-white shadow-lg rounded-lg p-4">
+            <h2 className="text-lg font-semibold mb-2">Mon compagnon</h2>
+            {dog ? (
+              <div className="space-y-1">
+                <p><strong>Nom:</strong> {dog.prenom}</p>
+                <p><strong>Race:</strong> {dog.race}</p>
+                <p><strong>Âge:</strong> {dog.age} ans</p>
+              </div>
+            ) : <p>Pas de chien enregistré.</p>}
+          </div>
+        </div>
+
+        {/* Résultats et stats événement */}
+        <div className="grid grid-cols-2 gap-6 mt-6">
           {/* Tableau des résultats */}
           <div className="bg-white shadow-lg rounded-lg p-4 col-span-1">
             <div className="border-b pb-2 flex space-x-4">
@@ -181,9 +247,25 @@ const ClientDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Blocs extensibles plus tard */}
-          <div className="bg-white shadow-lg rounded-lg h-40 col-span-1"></div>
-          <div className="bg-white shadow-lg rounded-lg h-40 col-span-1"></div>
+          {/* Activité sélectionnée */}
+          <div className="bg-white shadow-lg rounded-lg p-4 col-span-1">
+            <h2 className="font-semibold">Activité : statistiques</h2>
+            <select
+              className="select select-bordered w-full mt-2"
+              value={selectedActivity}
+              onChange={(e) => setSelectedActivity(e.target.value)}
+            >
+              {activityNames.map((name, index) => (
+                <option key={index} value={name}>{name}</option>
+              ))}
+            </select>
+
+            {selectedActivity && (
+              <div className="mt-4">
+                <p className="text-gray-700 text-sm">Activité sélectionnée : <strong>{selectedActivity}</strong></p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

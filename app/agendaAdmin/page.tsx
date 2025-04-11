@@ -1,10 +1,11 @@
+// ✅ agendaAdmin/page.tsx
 "use client";
 
 import Calendar from "@/app/components/Calendar";
 import SidebarAdmin from "../components/SidebarAdmin";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/components/Auth/AuthProvider";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 export default function AgendaPage() {
   const { role, isLoading } = useAuth();
@@ -16,9 +17,7 @@ export default function AgendaPage() {
     }
   }, [role, isLoading, router]);
 
-  useEffect(() => {
-    if (role !== "admin") return;
-  });
+  if (!isLoading && role !== "admin") return null;
 
   return (
     <div className="flex overflow-hidden">

@@ -5,6 +5,9 @@ import { useParams } from "next/navigation";
 import supabase from "../../../lib/supabaseClient";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale"; // Import pour afficher la date en français
+import WhiteBackground from "@/app/components/backgrounds/WhiteBackground";
+import Footer from "@/app/components/sidebars/Footer";
+import Sidebar from "@/app/components/sidebars/Sidebar";
 
 interface Article {
   id: string;
@@ -63,7 +66,10 @@ const ArticleDetail = () => {
   const timeAgo = formatDistanceToNow(new Date(article.created_at), { locale: fr, addSuffix: true });
 
   return (
-    <div className="min-h-screen px-10 py-6 bg-gray-100">
+    <div>
+      <WhiteBackground>
+      <Sidebar></Sidebar>
+    <div className="min-h-screen px-10 py-6">
       {/* Titre principal */}
       <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Articles</h1>
 
@@ -101,6 +107,7 @@ const ArticleDetail = () => {
         </div>
       </div>
     </div>
+    </WhiteBackground> <Footer/> </div>
   );
 };
 

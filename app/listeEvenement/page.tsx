@@ -94,6 +94,9 @@ const ListeEvenement = () => {
         </div>
 
         {/* Filtres de date */}
+        <div className="text-2xl font-bold">
+          Du
+        </div>
         <div className="relative">
           <input
             type="date"
@@ -102,7 +105,9 @@ const ListeEvenement = () => {
             className="py-2 px-4 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
           />
         </div>
-
+        <div className="text-2xl font-bold">
+          Au
+        </div>
         <div className="relative">
           <input
             type="date"

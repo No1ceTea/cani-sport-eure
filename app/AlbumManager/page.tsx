@@ -77,32 +77,40 @@ export default function AlbumManager() {
       const newPhotos: Photo[] = [];
 
       data.forEach((item) => {
-        if (item.name.startsWith(".")) return; // Ignorer les fichiers système (ex: .emptyFolderPlaceholder)
-
+        if (item.name.startsWith(".")) return; // Ignorer les fichiers système
+      
+        const currentPath = albumPath[albumPath.length - 1].id || "";
+      
         if (!item.metadata) {
-          // 📌 C'est un dossier (album)
+          // 📁 Dossier (album)
           newAlbums.push({
-            id: item.name,
+            id: currentPath ? `${currentPath}/${item.name}` : item.name,
             name: item.name,
             createdAt: "-",
-            parent_id: albumPath[albumPath.length - 1].id || null,
+            parent_id: currentPath || null,
           });
         } else {
-          // 📌 C'est une photo
-          const filePath = albumPath[albumPath.length - 1].id ? `${albumPath[albumPath.length - 1].id}/${item.name}` : item.name;
+          // 🖼️ Fichier (photo)
+          const filePath = currentPath ? `${currentPath}/${item.name}` : item.name;
           const publicUrl = supabase.storage.from("photo").getPublicUrl(filePath).data.publicUrl;
-          console.log("📸 Image URL :", publicUrl); // ✅ Debugging URL
-
+      
+          const size = item.metadata?.size
+            ? (item.metadata.size / 1024).toFixed(2) + " KB"
+            : "-";
+      
           newPhotos.push({
             id: item.name,
             name: item.name,
             url: publicUrl,
-            size: item.metadata.size ? (item.metadata.size / 1024).toFixed(2) + " KB" : "-",
-            createdAt: item.metadata.lastModified ? new Date(item.metadata.lastModified).toLocaleString() : "-",
-            album_id: albumPath[albumPath.length - 1].id || "",
+            size,
+            createdAt: item.metadata.lastModified
+              ? new Date(item.metadata.lastModified).toLocaleString()
+              : "-",
+            album_id: currentPath,
           });
         }
       });
+      
 
       setAlbums(newAlbums);
       setPhotos(newPhotos);
@@ -258,6 +266,7 @@ export default function AlbumManager() {
                 <tr>
                   <th className="border-t border-b p-4 text-left">Nom</th>
                   <th className="border-t border-b p-4 text-left">Créé le</th>
+                  <th className="border-t border-b p-4 text-left">Taille</th>
                   <th className="border-b p-4 text-center">Actions</th>
                 </tr>
               </thead>
@@ -273,6 +282,7 @@ export default function AlbumManager() {
                       {album.name}
                     </td>
                     <td className="p-4">{album.createdAt}</td>
+                    <td className="p-4">-</td>
                     <td className="p-4 flex justify-center gap-4">
                     <button onClick={() => handleDeleteAlbum(album)} className="text-red-500 hover:text-red-700">
                       <FaTrash />
@@ -294,6 +304,7 @@ export default function AlbumManager() {
                       {photo.name}
                     </td>
                     <td className="p-4">{photo.createdAt}</td>
+                    <td className="p-4">{photo.size}</td>
                     <td className="p-4 flex justify-center gap-4">
                     <button onClick={() => handleDeletePhoto(photo)} className="text-red-500 hover:text-red-700">
                       <FaTrash />

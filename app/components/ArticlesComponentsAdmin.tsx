@@ -41,7 +41,7 @@
     onEdit,
   }) => {
     return (
-      <div className="bg-white shadow-lg rounded-2xl p-4 max-w-md relative">
+      <div className="bg-white shadow-lg rounded-2xl p-4 relative">
         {/* Section utilisateur */}
         <div className="flex items-center space-x-3 mb-3">
           <img src={article.user_avatar} alt={article.user_name} className="w-10 h-10 rounded-full" />
@@ -62,7 +62,7 @@
         </div>
   
         {/* Image de l'article */}
-        <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
+        <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-80 object-cover" />
   
         {/* Contenu de l'article */}
         <p className="text-xs text-gray-500 mt-2">Créé le {new Date(article.date).toLocaleDateString()}</p>
