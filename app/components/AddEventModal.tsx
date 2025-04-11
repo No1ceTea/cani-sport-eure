@@ -60,53 +60,91 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  const createGoogleCalendarEvent = async (accessToken: string) => {
+    const startDateTime = new Date(`${date}T10:00:00`);
+    const endDateTime = new Date(`${date}T11:00:00`);
+  
+    const res = await fetch("/api/calendar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        title,
+        start: startDateTime,
+        end: endDateTime,
+        color: "#3b82f6::public::" + content,
+        location: "",
+        description: content,
+      }),
+    });
+  
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Erreur ajout Google Calendar:", errorText);
+      alert("L’événement a été créé mais pas ajouté dans Google Calendar.");
+    }
+  };
+
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  let imageUrl = "";
+
+  if (image) {
+    const uniqueFileName = `${uuidv4()}-${image.name}`;
+    const { data, error } = await supabase.storage
+      .from("images")
+      .upload(`evenements/${uniqueFileName}`, image);
+
+    if (error) {
+      console.error("Erreur upload image:", error.message);
+      alert("Erreur lors du téléchargement de l'image.");
+      return;
+    }
+
+    imageUrl = data?.path
+      ? supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl
+      : "";
+  }
+
+  const { error } = await supabase.from("evenements").insert([
+    {
+      titre: title,
+      contenu: content,
+      date,
+      type: isExternal ? "Externe" : "Interne",
+      image_url: imageUrl,
+      id_profil: userId,
+    },
+  ]);
+
+  if (error) {
+    console.error("Erreur lors de la création de l'événement:", error);
+    alert("Erreur lors de la création de l'événement.");
+  } else {
+    // ➕ Ajout à Google Calendar
+    const session = await supabase.auth.getSession();
+    const accessToken = session.data.session?.access_token;
+
+    if (accessToken) {
+      await createGoogleCalendarEvent(accessToken);
+    }
+
+    alert("Événement créé avec succès !");
+    onClose();
+  }
+};
+
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     setImage(file);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    let imageUrl = "";
-
-    if (image) {
-      const uniqueFileName = `${uuidv4()}-${image.name}`;
-      const { data, error } = await supabase.storage
-        .from("images")
-        .upload(`evenements/${uniqueFileName}`, image);
-
-      if (error) {
-        console.error("Erreur upload image:", error.message);
-        alert("Erreur lors du téléchargement de l'image.");
-        return;
-      }
-
-      imageUrl = data?.path
-        ? supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl
-        : "";
-    }
-
-    const { error } = await supabase.from("evenements").insert([
-      {
-        titre: title,
-        contenu: content,
-        date,
-        type: isExternal ? "Externe" : "Interne",
-        image_url: imageUrl,
-        id_profil: userId,
-      },
-    ]);
-
-    if (error) {
-      console.error("Erreur lors de la création de l'événement:", error);
-      alert("Erreur lors de la création de l'événement.");
-    } else {
-      alert("Événement créé avec succès!");
-      onClose();
-    }
-  };
-
+ 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg w-[780px] h-[571px] shadow-lg relative flex flex-col justify-between">
