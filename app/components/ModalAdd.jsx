@@ -11,7 +11,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-const ModalAdd = ({ isOpen, onClose }) => {
+const ModalAdd = ({ isOpen, onClose, onAddSuccess }) => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
@@ -96,22 +96,27 @@ const ModalAdd = ({ isOpen, onClose }) => {
       publicUrlData.publicUrl ||
       `https://your-supabase-url/storage/v1/object/public/${filePath}`;
 
-    const { error: dbError } = await supabase.from("gpx_tracks").insert([
-      {
-        name: title,
-        sport: sport,
-        date_time: new Date(dateTime).toISOString(),
-        file_url: publicUrl,
-        geom: linestringZ,
-      },
-    ]);
+    const { data: insertedData, error: dbError } = await supabase
+      .from("gpx_tracks")
+      .insert([
+        {
+          name: title,
+          sport: sport,
+          date_time: new Date(dateTime).toISOString(),
+          file_url: publicUrl,
+          geom: linestringZ,
+        },
+      ])
+      .select()
+      .single();
 
     if (dbError) {
       console.error("❌ Erreur d'insertion en base :", dbError);
       setMessage("❌ Erreur d'insertion en base.");
     } else {
       setMessage("✅ Fichier GPX ajouté avec succès !");
-      onClose();
+      onAddSuccess?.(insertedData); // ✅ Envoie la nouvelle sortie au parent
+      onClose(); // ✅ Ferme le modal
     }
 
     setUploading(false);
