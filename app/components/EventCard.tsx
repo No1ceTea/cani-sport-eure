@@ -19,6 +19,7 @@ interface Event {
   image_url: string;
   type: string;
   auteur: Auteur;
+  id_google?: string;
 }
 
 interface EventCardProps {
@@ -50,15 +51,48 @@ const EventCard: React.FC<EventCardProps> = ({ event, isEditable = false }) => {
   const handleCloseDeleteConfirm = () => setIsDeleteConfirmOpen(false);
 
   const handleDelete = async () => {
-    const { error } = await supabase.from("evenements").delete().eq("id", event.id);
-    if (error) {
-      console.error("Erreur lors de la suppression de l'événement:", error);
-      alert("Erreur lors de la suppression de l'événement.");
-    } else {
-      alert("Événement supprimé avec succès!");
-      handleCloseDeleteConfirm();
+    const session = await supabase.auth.getSession();
+    const accessToken = session.data.session?.access_token;
+  
+    if (!accessToken) {
+      alert("Impossible de récupérer le token Google.");
+      return;
     }
+  
+    // Supprimer dans Supabase
+    const { error } = await supabase.from("evenements").delete().eq("id", event.id);
+  
+    if (error) {
+      console.error("Erreur Supabase :", error);
+      alert("Erreur lors de la suppression de l'événement.");
+      return;
+    }
+  
+    // Supprimer dans Google Calendar (si un ID Google existe)
+    if (event.id_google) {
+      const res = await fetch("/api/calendar", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ id: event.id_google }),
+      });
+  
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.warn("Supprimé de Supabase mais pas de Google Calendar :", errorText);
+      }
+    }
+  
+    alert("Événement supprimé avec succès !");
+    handleCloseDeleteConfirm();
   };
+  
+  
+
+  
+  
 
   // Utilisation de la fonction `timeSince` pour formater la date
   const formattedDate = timeSince(event.created_at);

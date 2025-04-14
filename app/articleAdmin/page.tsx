@@ -9,6 +9,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import SidebarAdmin from "../components/SidebarAdmin";
 import ModalConfirm from "../components/ModalConfirm";
 import { useAuth } from "@/app/components/Auth/AuthProvider";
+import { FaSearch } from "react-icons/fa";
 
 interface Article {
   id: string;
@@ -125,13 +126,20 @@ const ArticlesPage: React.FC = () => {
     <div className="flex h-screen overflow-hidden">
       <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
-      <div className="p-6 max-w-6xl mx-auto flex-1 flex flex-col">
+      <div className="p-6  mx-auto flex-1 flex flex-col">
 
-        <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 rounded-lg shadow mb-6 space-y-4 md:space-y-0 md:space-x-4">
-          <SearchBar setSearchQuery={setSearchQuery} />
+        <div className="relative w-full flex justify-left mb-6">
+          <input
+            type="text"
+            placeholder="Rechercher un article"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-[50%] py-2 pl-4 pr-10 text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
+          />
+          <FaSearch className="absolute right-[52%] top-1/2 transform -translate-y-1/2 text-blue-900 text-lg" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-h-[600px] overflow-y-auto p-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full overflow-y-auto p-4">
           {filteredArticles.map((article) => (
             <div key={article.id} className="cursor-pointer">
               <ArticleCardAdmin article={article} onDelete={() => confirmDelete(article.id)} onEdit={handleEdit} />
