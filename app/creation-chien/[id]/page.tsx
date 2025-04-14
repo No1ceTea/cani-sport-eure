@@ -6,6 +6,7 @@ import { useRouter, useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Sidebar from "../../components/sidebars/Sidebar";
 import Footer from "../../components/sidebars/Footer";
+import WhiteBackground from "../../components/backgrounds/WhiteBackground";
 
 const supabase = createClientComponentClient();
 
@@ -177,96 +178,94 @@ export default function PetProfileForm() {
   };
 
   return (
-    <div className="">
-      <div className="relative flex items-center justify-center min-h-screen bg-gray-100 py-12 px-4">
-        <h1 className="absolute top-6 left-6 text-4xl font-bold text-black">
-          {id !== "new" ? "Modifier le profil du chien" : "Créer un profil chien"}
-        </h1>
+    <div>
+      <WhiteBackground>
+        <div className="px-4 sm:px-6 pt-28 pb-12 flex justify-center">
+          <div className="w-full max-w-screen-sm">
+            <h1 className="text-3xl sm:text-4xl font-bold text-black mb-8">
+              {id !== "new" ? "Modifier le profil du chien" : "Créer un profil chien"}
+            </h1>
 
-        <div className="flex flex-col items-center w-full max-w-xl bg-[#475C99] text-black p-8 rounded-2xl shadow-2xl border-4 border-black space-y-6">
-          <div className="flex flex-col items-center">
-            <label htmlFor="photo-upload" className="cursor-pointer">
-              {photoPreview ? (
-                <img src={photoPreview} alt="Photo du chien" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
-              ) : (
-                <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
-                  Ajouter une photo
-                </div>
-              )}
-            </label>
-            <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-          </div>
+            <form
+              onSubmit={handleSubmit}
+              className="bg-[#475C99] text-black p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-black space-y-6"
+            >
+              {/* Photo */}
+              <div className="flex flex-col items-center">
+                <label htmlFor="photo-upload" className="cursor-pointer mb-2">
+                  {photoPreview ? (
+                    <img
+                      src={photoPreview}
+                      alt="Photo du chien"
+                      className="w-32 h-32 object-cover rounded-full shadow-md"
+                    />
+                  ) : (
+                    <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-full text-black text-center text-sm font-medium">
+                      Ajouter une photo
+                    </div>
+                  )}
+                </label>
+                <input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
 
-          <div className="space-y-4 w-full">
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-40 text-white">Prénom</label>
-              <input name="prenom" value={form.prenom as string} onChange={handleChange} className="flex-1 p-2 rounded-lg text-black" />
-            </div>
+              {/* Champs */}
+              <div className="space-y-4">
+                {[
+                  { name: "prenom", label: "Prénom" },
+                  { name: "race", label: "Race" },
+                  {
+                    name: "date_de_naissance",
+                    label: "Date de naissance",
+                    type: "date",
+                    max: new Date().toISOString().split("T")[0],
+                  },
+                  { name: "numero_de_puce", label: "Numéro de puce", maxLength: 15 },
+                  { name: "numero_de_tatouage", label: "Numéro de tatouage", minLength: 6 },
+                  { name: "age", label: "Âge", type: "number", readOnly: true },
+                ].map(({ name, label, ...rest }) => (
+                  <div key={name} className="flex flex-col">
+                    <label className="text-white text-sm mb-1">{label}</label>
+                    <input
+                      name={name}
+                      value={form[name] as string | number}
+                      onChange={handleChange}
+                      className={`p-2 rounded-md ${rest.readOnly ? "bg-gray-300 text-black cursor-not-allowed" : "text-black"}`}
+                      {...rest}
+                    />
+                  </div>
+                ))}
+              </div>
 
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-40 text-white">Race</label>
-              <input name="race" value={form.race as string} onChange={handleChange} className="flex-1 p-2 rounded-lg text-black" />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-40 text-white">Date de naissance</label>
-              <input
-                type="date"
-                name="date_de_naissance"
-                value={form.date_de_naissance as string}
-                onChange={handleChange}
-                max={new Date().toISOString().split("T")[0]}
-                className="flex-1 p-2 rounded-lg text-black"
-              />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-40 text-white">Numéro de puce</label>
-              <input
-                name="numero_de_puce"
-                value={form.numero_de_puce as string}
-                onChange={handleChange}
-                maxLength={15}
-                className="flex-1 p-2 rounded-lg text-black"
-              />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-40 text-white">Numéro de tatouage</label>
-              <input
-                name="numero_de_tatouage"
-                value={form.numero_de_tatouage as string}
-                onChange={handleChange}
-                minLength={6}
-                className="flex-1 p-2 rounded-lg text-black"
-              />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-40 text-white">Âge</label>
-              <input
-                type="number"
-                name="age"
-                value={form.age as number}
-                readOnly
-                className="flex-1 p-2 rounded-lg bg-gray-300 text-black cursor-not-allowed"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-center items-center mt-6 space-x-4">
-            <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-semibold shadow-md">
-              Enregistrer les modifications
-            </button>
-            {id !== "new" && (
-              <button onClick={handleDelete} className="text-white text-4xl cursor-pointer hover:text-red-500 transition" title="Supprimer le chien">
-                🗑
-              </button>
-            )}
+              {/* Actions */}
+              <div className="flex justify-center items-center pt-6 space-x-6">
+                <button
+                  type="submit"
+                  className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-semibold shadow-md hover:bg-gray-200"
+                >
+                  Enregistrer les modifications
+                </button>
+                {id !== "new" && (
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="text-white text-3xl hover:text-red-500 transition"
+                    title="Supprimer le chien"
+                  >
+                    🗑
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
         </div>
-      </div>
-      <Sidebar />
+        <Sidebar />
+      </WhiteBackground>
       <Footer />
     </div>
   );
