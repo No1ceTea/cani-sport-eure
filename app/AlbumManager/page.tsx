@@ -267,10 +267,12 @@ export default function AlbumManager() {
             <button onClick={() => setIsAlbumModalOpen(true)} className="text-green-600 flex items-center gap-2">
               <FaPlus /> Ajouter un album
             </button>
-            <label className="text-blue-600 flex items-center gap-2 cursor-pointer">
-              <FaUpload /> Ajouter des photos
-              <input type="file" multiple onChange={handleUploadPhotos} className="hidden" />
-            </label>
+            {albumPath[albumPath.length - 1].id && (
+              <label className="text-blue-600 flex items-center gap-2 cursor-pointer">
+                <FaUpload /> Ajouter des photos
+                <input type="file" multiple onChange={handleUploadPhotos} className="hidden" />
+              </label>
+            )}
           </div>
         </div>
 
