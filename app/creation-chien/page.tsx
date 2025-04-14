@@ -179,6 +179,7 @@ export default function PetProfileForm() {
 
   return (
     <div>
+      <Sidebar />
       <WhiteBackground>
         {/* Titre en haut à gauche */}
         <div className="relative px-4 sm:px-6 pt-28 pb-12 flex justify-center">
@@ -259,7 +260,7 @@ export default function PetProfileForm() {
           </form>
         </div>
 
-        <Sidebar />
+
       </WhiteBackground>
       <Footer />
     </div>

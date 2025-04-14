@@ -74,7 +74,9 @@ const ResultsPage: React.FC = () => {
   }, [selectedCategory, selectedFilter]);
 
   return (
-    <div> <WhiteBackground>
+    <div> 
+      <Sidebar />
+      <WhiteBackground>
       <div className="relative min-h-screen p-4 sm:p-8 flex flex-col items-center">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 w-full text-left primary_title_black">Résultats</h1>
 
@@ -163,7 +165,7 @@ const ResultsPage: React.FC = () => {
           </div>
         </div>
 
-        <Sidebar />
+
       </div>
       </WhiteBackground>
       <Footer />

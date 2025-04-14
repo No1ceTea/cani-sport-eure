@@ -137,7 +137,9 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
         isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       }`}
     >
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl relative">
+      <div className="p-4 sm:p-8 w-full h-full flex items-center justify-center">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-full overflow-y-auto relative">
+
         <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
           <FaTimes />
         </button>
@@ -145,7 +147,7 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
         <h2 className="text-2xl font-bold mb-4 text-center">Ajouter un Résultat</h2>
         <hr className="mb-6 border-gray-300" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select value={id_profil} onChange={(e) => setIdProfil(e.target.value)} className="p-3 border border-gray-300 rounded">
             <option value="">-- Sélectionner un participant --</option>
             {profils.map((p) => (
@@ -204,6 +206,7 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
         </div>
 
         {message && <p className="text-center text-sm mt-4 text-red-500">{message}</p>}
+      </div>
       </div>
     </div>
   );
