@@ -164,6 +164,7 @@ export default function UserProfileForm() {
 
 return (
   <div>
+    <Sidebar />
     <WhiteBackground>
       {/* Titre fixe en haut à gauche */}
       <div className="relative">
@@ -285,7 +286,7 @@ return (
           </div>
         </form>
       </div>
-      <Sidebar />
+
     </WhiteBackground>
     <Footer />
   </div>

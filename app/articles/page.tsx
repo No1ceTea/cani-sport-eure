@@ -64,7 +64,9 @@ const ArticlesPage = () => {
   };
 
   return (
-    <div> <WhiteBackground>
+    <div>
+      <Sidebar /> 
+      <WhiteBackground>
     <div className="min-h-screen px-10 py-6">
       {/* Titre principal */}
       <div className="text-left">
@@ -98,8 +100,7 @@ const ArticlesPage = () => {
         </div>
       </div>
 
-      {/* Sidebar */}
-      <Sidebar />
+
     </div>
     </WhiteBackground> <Footer/> </div>
   );

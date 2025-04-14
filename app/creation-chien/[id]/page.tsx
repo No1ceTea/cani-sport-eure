@@ -179,6 +179,7 @@ export default function PetProfileForm() {
 
   return (
     <div>
+      <Sidebar />
       <WhiteBackground>
         <h1 className="text-3xl sm:text-4xl font-bold text-black mb-8">
           Modifier le profil du chien
@@ -264,7 +265,7 @@ export default function PetProfileForm() {
             </form>
           </div>
         </div>
-        <Sidebar />
+
       </WhiteBackground>
       <Footer />
     </div>
