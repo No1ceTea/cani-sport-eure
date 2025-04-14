@@ -9,6 +9,14 @@ import Image from "next/image";
 const MapWithStats = ({ trackData }) => {
   const [startAddress, setStartAddress] = useState("Recherche en cours...");
 
+  const formatDateWithoutTZ = (isoString) => {
+    const [datePart, timePart] = isoString.split("T");
+    const [year, month, day] = datePart.split("-");
+    const [hour, minute] = timePart.split(":");
+    return `${day}/${month}/${year} à ${hour}h${minute}`;
+  };
+  
+
   const fetchAddress = async (lat, lon) => {
     try {
       const response = await fetch(
@@ -36,6 +44,67 @@ const MapWithStats = ({ trackData }) => {
   }, [trackData]);
 
   if (!trackData) return <p>Chargement...</p>;
+
+  if (!trackData?.geojson?.coordinates?.length) {
+    const status = new Date(trackData.date_time) > new Date() ? "Ouvert" : "Fermé";
+  
+    return (
+      <div
+        style={{
+          border: "2px solid black",
+          borderRadius: "30px",
+          overflow: "hidden",
+          backgroundColor: "#f8f9fa",
+          maxWidth: "400px",
+          textAlign: "left",
+          fontSize: "12px",
+          position: "relative",
+        }}
+      >
+        {/* 📌 Badge Ouvert/Fermé */}
+        <div
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            backgroundColor: status === "Ouvert" ? "#4EC052" : "#BB1119",
+            color: "black",
+            padding: "5px 10px",
+            borderRadius: "30px",
+            fontWeight: "bold",
+            zIndex: 1000,
+          }}
+        >
+          {status}
+        </div>
+  
+        <div style={{ padding: "20px" }}>
+          <h2 style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "10px" }}>{trackData.name}</h2>
+          <p><strong>Date et Heure :</strong> {formatDateWithoutTZ(trackData.date_time)}</p>
+          <p><strong>Adresse :</strong> Aucune adresse disponible</p>
+          <p><strong>GPX :</strong> Aucune trace disponible</p>
+        </div>
+  
+        {/* Bandeau sport en bas */}
+        <div
+          style={{
+            width: "100%",
+            backgroundColor: "#3D9CB8",
+            color: "white",
+            textAlign: "left",
+            padding: "8px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            paddingLeft: "20px",
+          }}
+        >
+          {trackData.sport || "Sport non défini"}
+        </div>
+      </div>
+    );
+  }
+  
+  
 
   const coordinates = trackData.geojson.coordinates.map(([lon, lat, ele]) => [
     lat,
@@ -131,9 +200,8 @@ const MapWithStats = ({ trackData }) => {
 
         <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "15px" }}>
           <Image src="/calendar.png" alt="Date" width={15} height={15} />
-          <p>
-            <strong>Date et Heure :</strong> {new Date(trackData.date_time).toLocaleString()}
-          </p>
+          <p><strong>Date et Heure :</strong> {formatDateWithoutTZ(trackData.date_time)}</p>
+
         </div>
       </div>
 

@@ -29,7 +29,7 @@ const LatestEvents = () => {
       const { data, error } = await supabase
         .from("evenements")
         .select("*")
-        .order("date", { ascending: false })
+        .order("date", { ascending: true })
         .limit(5);
 
       if (error) {

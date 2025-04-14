@@ -98,6 +98,9 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const isFormValid = title.trim() !== "" && content.trim() !== "" && image !== null && userId !== null;
+
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg w-[780px] h-[571px] shadow-lg relative flex flex-col justify-between">
@@ -132,9 +135,15 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
         <div className="flex justify-center pb-4">
-          <button className="bg-blue-700 text-white py-2 px-6 rounded" onClick={handleSubmit}>
-            Créer l&apos;article
-          </button>
+        <button
+          className={`py-2 px-6 rounded text-white ${
+            isFormValid ? "bg-blue-700 hover:bg-blue-800" : "bg-gray-400 cursor-not-allowed"
+          }`}
+          disabled={!isFormValid}
+          onClick={handleSubmit}
+        >
+          Créer l&apos;article
+        </button>
         </div>
       </div>
     </div>
