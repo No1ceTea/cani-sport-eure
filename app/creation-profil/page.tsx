@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
 import { useAuth } from "@/app/components/Auth/AuthProvider";
+import WhiteBackground from "../components/backgrounds/WhiteBackground";
 
 const supabase = createClientComponentClient();
 
@@ -41,11 +42,6 @@ export default function UserProfileForm() {
   }, [role, isLoading, router]);
 
   useEffect(() => {
-    if (role !== "admin" && role !== "adherent") return;
-  });
-
-
-  useEffect(() => {
     setIsMounted(true);
   }, []);
 
@@ -54,11 +50,7 @@ export default function UserProfileForm() {
 
     const fetchUserProfile = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-
-      if (error) {
-        console.error("Erreur lors de la récupération de la session:", error.message);
-        return;
-      }
+      if (error) return console.error("Erreur session:", error.message);
 
       if (session) {
         const profileId = session.user.id;
@@ -69,16 +61,10 @@ export default function UserProfileForm() {
           .single();
 
         if (profileError) {
-          console.error("Erreur lors de la récupération du profil:", profileError.message);
+          console.error("Erreur profil:", profileError.message);
         } else {
-          setForm(prevForm => ({
-            ...prevForm,
-            ...profileData,
-          }));
-
-          if (profileData.photo_profil) {
-            setPhotoPreview(profileData.photo_profil);
-          }
+          setForm(prev => ({ ...prev, ...profileData }));
+          if (profileData.photo_profil) setPhotoPreview(profileData.photo_profil);
 
           const { data: chiensData, error: chiensError } = await supabase
             .from("chiens")
@@ -98,7 +84,7 @@ export default function UserProfileForm() {
   }, [isMounted]);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+    if (!e.target.files?.length) return;
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
       alert("Veuillez sélectionner un fichier image.");
@@ -111,25 +97,22 @@ export default function UserProfileForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setForm(prevForm => ({ ...prevForm, [name]: value }));
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleChangeCodePostal = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setForm(prevForm => ({ ...prevForm, code_postal: value }));
+    setForm(prev => ({ ...prev, code_postal: value }));
 
     if (value.length === 5) {
       try {
         const res = await fetch(`https://api.zippopotam.us/fr/${value}`);
         if (!res.ok) throw new Error("Code postal non trouvé");
-
         const data = await res.json();
         const city = data.places?.[0]?.["place name"];
-        if (city) {
-          setForm(prevForm => ({ ...prevForm, ville: city }));
-        }
-      } catch (error) {
-        console.error("Erreur ville:", error);
+        if (city) setForm(prev => ({ ...prev, ville: city }));
+      } catch (err) {
+        console.error("Erreur ville:", err);
       }
     }
   };
@@ -137,56 +120,32 @@ export default function UserProfileForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
+
     let imageUrl = form.photo_profil;
-  
-    // Fonction pour sécuriser le nom du fichier
-    const sanitizeFileName = (name: string) =>
-      name
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9.\-_]/g, "_");
-  
+
     if (image) {
-      const uniqueFileName = `${uuidv4()}-${sanitizeFileName(image.name)}`;
-      console.log("Nom du fichier sécurisé :", uniqueFileName); // 🔍 debug
-  
-      const { data, error } = await supabase
-        .storage
-        .from("images")
-        .upload(`profils/${uniqueFileName}`, image);
-  
+      const sanitized = image.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      const fileName = `${uuidv4()}-${sanitized}`;
+
+      const { data, error } = await supabase.storage.from("images").upload(`profils/${fileName}`, image);
       if (error) {
-        alert("Erreur lors du téléchargement de l'image.");
-        console.error("Erreur image:", error.message);
+        alert("Erreur image.");
         setLoading(false);
         return;
       }
-  
-      imageUrl = supabase
-        .storage
-        .from("images")
-        .getPublicUrl(data.path)
-        .data
-        .publicUrl;
+
+      imageUrl = supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl;
     }
-  
-    const { error } = await supabase.from("profils").upsert([
-      { ...form, photo_profil: imageUrl, id: form.id },
-    ]);
-  
+
+    const { error } = await supabase.from("profils").upsert([{ ...form, photo_profil: imageUrl, id: form.id }]);
     if (error) {
-      alert("Erreur lors de l'enregistrement.");
-      console.error("Erreur:", error.message);
+      alert("Erreur enregistrement.");
     } else {
-      alert("Le profil a été enregistré avec succès !");
+      alert("Profil enregistré !");
     }
-  
+
     setLoading(false);
   };
-  
-
-  if (!isMounted) return null; 
 
   const getAge = (dateString: string): number => {
     if (!dateString) return 0;
@@ -194,26 +153,42 @@ export default function UserProfileForm() {
     const birthDate = new Date(dateString);
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
     return age;
   };
-  
-  const age = getAge(form.date_de_naissance);
-  
 
-  return (
-    <div>
-      <div className="relative flex items-center justify-center min-h-screen bg-gray-200">
-        <h1 className="absolute top-6 left-6 text-4xl primary_title !text-black">Profil utilisateur</h1>
-        <div className="flex flex-col items-center h-auto w-[630px] bg-[#475C99] text-black p-8 rounded-xl shadow-lg border-4 border-black">
-          <div className="flex flex-col items-center mb-4">
-            <label htmlFor="photo-upload" className="cursor-pointer">
+  const age = getAge(form.date_de_naissance);
+  if (!isMounted) return null;
+
+  // ...imports et fonctions inchangés...
+
+return (
+  <div>
+    <WhiteBackground>
+      {/* Titre fixe en haut à gauche */}
+      <div className="relative">
+        <h1 className="absolute top-6 left-6 text-3xl sm:text-4xl primary_title !text-black">
+          Profil utilisateur
+        </h1>
+      </div>
+
+      {/* Contenu central du formulaire */}
+      <div className="flex justify-center px-4 sm:px-6 pt-28 pb-12">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-screen-sm bg-[#475C99] p-6 sm:p-8 rounded-xl shadow-lg border-4 border-black space-y-4 text-black"
+        >
+          {/* Image de profil */}
+          <div className="flex flex-col items-center">
+            <label htmlFor="photo-upload" className="cursor-pointer mb-2">
               {photoPreview ? (
-                <img src={photoPreview} alt="Photo de profil" className="w-32 h-32 object-cover rounded-lg shadow-lg" />
+                <img
+                  src={photoPreview}
+                  alt="Photo de profil"
+                  className="w-32 h-32 object-cover rounded-full shadow-md"
+                />
               ) : (
-                <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-lg text-gray-500">
+                <div className="w-32 h-32 flex items-center justify-center bg-gray-300 rounded-full text-black text-center text-sm font-medium">
                   Ajouter une photo
                 </div>
               )}
@@ -221,66 +196,98 @@ export default function UserProfileForm() {
             <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
           </div>
 
-          {/* FORMULAIRE CHAMP PAR CHAMP */}
-          <div className="space-y-4 w-full">
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Nom</label><input type="text" name="nom" value={form.nom} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Prénom</label><input type="text" name="prenom" value={form.prenom} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Téléphone</label><input type="text" name="telephone" value={form.telephone} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Adresse</label><input type="text" name="adresse" value={form.adresse} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Code postal</label><input type="text" name="code_postal" value={form.code_postal} onChange={handleChangeCodePostal} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Ville</label><input type="text" name="ville" value={form.ville} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Date de naissance</label><input type="date" name="date_de_naissance" value={form.date_de_naissance} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Date de renouvellement</label><input type="date" name="date_renouvellement" value={form.date_renouvellement} onChange={handleChange} className="flex-1 p-2 text-black rounded-lg" /></div>
-            {/* LICENCE SELECT */}
-            <div className="flex items-center">
-              <label className="text-sm w-40 text-white">Licence</label>
-              <select
-                name="licence"
-                value={form.licence}
-                onChange={handleChange}
-                className="flex-1 p-2 text-black rounded-lg"
-              >
-                <option value="">-- Sélectionner une licence --</option>
-                {age >= 17 && (
-                  <>
-                  <option value="Licence adulte">Licence loisir adulte</option>
-                  <option value="Licence adulte">Licence loisir adulte handisport</option>
-                  <option value="Licence adulte">Licence compétition adulte</option>
-                  <option value="Licence adulte">Licence compétition adulte handisport</option>
-                  </>
-                )}
-                {age < 17 && (
-                  <option value="Licence enfant">Licence enfant</option>
-                )}
-              </select>
+          {/* Champs utilisateur */}
+          {[
+            { name: "nom", label: "Nom" },
+            { name: "prenom", label: "Prénom" },
+            { name: "telephone", label: "Téléphone" },
+            { name: "adresse", label: "Adresse" },
+            { name: "code_postal", label: "Code postal", handler: handleChangeCodePostal },
+            { name: "ville", label: "Ville" },
+            { name: "date_de_naissance", label: "Date de naissance", type: "date" },
+            { name: "date_renouvellement", label: "Date de renouvellement", type: "date" },
+          ].map(({ name, label, type = "text", handler }) => (
+            <div key={name} className="flex flex-col">
+              <label className="text-white text-sm mb-1">{label}</label>
+              <input
+                type={type}
+                name={name}
+                value={form[name as keyof typeof form]}
+                onChange={handler ?? handleChange}
+                className="p-2 rounded-md text-black"
+              />
             </div>
-            <div className="flex items-center"><label className="text-sm w-40 text-white">Email</label><input name="email" value={form.email} className="flex-1 p-2 text-gray-500 bg-gray-300 rounded-lg" disabled /></div>
+          ))}
+
+          {/* Licence */}
+          <div className="flex flex-col">
+            <label className="text-white text-sm mb-1">Licence</label>
+            <select
+              name="licence"
+              value={form.licence}
+              onChange={handleChange}
+              className="p-2 rounded-md text-black"
+            >
+              <option value="">-- Sélectionner une licence --</option>
+              {age >= 17 ? (
+                <>
+                  <option value="loisir_adulte">Licence loisir adulte</option>
+                  <option value="loisir_adulte_handisport">Licence loisir adulte handisport</option>
+                  <option value="competition_adulte">Licence compétition adulte</option>
+                  <option value="competition_adulte_handisport">Licence compétition adulte handisport</option>
+                </>
+              ) : (
+                <option value="Licence enfant">Licence enfant</option>
+              )}
+            </select>
           </div>
 
-          {/* CHIENS */}
-          <div className="mt-4 flex flex-wrap gap-2">
+          {/* Email (readonly) */}
+          <div className="flex flex-col">
+            <label className="text-white text-sm mb-1">Email</label>
+            <input
+              value={form.email}
+              disabled
+              className="p-2 bg-gray-300 text-gray-500 rounded-md"
+            />
+          </div>
+
+          {/* Liste des chiens */}
+          <div className="pt-4 flex flex-wrap gap-2">
             {chiens.map((chien) => (
-              <button 
-                key={chien.id} 
-                onClick={() => router.push(`/creation-chien/${chien.id}`)} 
+              <button
+                key={chien.id}
+                onClick={() => router.push(`/creation-chien/${chien.id}`)}
+                type="button"
                 className="bg-white px-3 py-1 rounded-full text-black shadow-md hover:bg-gray-300"
               >
                 {chien.prenom}
               </button>
             ))}
-            <button onClick={() => router.push("/creation-chien")} className="bg-white px-3 py-1 rounded-full text-black shadow-md">+</button>
-          </div>
-
-          {/* BOUTON ENREGISTRER */}
-          <div className="flex justify-center items-center mt-6 space-x-4 pb-4">
-            <button onClick={handleSubmit} className="bg-white text-black rounded-full px-6 py-2 text-[15px] font-sans shadow-md">
-              Enregistrer les modifications
+            <button
+              type="button"
+              onClick={() => router.push("/creation-chien")}
+              className="bg-white px-3 py-1 rounded-full text-black shadow-md"
+            >
+              +
             </button>
           </div>
-        </div>
+
+          {/* Bouton Enregistrer */}
+          <div className="flex justify-center pt-6">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-white text-black px-6 py-2 rounded-full font-semibold shadow-md hover:bg-gray-200"
+            >
+              {loading ? "Enregistrement..." : "Enregistrer les modifications"}
+            </button>
+          </div>
+        </form>
       </div>
       <Sidebar />
-      <Footer />
-    </div>
-  );
+    </WhiteBackground>
+    <Footer />
+  </div>
+);
 }

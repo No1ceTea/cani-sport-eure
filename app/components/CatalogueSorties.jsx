@@ -35,12 +35,14 @@ export default function CatalogueSorties({ isModalOpen, setIsModalOpen }) {
           categorie: sortie.sport,
           date: new Date(sortie.date_time).toLocaleDateString(),
           heure: new Date(sortie.date_time).toLocaleTimeString(),
+          date_time: sortie.date_time, // 👈 ajoute ça
           fichier: sortie.file_url ? (
             <a href={sortie.file_url} download className="text-blue-500 hover:underline">
               Télécharger
             </a>
           ) : "Aucun fichier",
         }));
+        
 
         setData(formattedData);
       }
@@ -63,7 +65,25 @@ export default function CatalogueSorties({ isModalOpen, setIsModalOpen }) {
     setSelectedSortieId(id);
     setIsDeleteModalOpen(true);
   };
+
+  const handleAddSuccess = (newSortie) => {
+    const formattedSortie = {
+      id: newSortie.id,
+      titre: newSortie.name,
+      categorie: newSortie.sport,
+      date: new Date(newSortie.date_time).toLocaleDateString(),
+      heure: new Date(newSortie.date_time).toLocaleTimeString(),
+      date_time: newSortie.date_time, // 👈 AJOUT OBLIGATOIRE
+      fichier: newSortie.file_url ? (
+        <a href={newSortie.file_url} download className="text-blue-500 hover:underline">
+          Télécharger
+        </a>
+      ) : "Aucun fichier",
+    };
+    setData((prevData) => [...prevData, formattedSortie]);
+  };
   
+
   const confirmDelete = async () => {
     if (!selectedSortieId) return;
   
@@ -130,7 +150,11 @@ export default function CatalogueSorties({ isModalOpen, setIsModalOpen }) {
         onCancel={() => setIsDeleteModalOpen(false)}
       />
       {/* Modal d'ajout */}
-      <ModalAdd isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ModalAdd
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddSuccess={handleAddSuccess}
+      />
       {/* Modal d'édition */}
       <ModalEdit isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} sortie={selectedSortie} />
     </div>

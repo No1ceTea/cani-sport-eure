@@ -7,6 +7,7 @@ import Sidebar from "../components/SidebarAdmin";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/components/Auth/AuthProvider";
+import ModalConfirm from "../components/ModalConfirm";
 
 // 📌 Connexion à Supabase
 const supabase = createClient(
@@ -45,6 +46,18 @@ export default function AlbumManager() {
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
   const [newAlbumName, setNewAlbumName] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [onConfirmAction, setOnConfirmAction] = useState<() => void>(() => {});
+
+  const openConfirmationModal = (title: string, message: string, onConfirm: () => void) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setOnConfirmAction(() => onConfirm);
+    setModalOpen(true);
+  };
+  
 
   useEffect(() => {
     if (!isLoading && role !== "admin") {
@@ -147,47 +160,55 @@ export default function AlbumManager() {
     }
   };
 
-  const handleDeletePhoto = async (photo: Photo) => {
-    if (!confirm(`Supprimer la photo ${photo.name} ?`)) return;
-  
-    const { error } = await supabase.storage.from("photo").remove([`${photo.album_id}/${photo.name}`]);
-  
-    if (error) {
-      console.error("❌ Erreur de suppression :", error);
-      alert("Erreur de suppression !");
-    } else {
-      setPhotos(photos.filter((p) => p.id !== photo.id));
-    }
+  const handleDeletePhoto = (photo: Photo) => {
+    openConfirmationModal(
+      "Supprimer la photo",
+      `Voulez-vous vraiment supprimer la photo "${photo.name}" ?`,
+      async () => {
+        const { error } = await supabase.storage.from("photo").remove([`${photo.album_id}/${photo.name}`]);
+        if (error) {
+          console.error("❌ Erreur de suppression :", error);
+          alert("Erreur de suppression !");
+        } else {
+          setPhotos(photos.filter((p) => p.id !== photo.id));
+        }
+        setModalOpen(false);
+      }
+    );
   };
   
-  const handleDeleteAlbum = async (album: Album) => {
-    if (!confirm(`Supprimer l'album ${album.name} et tout son contenu ?`)) return;
   
-    // 📌 1. Récupérer les fichiers de l'album
-    const { data, error } = await supabase.storage.from("photo").list(album.id);
+  const handleDeleteAlbum = (album: Album) => {
+    openConfirmationModal(
+      "Supprimer l'album",
+      `Voulez-vous vraiment supprimer l'album "${album.name}" et tout son contenu ?`,
+      async () => {
+        const { data, error } = await supabase.storage.from("photo").list(album.id);
+        if (error) {
+          console.error("❌ Erreur de récupération des fichiers :", error);
+          alert("Erreur lors de la suppression !");
+          setModalOpen(false);
+          return;
+        }
   
-    if (error) {
-      console.error("❌ Erreur de récupération des fichiers :", error);
-      alert("Erreur lors de la suppression !");
-      return;
-    }
+        if (data.length > 0) {
+          const filesToDelete = data.map((file) => `${album.id}/${file.name}`);
+          await supabase.storage.from("photo").remove(filesToDelete);
+        }
   
-    // 📌 2. Supprimer tous les fichiers de l'album
-    if (data.length > 0) {
-      const filesToDelete = data.map((file) => `${album.id}/${file.name}`);
-      await supabase.storage.from("photo").remove(filesToDelete);
-    }
+        const { error: deleteError } = await supabase.storage.from("photo").remove([`${album.id}/.emptyFolderPlaceholder`]);
   
-    // 📌 3. Supprimer le dossier en supprimant le fichier placeholder
-    const { error: deleteError } = await supabase.storage.from("photo").remove([`${album.id}/.emptyFolderPlaceholder`]);
-  
-    if (deleteError) {
-      console.error("❌ Erreur de suppression de l'album :", deleteError);
-      alert("Erreur lors de la suppression !");
-    } else {
-      setAlbums(albums.filter((a) => a.id !== album.id));
-    }
+        if (deleteError) {
+          console.error("❌ Erreur de suppression de l'album :", deleteError);
+          alert("Erreur lors de la suppression !");
+        } else {
+          setAlbums(albums.filter((a) => a.id !== album.id));
+        }
+        setModalOpen(false);
+      }
+    );
   };
+  
   
 
 
@@ -317,6 +338,14 @@ export default function AlbumManager() {
             </div>
           </>
         )}
+
+        <ModalConfirm
+          isOpen={modalOpen}
+          title={modalTitle}
+          message={modalMessage}
+          onCancel={() => setModalOpen(false)}
+          onConfirm={onConfirmAction}
+        />
 
         {/* ✅ Modale de prévisualisation */}
         {previewImage && (
