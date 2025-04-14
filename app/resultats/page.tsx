@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
+import WhiteBackground from "../components/backgrounds/WhiteBackground";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
@@ -73,9 +74,9 @@ const ResultsPage: React.FC = () => {
   }, [selectedCategory, selectedFilter]);
 
   return (
-    <div>
-      <div className="relative min-h-screen bg-gray-100 p-4 sm:p-8 flex flex-col items-center">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 w-full text-left">Résultats</h1>
+    <div> <WhiteBackground>
+      <div className="relative min-h-screen p-4 sm:p-8 flex flex-col items-center">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 w-full text-left primary_title_black">Résultats</h1>
 
         <div className="bg-[#475C99] p-4 sm:p-8 rounded-3xl w-full max-w-7xl border-2 border-black min-h-[500px]">
           {/* Sélecteur de type de résultat */}
@@ -164,7 +165,7 @@ const ResultsPage: React.FC = () => {
 
         <Sidebar />
       </div>
-
+      </WhiteBackground>
       <Footer />
     </div>
   );

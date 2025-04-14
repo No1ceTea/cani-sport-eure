@@ -116,7 +116,15 @@ const GalleryPage = () => {
       ) : filteredImages.length > 0 ? (
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
           {filteredImages.map((image, index) => (
-            <div key={index} className="mb-4 cursor-pointer" onClick={() => setPreviewImage(image.url)}>
+            <div
+            key={index}
+            className="mb-4 cursor-pointer"
+            onClick={() => {
+              if (window.innerWidth >= 768) {
+                setPreviewImage(image.url);
+              }
+            }}
+          >          
               <Image
                 src={image.url}
                 alt={image.name}
