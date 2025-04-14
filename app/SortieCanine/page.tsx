@@ -57,8 +57,8 @@ const SortiesPage = () => {
   return (
     <div>
       <WhiteBackground>
-        <div className="px-4 sm:px-6 md:px-10 max-w-[1200px] mx-auto py-6">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-8 text-left text-black font-opendyslexic">
+        <div className="min-h-screen px-10 py-6">
+          <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">
             Liste des sorties canines
           </h1>
 
@@ -68,7 +68,7 @@ const SortiesPage = () => {
           </div>
 
           {/* Grille responsive */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-h-[75vh] overflow-y-auto w-full max-w-5xl mx-auto px-4">
             {filteredTracks.map((track) => (
               <div key={track.id} className="w-full max-w-xs mx-auto">
                 <MapWithStats trackData={track} />

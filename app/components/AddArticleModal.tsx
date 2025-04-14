@@ -19,6 +19,14 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const supabase = createClientComponentClient(); // ✅ Création du client ici
   const router = useRouter();
 
+  const sanitizeFileName = (filename: string) => {
+    return filename
+      .normalize("NFD")                    // Supprime les accents
+      .replace(/[\u0300-\u036f]/g, "")    // Supprime les diacritiques
+      .replace(/[^a-zA-Z0-9.\-_]/g, "_"); // Remplace caractères spéciaux/espaces par _
+  };
+  
+
   useEffect(() => {
     const checkUser = async () => {
       // 🔹 Vérifie la session utilisateur
@@ -56,7 +64,8 @@ const AddArticleModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     let imageUrl = "";
 
     if (image) {
-      const uniqueFileName = `${uuidv4()}-${image.name}`;
+      const cleanName = sanitizeFileName(image.name);
+      const uniqueFileName = `${uuidv4()}-${cleanName}`;
       const { data, error } = await supabase.storage
         .from("images")
         .upload(`publications/${uniqueFileName}`, image);

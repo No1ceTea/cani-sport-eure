@@ -8,8 +8,13 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
 import { useAuth } from "../components/Auth/AuthProvider";
+import ModalConfirm from "../components/ModalConfirm";
 
 const supabase = createClientComponentClient();
+
+
+
+
 
 // ✅ Définition du type des fichiers et dossiers
 interface DocumentFile {
@@ -35,6 +40,14 @@ export default function DocumentManager() {
     { id: null, name: "Dossier Racine" },
   ]);
   const [newFolderName, setNewFolderName] = useState("");
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [fileToDeleteId, setFileToDeleteId] = useState<string | null>(null);
+
+  const confirmDelete = (id: string) => {
+    setFileToDeleteId(id);
+    setIsConfirmOpen(true);
+  };  
 
   // 🚨 État pour gérer les erreurs de permissions
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -82,38 +95,33 @@ export default function DocumentManager() {
     fetchFiles();
   }, [folderPath, isLoading]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!fileToDeleteId) return;
+  
     const { data: session, error: sessionError } = await supabase.auth.getSession();
-    
     if (sessionError || !session?.session) {
       console.error("⚠️ Aucun utilisateur connecté ou erreur de session !");
       setIsErrorModalOpen(true);
       return;
     }
   
-    console.log("🟢 Session active ?", session?.session?.user);
-  
-    // Récupérer le token d'authentification
-    const token = session.session.access_token;
-  
-    // Supprimer l'élément avec authentification
     const { error } = await supabase
       .from("club_documents")
       .delete()
-      .match({ id })
-      .single()
-      .throwOnError(); // 🔹 Ajoute un meilleur retour d'erreur
+      .match({ id: fileToDeleteId })
+      .single();
   
     if (error) {
       console.error("❌ Erreur de suppression :", error);
     } else {
-      console.log(`✅ Fichier/Dossier supprimé avec succès : ${id}`);
-      setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+      console.log(`✅ Fichier/Dossier supprimé : ${fileToDeleteId}`);
+      setFiles((prev) => prev.filter((f) => f.id !== fileToDeleteId));
     }
-  };
   
+    setFileToDeleteId(null);
+    setIsConfirmOpen(false);
+  };  
   
-
   const handleUploadClick = () => {
     if (isAdmin === false) {
       setIsErrorModalOpen(true);
@@ -258,9 +266,12 @@ export default function DocumentManager() {
                 <td className="p-4">{file.createdAt}</td>
                 {/* <td className="p-4">{file.updatedAt}</td> */}
                 <td className="p-4 flex justify-center gap-4">
-                  <button onClick={() => handleDelete(file.id)} className="text-red-500 hover:text-red-700">
-                    <FaTrash />
-                  </button>
+                <button
+                  onClick={() => confirmDelete(file.id)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <FaTrash />
+                </button>
                 </td>
               </tr>
             ))}
@@ -317,6 +328,20 @@ export default function DocumentManager() {
             </div>
           </div>
         )}
+
+        <ModalConfirm
+          isOpen={isConfirmOpen}
+          title="Confirmer la suppression"
+          message="Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible."
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          onConfirm={handleDelete}
+          onCancel={() => {
+            setIsConfirmOpen(false);
+            setFileToDeleteId(null);
+          }}
+        />
+
 
         {/* Affichage du modal */}
         <ModalAddDocument isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} currentFolderId={folderPath[folderPath.length - 1].id}/>
