@@ -271,7 +271,7 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
         startAccessor="start"
         endAccessor="end"
         selectable={!readOnly}
-        style={{ height: 500 }}
+        style={{ height: 900 }}
         onSelectSlot={handleSelectSlot}
         onSelectEvent={handleSelectEvent}
         eventPropGetter={eventStyleGetter}
