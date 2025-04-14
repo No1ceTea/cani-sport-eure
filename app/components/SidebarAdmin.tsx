@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import BlueBackground from "./backgrounds/BlueBackground";
@@ -20,6 +20,8 @@ export default function SidebarAdmin({ onAdd }: SidebarAdminProps) {
     document.cookie = "administrateur=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     router.push("/");
   };
+
+  const pathname = usePathname();
 
   const menuItems = [
     { name: "Accueil", path: "/" },
@@ -49,13 +51,18 @@ export default function SidebarAdmin({ onAdd }: SidebarAdminProps) {
         ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
         <BlueBackground>
           <aside className="text-white p-5 h-screen flex flex-col">
-            <h2 className="text-2xl font-bold mb-6">Tableau de bord</h2>
+            <h2 className="text-2xl font-bold mb-6">Admin</h2>
             <nav className="space-y-4 flex-1">
-              {menuItems.map(({ name, path }) => (
-                <Link key={name} href={path} className="block hover:underline" onClick={() => setIsOpen(false)}>
-                  {name}
-                </Link>
-              ))}
+            {menuItems.map(({ name, path }) => (
+              <Link
+                key={name}
+                href={path}
+                className={`block hover:underline ${pathname === path ? "font-bold" : ""}`}
+                onClick={() => setIsOpen(false)}
+              >
+                {name}
+              </Link>
+            ))}
             </nav>
             <AddButtonAdmin onAdd={onAdd} />
           </aside>
