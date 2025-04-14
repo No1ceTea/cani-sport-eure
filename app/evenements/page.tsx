@@ -84,7 +84,7 @@ const EventsPage = () => {
     <div className="flex h-screen overflow-hidden">
       <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
-      <div className="p-6  mx-auto flex-1 flex flex-col">
+      <div className="p-6 py-16 mx-auto flex-1 flex flex-col">
 
         {/* Barre de recherche */}
         <div className="relative w-full max-w-xl mb-6">

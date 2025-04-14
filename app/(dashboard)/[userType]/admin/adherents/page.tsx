@@ -123,19 +123,20 @@ export default function ListeAdherents() {
     <div className="flex h-screen overflow-hidden">
       <SidebarAdmin />
 
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 py-16">
         <div className="relative w-full flex justify-left mb-6">
-                  <input
-                    type="text"
-                    placeholder="Rechercher un article"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-[50%] py-2 pl-4 pr-10 text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
-                  />
-                  <FaSearch className="absolute right-[52%] top-1/2 transform -translate-y-1/2 text-blue-900 text-lg" />
-                </div>
+          <input
+            type="text"
+            placeholder="Rechercher un adhérent"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full py-2 pl-4 pr-10 text-base sm:text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
+          />
+          <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-900 text-base sm:text-lg" />
+        </div>
 
         <div className="grid grid-cols-1gap-4 max-h-[85vh] overflow-y-auto p-2">
+        <div className="overflow-x-auto">
         <table className="table w-full">
           <thead>
             <tr>
@@ -191,6 +192,7 @@ export default function ListeAdherents() {
               ))}
           </tbody>
         </table>
+        </div>
         </div>
       </div>
 
