@@ -85,14 +85,19 @@ export default function MyCalendar({ readOnly = false, hidePrivate = false }: Ca
               return !(hidePrivate && visibility === "private");
             })
             .map((event: any) => {
-              const { color, description } = parseColorVisibility(event.description || "");
+              const { color, description, visibility } = parseColorVisibility(event.description || "");
               const start = new Date(event.start.dateTime || event.start.date);
               const end = new Date(event.end.dateTime || event.end.date);
               const allDay = !event.start.dateTime;
 
+              const icon = visibility === "private" ? "🔒" : "🌍";
+              const cleanTitle = event.summary.replace(/^🔒 |^🌍 /, "");
+              const formattedTitle = `${icon} ${cleanTitle}`;
+
+
               return {
                 id: event.id,
-                title: event.summary,
+                title: formattedTitle,
                 start,
                 end,
                 color,
