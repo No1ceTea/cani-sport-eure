@@ -183,7 +183,7 @@ export default function PetProfileForm() {
         {/* Titre en haut à gauche */}
         <div className="relative px-4 sm:px-6 pt-28 pb-12 flex justify-center">
           <h1 className="absolute top-6 left-6 text-3xl sm:text-4xl font-bold text-black">
-            {id !== "new" ? "Modifier le profil du chien" : "Créer un profil chien"}
+            Créer un profil chien
           </h1>
 
           {/* Formulaire */}

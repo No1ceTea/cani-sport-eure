@@ -180,12 +180,12 @@ export default function PetProfileForm() {
   return (
     <div>
       <WhiteBackground>
-        <div className="px-4 sm:px-6 pt-28 pb-12 flex justify-center">
-          <div className="w-full max-w-screen-sm">
-            <h1 className="text-3xl sm:text-4xl font-bold text-black mb-8">
-              {id !== "new" ? "Modifier le profil du chien" : "Créer un profil chien"}
-            </h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-black mb-8">
+          Modifier le profil du chien
+        </h1>
 
+        <div className="px-4 sm:px-6 pt-12 pb-12 flex justify-center">
+          <div className="w-full max-w-screen-sm">
             <form
               onSubmit={handleSubmit}
               className="bg-[#475C99] text-black p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-black space-y-6"
