@@ -1,3 +1,4 @@
+// ✅ VERSION FULLY RESPONSIVE
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,7 +16,7 @@ const ClientDashboardPage: React.FC = () => {
 
   const [userId, setUserId] = useState<string | null>(null);
   const [resultsData, setResultsData] = useState<any[]>([]);
-  const [eventStats, setEventStats] = useState<{ participants: number; kmParcourus: number; kmMax: number }>({ participants: 0, kmParcourus: 0, kmMax: 0 });
+  const [eventStats, setEventStats] = useState({ participants: 0, kmParcourus: 0, kmMax: 0 });
   const [eventNames, setEventNames] = useState<string[]>([]);
   const [eventMap, setEventMap] = useState<Record<string, number>>({});
   const [selectedEvent, setSelectedEvent] = useState<string>("");
@@ -24,10 +25,8 @@ const ClientDashboardPage: React.FC = () => {
   const [dog, setDog] = useState<any | null>(null);
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!user || (role !== "adherent" && role !== "admin")) {
-        router.replace("/connexion");
-      }
+    if (!isLoading && (!user || (role !== "adherent" && role !== "admin"))) {
+      router.replace("/connexion");
     }
   }, [isLoading, user, role]);
 
@@ -88,9 +87,7 @@ const ClientDashboardPage: React.FC = () => {
       setDog(chien || null);
     };
 
-    if (!isLoading && user) {
-      fetchData();
-    }
+    if (!isLoading && user) fetchData();
   }, [isLoading, user]);
 
   useEffect(() => {
@@ -124,100 +121,91 @@ const ClientDashboardPage: React.FC = () => {
   }, [selectedEvent, userId, supabase, eventMap]);
 
   if (isLoading || !user || (role !== "adherent" && role !== "admin")) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-lg">Chargement du tableau de bord...</p>
-      </div>
-    );
+    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
   }
 
   const pourcentage = eventStats.kmMax > 0 ? Math.round((eventStats.kmParcourus / eventStats.kmMax) * 100) : 0;
   const totalKm = resultsData.reduce((sum, r) => sum + parseFloat(r.distance || 0), 0);
-  const bestRank = resultsData.reduce((min, r) => {
-    const val = parseInt(r.classement || "999");
-    return val < min ? val : min;
-  }, 999);
+  const bestRank = resultsData.reduce((min, r) => Math.min(min, parseInt(r.classement || "999")), 999);
   const podiums = resultsData.filter((r) => parseInt(r.classement || "999") <= 3).length;
-  const lastResult = resultsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+  const lastResult = [...resultsData].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
   return (
     <div>
-      <div className="min-h-screen bg-gray-100 p-6">
-        <h1 className="text-3xl font-bold mb-4">Tableau de bord</h1>
+      <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6">Tableau de bord</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {/* Résumé utilisateur */}
-          <div className="bg-white shadow-lg rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-2">Dernière compétition</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="font-semibold mb-1">Dernière compétition</h2>
             {lastResult ? (
               <p>{lastResult.nomActivite} à {lastResult.lieu} – {lastResult.distance} km – Classement : {lastResult.classement}</p>
             ) : <p>Aucune donnée.</p>}
           </div>
 
-          <div className="bg-white shadow-lg rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-2">Distance totale parcourue</h2>
-            <p className="text-2xl text-blue-700 font-bold">{totalKm.toFixed(1)} km</p>
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="font-semibold mb-1">Distance totale parcourue</h2>
+            <p className="text-blue-700 text-xl font-bold">{totalKm.toFixed(1)} km</p>
           </div>
 
-          <div className="bg-white shadow-lg rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-2">Podiums</h2>
-            <p className="text-2xl text-blue-700 font-bold">{podiums}</p>
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="font-semibold mb-1">Podiums</h2>
+            <p className="text-blue-700 text-xl font-bold">{podiums}</p>
           </div>
 
-          <div className="bg-white shadow-lg rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-2">Meilleur classement</h2>
-            <p className="text-2xl text-blue-700 font-bold">{bestRank === 999 ? "N/A" : bestRank}ᵉ</p>
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="font-semibold mb-1">Meilleur classement</h2>
+            <p className="text-blue-700 text-xl font-bold">{bestRank === 999 ? "N/A" : bestRank + "ᵒ"}</p>
           </div>
 
-          <div className="bg-white shadow-lg rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-2">Mon compagnon</h2>
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="font-semibold mb-1">Mon compagnon</h2>
             {dog ? (
-              <div className="space-y-1">
+              <>
                 <p><strong>Nom:</strong> {dog.prenom}</p>
                 <p><strong>Race:</strong> {dog.race}</p>
                 <p><strong>Âge:</strong> {dog.age} ans</p>
-              </div>
+              </>
             ) : <p>Pas de chien enregistré.</p>}
           </div>
         </div>
 
-        {/* Résultats et stats événement */}
-        <div className="grid grid-cols-2 gap-6 mt-6">
-          {/* Tableau des résultats */}
-          <div className="bg-white shadow-lg rounded-lg p-4 col-span-1">
-            <div className="border-b pb-2 flex space-x-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div className="bg-white shadow rounded p-4">
+            <div className="border-b pb-2 mb-4 flex flex-wrap gap-2">
               <button className="font-bold border-b-2 border-blue-500">Mes derniers résultats</button>
               <button className="text-gray-500">Voir tous mes résultats</button>
             </div>
-            <table className="table w-full mt-4">
-              <thead className="bg-blue-600 text-white">
-                <tr>
-                  <th>Compétition</th>
-                  <th>Lieu</th>
-                  <th>Distance</th>
-                  <th>Classement</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultsData.map((res, index) => (
-                  <tr key={index} className="border-b">
-                    <td>{res.nomActivite}</td>
-                    <td>{res.lieu}</td>
-                    <td>{res.distance} km</td>
-                    <td>{res.classement}</td>
-                    <td>{new Date(res.date).toLocaleDateString()}</td>
+            <div className="overflow-x-auto">
+              <table className="min-w-[600px] w-full">
+                <thead className="bg-blue-600 text-white">
+                  <tr>
+                    <th className="p-2 text-left">Compétition</th>
+                    <th className="p-2 text-left">Lieu</th>
+                    <th className="p-2 text-left">Distance</th>
+                    <th className="p-2 text-left">Classement</th>
+                    <th className="p-2 text-left">Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {resultsData.map((res, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="p-2">{res.nomActivite}</td>
+                      <td className="p-2">{res.lieu}</td>
+                      <td className="p-2">{res.distance} km</td>
+                      <td className="p-2">{res.classement}</td>
+                      <td className="p-2">{new Date(res.date).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {/* Statistiques par événement */}
-          <div className="bg-white shadow-lg rounded-lg p-4 col-span-1">
-            <h2 className="font-semibold">Kilomètres parcourus par compétition</h2>
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="font-semibold mb-2">Kilomètres parcourus par compétition</h2>
             <select
-              className="select select-bordered w-full mt-2"
+              className="w-full mt-2 p-2 border rounded"
               value={selectedEvent}
               onChange={(e) => setSelectedEvent(e.target.value)}
             >
@@ -225,33 +213,30 @@ const ClientDashboardPage: React.FC = () => {
                 <option key={index} value={name}>{name}</option>
               ))}
             </select>
-
             <div className="mt-4">
-              <span className="text-sm">Participants du club : {eventStats.participants}</span>
-              <div className="relative w-full bg-gray-200 h-6 rounded-lg mt-2">
-                <div className="bg-blue-500 h-6 rounded-lg" style={{ width: `${pourcentage}%` }}></div>
+              <p className="text-sm">Participants du club : {eventStats.participants}</p>
+              <div className="relative w-full bg-gray-200 h-6 rounded mt-2">
+                <div className="bg-blue-500 h-6 rounded" style={{ width: `${pourcentage}%` }}></div>
               </div>
-              <p className="text-2xl font-bold mt-2 text-blue-700">{pourcentage}%</p>
+              <p className="text-blue-700 text-xl font-bold mt-2">{pourcentage}%</p>
 
-              {/* Légende */}
               <div className="mt-4 space-y-1 text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-blue-500"></div>
                   <span>Km parcourus ({eventStats.kmParcourus.toFixed(1)} km)</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-300"></div>
                   <span>Objectif ({eventStats.kmMax.toFixed(1)} km)</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Activité sélectionnée */}
-          <div className="bg-white shadow-lg rounded-lg p-4 col-span-1">
-            <h2 className="font-semibold">Activité : statistiques</h2>
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="font-semibold mb-2">Activité : statistiques</h2>
             <select
-              className="select select-bordered w-full mt-2"
+              className="w-full mt-2 p-2 border rounded"
               value={selectedActivity}
               onChange={(e) => setSelectedActivity(e.target.value)}
             >
@@ -261,9 +246,7 @@ const ClientDashboardPage: React.FC = () => {
             </select>
 
             {selectedActivity && (
-              <div className="mt-4">
-                <p className="text-gray-700 text-sm">Activité sélectionnée : <strong>{selectedActivity}</strong></p>
-              </div>
+              <p className="text-gray-700 text-sm mt-4">Activité sélectionnée : <strong>{selectedActivity}</strong></p>
             )}
           </div>
         </div>
