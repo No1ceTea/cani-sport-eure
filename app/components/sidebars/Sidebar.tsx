@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "../../components/Auth/AuthProvider"; // ✅ Utilisation du contexte
 import BlueBackground from "../backgrounds/BlueBackground";
@@ -13,6 +14,8 @@ export default function Sidebar() {
     console.log("Rôle détecté :", role);
     console.log("User :", user);
   }, [user, role]);
+
+  const pathname = usePathname();
 
   return (
     <>
@@ -57,12 +60,17 @@ export default function Sidebar() {
             />
           </button>
 
-          <ul className="primary_title tracking-wide space-y-4 text-center">
+          <ul className="primary_sidebar tracking-wide space-y-4 text-center">
             <li>
               <a href="/#accueil" className="hover:text-gray-300">Le Club</a>
             </li>
             <li>
-              <a href="/articles" className="hover:text-gray-300">Articles</a>
+              <a
+                href="/articles"
+                className={`hover:text-gray-300 ${pathname === "/articles" ? "font-bold" : ""}`}
+              >
+                Articles
+              </a>
             </li>
             <li>
               <a href="/listeEvenement" className="hover:text-gray-300">Événements</a>

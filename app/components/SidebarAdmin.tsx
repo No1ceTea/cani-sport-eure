@@ -50,7 +50,7 @@ export default function SidebarAdmin({ onAdd }: SidebarAdminProps) {
       <div className={`fixed md:relative top-0 left-0 z-40 h-full w-64 transition-transform duration-300 
         ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
         <BlueBackground>
-          <aside className="text-white p-5 h-screen flex flex-col">
+          <aside className="primary_sidebar p-5 h-screen flex flex-col">
             <h2 className="text-2xl font-bold mb-6">Admin</h2>
             <nav className="space-y-4 flex-1">
             {menuItems.map(({ name, path }) => (
