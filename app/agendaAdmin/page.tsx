@@ -19,11 +19,11 @@ export default function AgendaPage() {
   if (!isLoading && role !== "admin") return null;
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen overflow-hidden">
       <SidebarAdmin />
 
-      <main className="flex-1 flex justify-center items-start pt-40 pb-12 overflow-auto">
-        <div className="w-full max-w-[1500px] px-6">
+      <main className="flex-1 flex justify-center items-start pt-12 pb-12">
+        <div className="w-full max-w-[1500px] max-h-[675px] px-6 overflow-auto">
         <Calendar mode="admin" />
         </div>
       </main>
