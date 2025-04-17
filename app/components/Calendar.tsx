@@ -356,7 +356,7 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
                   rel="noopener noreferrer"
                   className="bg-green-600 text-white px-4 py-2 rounded"
                 >
-                  📥 Importer
+                  Importer
                 </a>
               )}
               {isAdmin && (
@@ -378,7 +378,7 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
                     }}
                     className="bg-blue-600 text-white px-4 py-2 rounded"
                   >
-                    ✏️ Modifier
+                    Modifier
                   </button>
                   <button
                     onClick={() => {
@@ -387,7 +387,7 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
                     }}
                     className="bg-red-600 text-white px-4 py-2 rounded"
                   >
-                    🗑️ Supprimer
+                    Supprimer
                   </button>
                 </>
               )}
@@ -395,7 +395,7 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
                 onClick={() => setShowActionModal(false)}
                 className="bg-gray-400 text-white px-4 py-2 rounded"
               >
-                ❌ Annuler
+                Annuler
               </button>
             </div>
           </div>
@@ -469,12 +469,12 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
                   <option value="private">🔒 Privé</option>
                 </select>
               </label>
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 justify-center">
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-                  💾 Enregistrer
+                  Enregistrer
                 </button>
                 <button type="button" onClick={() => { resetForm(); setShowModal(false); }} className="bg-gray-400 text-white px-4 py-2 rounded">
-                  ❌ Annuler
+                  Annuler
                 </button>
               </div>
             </form>
