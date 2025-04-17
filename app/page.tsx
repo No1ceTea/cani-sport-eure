@@ -1,7 +1,11 @@
-"use client";
+"use client"; // Directive pour exécuter ce composant côté client
 
 import { useState, useEffect } from "react";
-import { createClientComponentClient, Session } from "@supabase/auth-helpers-nextjs";
+import {
+  createClientComponentClient,
+  Session,
+} from "@supabase/auth-helpers-nextjs";
+// Import des composants pour les différentes sections de la page d'accueil
 import Title from "./components/accueil/TitleSection";
 import Presentation from "./components/accueil/PresentationSection";
 import AgendaHome from "./components/accueil/AgendaSection";
@@ -11,15 +15,15 @@ import Footer from "./components/sidebars/Footer";
 import LatestEvents from "./components/LastestEvents";
 import LastestArticles from "./components/LastestArticles";
 
-// Créez votre client Supabase (les variables d'environnement sont utilisées automatiquement)
+// Initialisation du client Supabase pour l'authentification
 const supabase = createClientComponentClient();
 
 export default function HomePage() {
-  // Typage de l'état : Session ou null
+  // État pour stocker les informations de session utilisateur
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    // Récupération de la session initiale
+    // Récupère la session utilisateur au chargement de la page
     const fetchSession = async () => {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
@@ -28,33 +32,31 @@ export default function HomePage() {
 
     fetchSession();
 
-    // Abonnement aux changements d'état d'authentification
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Changement d'état auth:", event, session);
-      setSession(session);
-    });
+    // Abonnement aux changements d'authentification (connexion/déconnexion)
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Changement d'état auth:", event, session);
+        setSession(session);
+      }
+    );
 
+    // Nettoyage de l'écouteur à la destruction du composant
     return () => {
       listener.subscription.unsubscribe();
     };
   }, [supabase]);
 
+  // Structure de la page d'accueil avec différentes sections
   return (
     <main className="bg-cover bg-center">
-      <Title />
-      <Presentation />
-
-      <AgendaHome />
-
-      <Sponsor />
-
-      <LatestEvents/>
-
-      <LastestArticles />
-
-      {/* Transmet la session à Sidebar */}
-      <Sidebar />
-      <Footer />
+      <Title /> {/* Section titre/bannière */}
+      <Presentation /> {/* Présentation de l'association */}
+      <AgendaHome /> {/* Calendrier des événements */}
+      <Sponsor /> {/* Section des sponsors */}
+      <LatestEvents /> {/* Derniers événements */}
+      <LastestArticles /> {/* Derniers articles */}
+      <Sidebar /> {/* Barre latérale de navigation */}
+      <Footer /> {/* Pied de page */}
     </main>
   );
 }
