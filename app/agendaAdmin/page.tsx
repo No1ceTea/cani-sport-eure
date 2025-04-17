@@ -24,7 +24,7 @@ export default function AgendaPage() {
 
       <main className="flex-1 flex justify-center items-start pt-40 pb-12 overflow-auto">
         <div className="w-full max-w-[1500px] px-6">
-          <Calendar />
+        <Calendar mode="admin" />
         </div>
       </main>
     </div>
