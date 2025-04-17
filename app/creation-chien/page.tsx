@@ -179,6 +179,7 @@ export default function PetProfileForm() {
 
   return (
     <div>
+      <Sidebar />
       <WhiteBackground>
         {/* Titre en haut à gauche */}
         <div className="relative px-4 sm:px-6 pt-28 pb-12 flex justify-center">
@@ -221,7 +222,7 @@ export default function PetProfileForm() {
                   max: new Date().toISOString().split("T")[0],
                 },
                 { name: "numero_de_puce", label: "Numéro de puce", maxLength: 15 },
-                { name: "numero_de_tatouage", label: "Numéro de tatouage", minLength: 6 },
+                { name: "numero_de_tatouage", label: "Numéro de tatouage", maxLength: 6 },
                 { name: "age", label: "Âge", type: "number", readOnly: true },
               ].map(({ name, label, ...rest }) => (
                 <div key={name} className="flex flex-col">
@@ -259,7 +260,7 @@ export default function PetProfileForm() {
           </form>
         </div>
 
-        <Sidebar />
+
       </WhiteBackground>
       <Footer />
     </div>

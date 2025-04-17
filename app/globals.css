@@ -42,3 +42,7 @@ body {
 .primary_text_blue {
   @apply text-dark_blue_primary text-sm sm:text-lg font-calibri drop-shadow-md;
 }
+
+.primary_sidebar {
+  @apply text-white font-opendyslexic drop-shadow-lg;
+}

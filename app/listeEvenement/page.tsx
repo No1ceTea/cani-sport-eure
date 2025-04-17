@@ -74,7 +74,7 @@ const ListeEvenement = () => {
   });
 
   return (
-    <div> <WhiteBackground>
+    <div> <Sidebar/> <WhiteBackground> 
     <div className="min-h-screen px-10 py-6">
       {/* Titre de la page */}
       <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Évènements</h1>
@@ -126,7 +126,6 @@ const ListeEvenement = () => {
           </div>
         ))}
       </div>
-      <Sidebar/>
     </div>
     </WhiteBackground> <Footer/> </div>
   );

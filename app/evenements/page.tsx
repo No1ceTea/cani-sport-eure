@@ -84,21 +84,22 @@ const EventsPage = () => {
     <div className="flex h-screen overflow-hidden">
       <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
-      <div className={`flex-1 p-6 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+      <div className="p-6 py-16 mx-auto flex-1 flex flex-col">
+
         {/* Barre de recherche */}
-        <div className="relative w-full flex justify-left mb-6">
+        <div className="relative w-full max-w-xl mb-6">
           <input
             type="text"
             placeholder="Rechercher un événement"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-[50%] py-2 pl-4 pr-10 text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
+            className="w-full py-2 pl-4 pr-10 text-base sm:text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
           />
-          <FaSearch className="absolute right-[52%] top-1/2 transform -translate-y-1/2 text-blue-900 text-lg" />
+          <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-900 text-base sm:text-lg" />
         </div>
 
         {/* Liste des événements */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 max-h-[85vh] overflow-y-auto p-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[75vh] overflow-y-auto p-2">
           {filteredEvents.map((event) => (
             <EventCard key={event.id} event={event} isEditable />
           ))}

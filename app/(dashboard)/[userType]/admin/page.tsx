@@ -103,7 +103,7 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen bg-gray-100">
       <SidebarAdmin />
-      <main className="flex-1 p-8 overflow-auto">
+      <main className="flex-1 p-8 py-16 overflow-auto">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
 

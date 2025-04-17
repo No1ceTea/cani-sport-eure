@@ -195,13 +195,14 @@ export default function DocumentManager() {
   if (isLoading || !role) return <div>Chargement...</div>;
 
   return (
-    <div className="flex">
+    <div className="flex overflow-x-hidden">
       <Sidebar />
       <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
         
         {/* 📌 Navigation (Fil d'Ariane) et Actions alignées à droite */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2 text-gray-700 text-lg">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          {/* Fil d’Ariane */}
+          <div className="flex flex-wrap items-center gap-2 text-gray-700 text-base">
             {folderPath.map((folder, index) => (
               <span key={folder.id || "root"} className="flex items-center">
                 {index > 0 && <FaChevronRight className="mx-2 text-gray-500" />}
@@ -212,13 +213,8 @@ export default function DocumentManager() {
             ))}
           </div>
 
-          <div className="flex gap-4">
-            {/* <button className="text-gray-600 flex items-center gap-2">
-              <FaEye /> Vues
-            </button>
-            <button className="text-gray-600 flex items-center gap-2">
-              <FaSort /> Trier
-            </button> */}
+          {/* Boutons d’ajout : empilés sur mobile, alignés en ligne à partir de sm */}
+          <div className="flex flex-col sm:flex-row gap-2">
             <button onClick={() => setIsFolderModalOpen(true)} className="text-green-600 flex items-center gap-2">
               <FaPlus /> Ajouter un dossier
             </button>
@@ -227,6 +223,7 @@ export default function DocumentManager() {
             </button>
           </div>
         </div>
+
 
         {/* 📌 Tableau des fichiers et dossiers */}
         <div className="overflow-auto max-h-[700px] border border-gray-300 rounded-md">

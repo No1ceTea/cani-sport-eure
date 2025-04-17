@@ -44,57 +44,62 @@ const ModalAdd = ({ isOpen, onClose, onAddSuccess }) => {
   };
 
   const handleUpload = async () => {
-    if (!file || !title || !sport || !uploadDate || !uploadTime) {
-      setMessage("❌ Veuillez remplir tous les champs.");
+    if (!title || !sport || !uploadDate || !uploadTime) {
+      setMessage("❌ Veuillez remplir tous les champs requis.");
       return;
     }
 
     setUploading(true);
-    setMessage("📡 Upload en cours...");
+    setMessage("📡 Ajout en cours...");
 
     const localDateTime = `${uploadDate}T${uploadTime}`;
     const isoDateTime = toISOStringLocal(localDateTime);
 
-    const sanitizedFileName = normalizeFileName(file.name);
-    const filePath = `gpx-files/${sanitizedFileName}`;
+    let publicUrl = null;
+    let linestringZ = null;
 
-    const fileContent = await file.text();
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(fileContent, "text/xml");
+    if (file) {
+      const sanitizedFileName = normalizeFileName(file.name);
+      const filePath = `gpx-files/${sanitizedFileName}`;
 
-    const trkpts = xmlDoc.getElementsByTagName("trkpt");
-    const coordinates = Array.from(trkpts).map((pt) => {
-      const lat = pt.getAttribute("lat");
-      const lon = pt.getAttribute("lon");
-      const eleTag = pt.getElementsByTagName("ele");
-      const ele = eleTag.length > 0 ? eleTag[0].textContent : "0";
-      return `${lon} ${lat} ${ele}`;
-    });
+      const fileContent = await file.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(fileContent, "text/xml");
 
-    if (coordinates.length === 0) {
-      setMessage("❌ Impossible d'extraire les coordonnées GPS du fichier.");
-      setUploading(false);
-      return;
+      const trkpts = xmlDoc.getElementsByTagName("trkpt");
+      const coordinates = Array.from(trkpts).map((pt) => {
+        const lat = pt.getAttribute("lat");
+        const lon = pt.getAttribute("lon");
+        const eleTag = pt.getElementsByTagName("ele");
+        const ele = eleTag.length > 0 ? eleTag[0].textContent : "0";
+        return `${lon} ${lat} ${ele}`;
+      });
+
+      if (coordinates.length === 0) {
+        setMessage("❌ Impossible d'extraire les coordonnées GPS du fichier.");
+        setUploading(false);
+        return;
+      }
+
+      linestringZ = `LINESTRINGZ(${coordinates.join(", ")})`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("gpx-files")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        console.error("❌ Erreur d'upload :", uploadError);
+        setMessage("❌ Erreur lors de l'upload.");
+        setUploading(false);
+        return;
+      }
+
+      const { data: publicUrlData } = await supabase.storage
+        .from("gpx-files")
+        .getPublicUrl(filePath);
+
+      publicUrl = publicUrlData.publicUrl;
     }
-
-    const linestringZ = `LINESTRINGZ(${coordinates.join(", ")})`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("gpx-files")
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) {
-      console.error("❌ Erreur d'upload :", uploadError);
-      setMessage("❌ Erreur lors de l'upload.");
-      setUploading(false);
-      return;
-    }
-
-    const { data: publicUrlData } = await supabase.storage
-      .from("gpx-files")
-      .getPublicUrl(filePath);
-
-    const publicUrl = publicUrlData.publicUrl;
 
     const { data: insertedData, error: dbError } = await supabase
       .from("gpx_tracks")
@@ -114,7 +119,7 @@ const ModalAdd = ({ isOpen, onClose, onAddSuccess }) => {
       console.error("❌ Erreur d'insertion en base :", dbError);
       setMessage("❌ Erreur d'insertion en base.");
     } else {
-      setMessage("✅ Fichier GPX ajouté avec succès !");
+      setMessage("✅ Sortie ajoutée avec succès !");
       onAddSuccess?.(insertedData);
       onClose();
     }

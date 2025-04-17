@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArticleCardAdmin, SearchBar } from "../components/ArticlesComponentsAdmin";
+import { ArticleCardAdmin } from "../components/ArticlesComponentsAdmin";
 import AddArticleModal from "../components/AddArticleModal";
 import EditArticleModal from "../components/EditArticleModal";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
@@ -37,7 +37,6 @@ const ArticlesPage: React.FC = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
 
-  // 🔐 Sécurité : redirection si non admin
   useEffect(() => {
     if (!isLoading && (!user || role !== "admin")) {
       router.replace("/connexion");
@@ -90,13 +89,7 @@ const ArticlesPage: React.FC = () => {
   const handleDelete = async () => {
     if (!articleToDelete) return;
     const { error } = await supabase.from("publication").delete().eq("id", articleToDelete);
-
-    if (error) {
-      alert("Erreur lors de la suppression de l'article.");
-    } else {
-      setArticles((prev) => prev.filter((a) => a.id !== articleToDelete));
-    }
-
+    if (!error) setArticles((prev) => prev.filter((a) => a.id !== articleToDelete));
     setIsConfirmOpen(false);
     setArticleToDelete(null);
   };
@@ -126,28 +119,30 @@ const ArticlesPage: React.FC = () => {
     <div className="flex h-screen overflow-hidden">
       <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
-      <div className="p-6  mx-auto flex-1 flex flex-col">
-
-        <div className="relative w-full flex justify-left mb-6">
+      <div className="p-6 py-16 mx-auto flex-1 flex flex-col">
+        {/* 🔍 Barre de recherche responsive */}
+        <div className="relative w-full max-w-2xl mb-6">
           <input
             type="text"
             placeholder="Rechercher un article"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-[50%] py-2 pl-4 pr-10 text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
+            className="w-full py-2 pl-4 pr-10 text-base sm:text-lg border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-900 shadow-md"
           />
-          <FaSearch className="absolute right-[52%] top-1/2 transform -translate-y-1/2 text-blue-900 text-lg" />
+          <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-900 text-base sm:text-lg" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full overflow-y-auto p-4">
+        {/* 📰 Grille d'articles responsive */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full overflow-y-auto p-2">
           {filteredArticles.map((article) => (
-            <div key={article.id} className="cursor-pointer">
+            <div key={article.id}>
               <ArticleCardAdmin article={article} onDelete={() => confirmDelete(article.id)} onEdit={handleEdit} />
             </div>
           ))}
         </div>
       </div>
 
+      {/* 🔒 Modales */}
       <ModalConfirm
         isOpen={isConfirmOpen}
         title="Confirmer la suppression"
@@ -159,6 +154,7 @@ const ArticlesPage: React.FC = () => {
       />
 
       <AddArticleModal isOpen={isModalOpen} onClose={handleCloseModal} />
+
       {isEditModalOpen && currentArticleId && (
         <EditArticleModal
           isOpen={isEditModalOpen}
@@ -170,8 +166,6 @@ const ArticlesPage: React.FC = () => {
           }}
         />
       )}
-
-
     </div>
   );
 };

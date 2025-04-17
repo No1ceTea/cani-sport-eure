@@ -107,38 +107,41 @@ export default function CatalogueSorties({ isModalOpen, setIsModalOpen }) {
 
   
   return (
-    <div className="p-6 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
-      <table className="w-full border border-gray-300 text-gray-700">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border-t border-b p-4 text-left">Titre</th>
-            <th className="border-t border-b p-4 text-left">Catégorie</th>
-            <th className="border-t border-b p-4 text-left">Date</th>
-            <th className="border-t border-b p-4 text-left">Heure</th>
-            <th className="border-t border-b p-4 text-left">Fichier GPX</th>
-            <th className="border-b p-4 text-center"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((sortie) => (
-            <tr key={sortie.id} className="border-b text-md hover:bg-gray-50">
-              <td className="p-4">{sortie.titre}</td>
-              <td className="p-4">{sortie.categorie}</td>
-              <td className="p-4">{sortie.date}</td>
-              <td className="p-4">{sortie.heure}</td>
-              <td className="p-4">{sortie.fichier}</td>
-              <td className="p-4 flex justify-center gap-4">
-              <button onClick={() => handleDeleteClick(sortie.id)} className="text-red-500 hover:text-red-700">
-                <FaTrash />
-              </button>
-              <button onClick={() => handleEditClick(sortie)} className="text-green-500 hover:text-green-700">
-                <FaEdit />
-              </button>
-              </td>
+    <div className="p-6 py-12 bg-white rounded-lg w-full mx-auto mt-8" style={{ fontFamily: "Calibri, sans-serif" }}>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300 text-gray-700">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border-t border-b p-4 text-left">Titre</th>
+              <th className="border-t border-b p-4 text-left">Catégorie</th>
+              <th className="border-t border-b p-4 text-left">Date</th>
+              <th className="border-t border-b p-4 text-left">Heure</th>
+              <th className="border-t border-b p-4 text-left">Fichier GPX</th>
+              <th className="border-b p-4 text-center"></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((sortie) => (
+              <tr key={sortie.id} className="border-b text-md hover:bg-gray-50">
+                <td className="p-4">{sortie.titre}</td>
+                <td className="p-4">{sortie.categorie}</td>
+                <td className="p-4">{sortie.date}</td>
+                <td className="p-4">{sortie.heure}</td>
+                <td className="p-4">{sortie.fichier}</td>
+                <td className="p-4 flex justify-center gap-4">
+                  <button onClick={() => handleDeleteClick(sortie.id)} className="text-red-500 hover:text-red-700">
+                    <FaTrash />
+                  </button>
+                  <button onClick={() => handleEditClick(sortie)} className="text-green-500 hover:text-green-700">
+                    <FaEdit />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
 
       {/* Modal de confirmation */}  
       <ModalConfirm
