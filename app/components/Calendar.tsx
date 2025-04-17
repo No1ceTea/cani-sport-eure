@@ -185,6 +185,8 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
     const start = new Date(`${startDate}T${startTime}`);
     const end = new Date(`${endDate}T${endTime}`);
     const fullColor = `${newColor}::${visibility}::${details}`;
+    
+    // 👉 1. Mise à jour sur Google Calendar
     const res = await fetch("/api/calendar", {
       method: "PUT",
       headers: {
@@ -201,16 +203,52 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
         description: details,
       }),
     });
-    if (res.ok) {
-      fetchEvents(userToken);
-      resetForm();
-      setShowModal(false);
-    } else {
-      alert("Erreur lors de la mise à jour.");
+    
+    if (!res.ok) {
+      alert("Erreur lors de la mise à jour sur Google Calendar.");
+      return;
     }
+
+    
+    // 👉 2. Vérifie si l’événement existe dans Supabase (via id_google)
+    const { data: existingEvents, error: fetchError } = await supabase
+      .from("evenements")
+      .select("id")
+      .eq("id_google", eventToEdit.id);
+  
+    if (fetchError) {
+      console.error("Erreur Supabase (fetch):", fetchError);
+    }
+  
+    if (existingEvents && existingEvents.length > 0) {
+      // 👉 3. Mise à jour dans Supabase
+      const { error: updateError } = await supabase
+        .from("evenements")
+        .update({
+          titre: newTitle,
+          contenu: details,
+          date: startDate,
+          heure_debut: startTime,
+          heure_fin: endTime,
+          type: visibility === "public" ? "externe" : "interne",
+          
+        })
+        .eq("id_google", eventToEdit.id);
+  
+      if (updateError) {
+        console.error("Erreur Supabase (update):", updateError);
+        alert("Échec de la mise à jour dans la base.");
+      }
+    }
+
+    // 👌 Refresh local
+    fetchEvents(userToken);
+    resetForm();
+    setShowModal(false);
   };
 
   const deleteEvent = async (eventId: string) => {
+    // 👉 1. Suppression dans Google Calendar
     const res = await fetch("/api/calendar", {
       method: "DELETE",
       headers: {
@@ -220,11 +258,36 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
       body: JSON.stringify({ id: eventId }),
     });
 
-    if (res.ok) {
-      setEvents(events.filter((event) => event.id !== eventId));
-    } else {
-      alert("Erreur lors de la suppression.");
+    if (!res.ok) {
+      alert("Erreur lors de la suppression de l'événement Google.");
+      return;
     }
+
+
+    // 👉 2. Suppression dans Supabase si `id_google` correspond
+    const { data: matchedEvents, error: findError } = await supabase
+      .from("evenements")
+      .select("id")
+      .eq("id_google", eventId);
+  
+    if (findError) {
+      console.error("Erreur recherche Supabase :", findError);
+    }
+  
+    if (matchedEvents && matchedEvents.length > 0) {
+      const { error: deleteError } = await supabase
+        .from("evenements")
+        .delete()
+        .eq("id_google", eventId);
+  
+      if (deleteError) {
+        console.error("Erreur suppression Supabase :", deleteError);
+        alert("Suppression partielle : l’événement a été supprimé de Google mais pas de la base.");
+      }
+    }
+  
+    // 👌 Mise à jour locale
+    setEvents(events.filter((event) => event.id !== eventId));
   };
 
   const eventStyleGetter = (event: EventData) => ({
