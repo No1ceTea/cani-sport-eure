@@ -25,7 +25,7 @@ export default function AgendaPage() {
       <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">
         Événement
       </h1>
-      <Calendar readOnly />
+      <Calendar mode="adherent" />
       <Sidebar />
     </div>
   );

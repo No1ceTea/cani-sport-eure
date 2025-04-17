@@ -1,4 +1,3 @@
-// ✅ agendaAdmin/page.tsx
 "use client";
 
 import Calendar from "@/app/components/Calendar";
@@ -20,9 +19,14 @@ export default function AgendaPage() {
   if (!isLoading && role !== "admin") return null;
 
   return (
-    <div className="flex overflow-hidden">
+    <div className="flex min-h-screen bg-gray-100">
       <SidebarAdmin />
-      <Calendar />
+
+      <main className="flex-1 flex justify-center items-start pt-40 pb-12 overflow-auto">
+        <div className="w-full max-w-[1500px] px-6">
+        <Calendar mode="admin" />
+        </div>
+      </main>
     </div>
   );
 }
