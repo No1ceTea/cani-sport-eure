@@ -16,6 +16,7 @@ const subCategoryMap: Record<string, number> = {
   Trail: 2,
   Marche: 3,
   VTT: 4,
+  Trottinette: 5,
 };
 
 const ResultsPage: React.FC = () => {
@@ -101,7 +102,7 @@ const ResultsPage: React.FC = () => {
           <div className="bg-white text-black p-6 rounded-xl shadow-md">
             <h2 className="text-xl font-semibold mb-4 text-center">Résultats</h2>
             <div className="flex flex-wrap justify-between rounded-lg overflow-hidden mb-4 p-1 gap-2">
-              {["Cross", "Trail", "Marche", "VTT"].map((tab, index) => (
+              {["Cross", "Trail", "Marche", "VTT","Trottinette"].map((tab, index) => (
                 <button
                   key={tab}
                   onClick={() => setSelectedTabComp(tab)}

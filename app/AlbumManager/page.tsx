@@ -66,36 +66,34 @@ export default function AlbumManager() {
   }, [role, isLoading, router]);
 
   useEffect(() => {
-    if (role !== "admin") return;
+    if (isLoading || role !== "admin") return;
+  
     const fetchAlbumsAndPhotos = async () => {
       setLoading(true);
       setErrorMessage(null);
-
+  
       console.log("📌 Chargement des albums et photos...");
-
-      // 📌 Récupérer les dossiers et fichiers depuis Supabase Storage
+  
       const { data, error } = await supabase.storage.from("photo").list(albumPath[albumPath.length - 1].id || "");
-
+  
       if (error) {
         console.error("❌ Erreur de récupération des fichiers :", error);
         setErrorMessage("Impossible de charger les albums et photos.");
         setLoading(false);
         return;
       }
-
+  
       console.log("✅ Fichiers récupérés depuis Supabase Storage :", data);
-
-      // 📌 Filtrer les dossiers (albums) et fichiers (photos)
+  
       const newAlbums: Album[] = [];
       const newPhotos: Photo[] = [];
-
+  
       data.forEach((item) => {
-        if (item.name.startsWith(".")) return; // Ignorer les fichiers système
-      
+        if (item.name.startsWith(".")) return;
+  
         const currentPath = albumPath[albumPath.length - 1].id || "";
-      
+  
         if (!item.metadata) {
-          // 📁 Dossier (album)
           newAlbums.push({
             id: currentPath ? `${currentPath}/${item.name}` : item.name,
             name: item.name,
@@ -103,14 +101,13 @@ export default function AlbumManager() {
             parent_id: currentPath || null,
           });
         } else {
-          // 🖼️ Fichier (photo)
           const filePath = currentPath ? `${currentPath}/${item.name}` : item.name;
           const publicUrl = supabase.storage.from("photo").getPublicUrl(filePath).data.publicUrl;
-      
+  
           const size = item.metadata?.size
             ? (item.metadata.size / 1024).toFixed(2) + " KB"
             : "-";
-      
+  
           newPhotos.push({
             id: item.name,
             name: item.name,
@@ -123,15 +120,15 @@ export default function AlbumManager() {
           });
         }
       });
-      
-
+  
       setAlbums(newAlbums);
       setPhotos(newPhotos);
       setLoading(false);
     };
-
+  
     fetchAlbumsAndPhotos();
-  }, [albumPath]);
+  }, [albumPath, role, isLoading]);
+  
 
   // 📌 Naviguer dans un album
   const handleAlbumClick = (albumId: string, albumName: string) => {

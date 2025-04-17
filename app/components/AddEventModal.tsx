@@ -58,6 +58,7 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const createGoogleCalendarEvent = async (accessToken: string) => {
     const startDateTime = new Date(`${date}T${startTime}`);
     const endDateTime = new Date(`${date}T${endTime}`);
+    const visibility = isExternal ? "public" : "private"; // ← correspondance visuelle
 
     const res = await fetch("/api/calendar", {
       method: "POST",
@@ -70,7 +71,7 @@ const AddEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         start: startDateTime,
         end: endDateTime,
         // Exemple de concaténation pour le titre avec couleur et contenu
-        color: "#3b82f6::public::" + content,
+        color: `#3b82f6::${visibility}::${content}`,
         location: "",
         description: content,
       }),

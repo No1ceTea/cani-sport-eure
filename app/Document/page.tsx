@@ -41,15 +41,13 @@ export default function Document() {
   useEffect(() => {
     const fetchFiles = async () => {
       let query = supabase.from("club_documents").select("*");
-
-      // 📁 Filtrer par dossier courant
+  
       if (folderPath.length > 1) {
         query = query.eq("parent_id", folderPath[folderPath.length - 1].id);
       } else {
         query = query.is("parent_id", null);
       }
-
-      // 🔐 Appliquer les filtres d'accès selon le rôle
+  
       if (hasComptabiliteAccess) {
         query = query.in("access_level", ["public", "adherent", "admin", "admin_comptable"]);
       } else if (isAdmin) {
@@ -59,16 +57,15 @@ export default function Document() {
       } else {
         query = query.eq("access_level", "public");
       }
-
+  
       const { data, error } = await query;
-
+  
       if (error) {
         console.error("❌ Erreur de récupération :", error);
       } else {
         setFiles(
           data
             .filter((file) => {
-              // 🔐 Masquer les dossiers/fichiers "admin_comptable" si pas admin + comptable
               if (file.access_level === "admin_comptable" && !hasComptabiliteAccess) {
                 return false;
               }
@@ -88,9 +85,12 @@ export default function Document() {
         );
       }
     };
-
-    fetchFiles();
-  }, [folderPath, role]);
+  
+    if (!isLoading && role) {
+      fetchFiles();
+    }
+  }, [folderPath, role, isLoading]);
+  
 
   // 📌 Naviguer dans un dossier
   const handleFolderClick = (folderId: string, folderName: string) => {
