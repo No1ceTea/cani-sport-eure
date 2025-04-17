@@ -227,7 +227,7 @@ export default function PetProfileForm() {
                     max: new Date().toISOString().split("T")[0],
                   },
                   { name: "numero_de_puce", label: "Numéro de puce", maxLength: 15 },
-                  { name: "numero_de_tatouage", label: "Numéro de tatouage", minLength: 6 },
+                  { name: "numero_de_tatouage", label: "Numéro de tatouage", maxLength: 6 },
                   { name: "age", label: "Âge", type: "number", readOnly: true },
                 ].map(({ name, label, ...rest }) => (
                   <div key={name} className="flex flex-col">
