@@ -66,6 +66,8 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
 
     const startDateTime = new Date(`${date}T${startTime}`);
     const endDateTime = new Date(`${date}T${endTime}`);
+    const visibility = isInternal ? "private" : "public";
+const fullColor = `#3b82f6::${visibility}::${content}`
 
     const res = await fetch("/api/calendar", {
       method: "PUT",
@@ -78,6 +80,8 @@ const EditEventModal: React.FC<ModalProps> = ({ isOpen, onClose, articleId }) =>
         title,
         description: content,
         start: startDateTime,
+        color: fullColor,
+        location: "",
         end: endDateTime,
       }),
     });
