@@ -343,7 +343,7 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
       {showActionModal && eventToEdit && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg text-center">
-            <h3 className="text-lg font-bold mb-4">Détail de l'événement</h3>
+            <h3 className="text-lg font-bold mb-4">Détail de l&apos;événement</h3>
             <p className="mb-2 font-semibold">{eventToEdit.title}</p>
             <p className="mb-2">{formatEventTime(eventToEdit.start, eventToEdit.end)}</p>
             <p className="mb-2">📍 {eventToEdit.location || "Lieu non renseigné"}</p>
