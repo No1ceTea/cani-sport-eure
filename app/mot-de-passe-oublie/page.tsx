@@ -1,28 +1,31 @@
-"use client";
+"use client"; // Directive pour exécution côté client
 
-import { useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Link from "next/link";
+import { useState } from "react"; // Hook d'état React
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"; // Client Supabase
+import Link from "next/link"; // Navigation entre pages
 
 export default function ForgotPasswordPage() {
-  const supabase = createClientComponentClient();
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const supabase = createClientComponentClient(); // Initialisation du client Supabase
+  const [email, setEmail] = useState(""); // État pour l'email saisi
+  const [message, setMessage] = useState<string | null>(null); // Message de succès
+  const [error, setError] = useState<string | null>(null); // Message d'erreur
+  const [loading, setLoading] = useState(false); // État de chargement
 
+  // Gestion de la demande de réinitialisation
   const handlePasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Empêche le rechargement de la page
     setLoading(true);
     setMessage(null);
     setError(null);
 
+    // Appel API Supabase pour demander la réinitialisation
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/nouveau-mot-de-passe`, // Page où l'utilisateur redéfinit son mot de passe
+      redirectTo: `${window.location.origin}/nouveau-mot-de-passe`, // Redirection après clic dans l'email
     });
 
     setLoading(false);
 
+    // Affichage du résultat (succès ou erreur)
     if (error) {
       setError("Une erreur est survenue. Veuillez réessayer.");
     } else {
@@ -32,12 +35,15 @@ export default function ForgotPasswordPage() {
     }
   };
 
+  // Interface utilisateur
   return (
     <div className="flex items-center justify-center h-screen bg-blue-900">
       <div className="card w-full max-w-sm bg-white shadow-xl p-6 md:p-8">
         <h2 className="text-2xl font-bold text-center mb-6">
           Mot de passe oublié
         </h2>
+
+        {/* Messages de feedback */}
         {message && (
           <div className="alert alert-success shadow-lg mb-4">
             <span>{message}</span>
@@ -48,6 +54,8 @@ export default function ForgotPasswordPage() {
             <span>{error}</span>
           </div>
         )}
+
+        {/* Formulaire de saisie d'email */}
         <form onSubmit={handlePasswordReset}>
           <div className="form-control mb-4">
             <label className="label">
@@ -62,16 +70,18 @@ export default function ForgotPasswordPage() {
               required
             />
           </div>
+
+          {/* Bouton d'envoi avec état de chargement */}
           <button
             type="submit"
-            className={`btn btn-primary w-full ${
-              loading ? "loading" : ""
-            }`}
+            className={`btn btn-primary w-full ${loading ? "loading" : ""}`}
             disabled={loading}
           >
             {loading ? "Envoi en cours..." : "Envoyer un e-mail"}
           </button>
         </form>
+
+        {/* Lien de retour vers la page de connexion */}
         <div className="mt-6 text-center">
           <Link
             href="/connexion"
