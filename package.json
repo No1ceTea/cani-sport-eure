@@ -29,7 +29,7 @@
     "clsx": "^2.1.1",
     "commitizen": "^4.3.1",
     "cookies-next": "^5.1.0",
-    "daisyui": "^4.12.24",
+    "daisyui": "^5.0.35",
     "date-fns": "^4.1.0",
     "gapi": "^0.0.3",
     "gapi-script": "^1.2.0",
