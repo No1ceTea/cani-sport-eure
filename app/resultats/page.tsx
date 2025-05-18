@@ -1,16 +1,18 @@
-"use client";
+"use client"; // Indique que ce composant s'exécute côté client
 
 import React, { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js"; // Client pour accéder à la base de données
 import Sidebar from "../components/sidebars/Sidebar";
 import Footer from "../components/sidebars/Footer";
 import WhiteBackground from "../components/backgrounds/WhiteBackground";
 
+// Initialisation du client Supabase
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
 );
 
+// Mapping des catégories sportives vers leurs IDs dans la base de données
 const subCategoryMap: Record<string, number> = {
   Cross: 1,
   Trail: 2,
@@ -20,14 +22,18 @@ const subCategoryMap: Record<string, number> = {
 };
 
 const ResultsPage: React.FC = () => {
-  const [resultatTypes, setResultatTypes] = useState<{ id: number; nom_resultat: string }[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [selectedTabComp, setSelectedTabComp] = useState("Cross");
-  const [data, setData] = useState<any[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
+  // États pour gérer les données et filtres
+  const [resultatTypes, setResultatTypes] = useState<
+    { id: number; nom_resultat: string }[]
+  >([]); // Types de résultats disponibles
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null); // Catégorie sélectionnée
+  const [selectedTabComp, setSelectedTabComp] = useState("Cross"); // Onglet sportif sélectionné
+  const [data, setData] = useState<any[]>([]); // Résultats à afficher
+  const [errorMessage, setErrorMessage] = useState(""); // Message d'erreur éventuel
 
   const selectedFilter = selectedCategory !== null ? selectedTabComp : "";
 
+  // Récupération des types de résultats au chargement
   useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase
@@ -39,7 +45,7 @@ const ResultsPage: React.FC = () => {
       } else if (data) {
         setResultatTypes(data);
         if (data.length > 0 && selectedCategory === null) {
-          setSelectedCategory(data[0].id);
+          setSelectedCategory(data[0].id); // Sélectionne la première catégorie par défaut
         }
       }
     };
@@ -47,6 +53,7 @@ const ResultsPage: React.FC = () => {
     fetchCategories();
   }, []);
 
+  // Récupération des résultats quand la catégorie ou le filtre change
   useEffect(() => {
     if (selectedCategory === null) return;
 
@@ -55,11 +62,13 @@ const ResultsPage: React.FC = () => {
 
       const { data: resultsData, error } = await supabase
         .from("resultats")
-        .select(`
+        .select(
+          `
           *,
           chiens ( prenom ),
           profils ( nom, prenom )
-        `)
+        `
+        ) // Récupère les relations avec les chiens et profils
         .eq("id_type", selectedCategory)
         .eq("id_categorie", subCategoryMap[selectedFilter]);
 
@@ -75,101 +84,137 @@ const ResultsPage: React.FC = () => {
   }, [selectedCategory, selectedFilter]);
 
   return (
-    <div> 
-      <Sidebar />
+    <div>
+      <Sidebar /> {/* Navigation latérale */}
       <WhiteBackground>
-      <div className="relative min-h-screen p-4 sm:p-8 flex flex-col items-center">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 w-full text-left primary_title_black">Résultats</h1>
+        {" "}
+        {/* Conteneur principal avec fond blanc */}
+        <div className="relative min-h-screen p-4 sm:p-8 flex flex-col items-center">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6 w-full text-left primary_title_black">
+            Résultats
+          </h1>
 
-        <div className="bg-[#475C99] p-4 sm:p-8 rounded-3xl w-full max-w-7xl border-2 border-black min-h-[500px]">
-          {/* Sélecteur de type de résultat */}
-          <div className="mb-6 text-center">
-            <label className="text-white text-lg font-semibold">Afficher :</label>
-            <select
-              className="ml-2 p-2 border border-gray-300 rounded-lg"
-              value={selectedCategory ?? ""}
-              onChange={(e) => setSelectedCategory(parseInt(e.target.value))}
-            >
-              {resultatTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.nom_resultat}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Tabs sportifs */}
-          <div className="bg-white text-black p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-semibold mb-4 text-center">Résultats</h2>
-            <div className="flex flex-wrap justify-between rounded-lg overflow-hidden mb-4 p-1 gap-2">
-              {["Cross", "Trail", "Marche", "VTT","Trottinette"].map((tab, index) => (
-                <button
-                  key={tab}
-                  onClick={() => setSelectedTabComp(tab)}
-                  className={`flex-1 min-w-[70px] px-4 py-2 text-center border border-gray-300 ${
-                    selectedTabComp === tab
-                      ? "bg-[#031F73] text-white"
-                      : "bg-[#475C99] text-white border-[#475C99]"
-                  } rounded-lg`}
-                >
-                  {tab}
-                </button>
-              ))}
+          <div className="bg-[#475C99] p-4 sm:p-8 rounded-3xl w-full max-w-7xl border-2 border-black min-h-[500px]">
+            {/* Sélecteur de type de résultat */}
+            <div className="mb-6 text-center">
+              <label className="text-white text-lg font-semibold">
+                Afficher :
+              </label>
+              <select
+                className="ml-2 p-2 border border-gray-300 rounded-lg"
+                value={selectedCategory ?? ""}
+                onChange={(e) => setSelectedCategory(parseInt(e.target.value))}
+              >
+                {resultatTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.nom_resultat}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Tableau responsive */}
-            {data.length === 0 ? (
-              <p className="text-center text-gray-500">Aucun résultat disponible.</p>
-            ) : (
-              <div className="overflow-x-auto w-full">
-                <table className="min-w-[800px] sm:min-w-full text-left mt-2 border-collapse border border-gray-300">
-                  <thead>
-                    <tr className="bg-gray-200 text-center">
-                      <th className="border p-2 text-sm">Nom activité</th>
-                      <th className="border p-2 text-sm">Lieu</th>
-                      <th className="border p-2 text-sm">Région</th>
-                      <th className="border p-2 text-sm">Distance</th>
-                      <th className="border p-2 text-sm">Participant</th>
-                      <th className="border p-2 text-sm">Chien</th>
-                      <th className="border p-2 text-sm">Temps</th>
-                      <th className="border p-2 text-sm">Min/km</th>
-                      <th className="border p-2 text-sm">Vitesse</th>
-                      <th className="border p-2 text-sm">Km A/R</th>
-                      <th className="border p-2 text-sm">Classement</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.map((item, index) => (
-                      <tr
-                        key={item.id || index}
-                        className={index % 2 === 0 ? "bg-gray-100" : "bg-white text-center"}
-                      >
-                        <td className="border p-2 text-sm text-center">{item.nomActivite}</td>
-                        <td className="border p-2 text-sm text-center">{item.lieu}</td>
-                        <td className="border p-2 text-sm text-center">{item.region}</td>
-                        <td className="border p-2 text-sm text-center">{item.distance}</td>
-                        <td className="border p-2 text-sm text-center">
-                          {item.profils ? `${item.profils.nom} ${item.profils.prenom}` : ""}
-                        </td>
-                        <td className="border p-2 text-sm text-center">{item.chiens?.prenom}</td>
-                        <td className="border p-2 text-sm text-center">{item.temps}</td>
-                        <td className="border p-2 text-sm text-center">{item.minKm}</td>
-                        <td className="border p-2 text-sm text-center">{item.vitesse}</td>
-                        <td className="border p-2 text-sm text-center">{item.kmAR}</td>
-                        <td className="border p-2 text-sm text-center">{item.classement}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* Onglets pour les différentes disciplines sportives */}
+            <div className="bg-white text-black p-6 rounded-xl shadow-md">
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                Résultats
+              </h2>
+              <div className="flex flex-wrap justify-between rounded-lg overflow-hidden mb-4 p-1 gap-2">
+                {["Cross", "Trail", "Marche", "VTT", "Trottinette"].map(
+                  (tab, index) => (
+                    <button
+                      key={tab}
+                      onClick={() => setSelectedTabComp(tab)}
+                      className={`flex-1 min-w-[70px] px-4 py-2 text-center border border-gray-300 ${
+                        selectedTabComp === tab
+                          ? "bg-[#031F73] text-white" // Style pour l'onglet actif
+                          : "bg-[#475C99] text-white border-[#475C99]" // Style pour les autres onglets
+                      } rounded-lg`}
+                    >
+                      {tab}
+                    </button>
+                  )
+                )}
               </div>
-            )}
+
+              {/* Tableau des résultats */}
+              {data.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  Aucun résultat disponible.
+                </p>
+              ) : (
+                <div className="overflow-x-auto w-full">
+                  <table className="min-w-[800px] sm:min-w-full text-left mt-2 border-collapse border border-gray-300">
+                    <thead>
+                      <tr className="bg-gray-200 text-center">
+                        <th className="border p-2 text-sm">Nom activité</th>
+                        <th className="border p-2 text-sm">Lieu</th>
+                        <th className="border p-2 text-sm">Région</th>
+                        <th className="border p-2 text-sm">Distance</th>
+                        <th className="border p-2 text-sm">Participant</th>
+                        <th className="border p-2 text-sm">Chien</th>
+                        <th className="border p-2 text-sm">Temps</th>
+                        <th className="border p-2 text-sm">Min/km</th>
+                        <th className="border p-2 text-sm">Vitesse</th>
+                        <th className="border p-2 text-sm">Km A/R</th>
+                        <th className="border p-2 text-sm">Classement</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.map((item, index) => (
+                        <tr
+                          key={item.id || index}
+                          className={
+                            index % 2 === 0
+                              ? "bg-gray-100"
+                              : "bg-white text-center"
+                          } // Alternance des couleurs
+                        >
+                          <td className="border p-2 text-sm text-center">
+                            {item.nomActivite}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.lieu}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.region}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.distance}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.profils
+                              ? `${item.profils.nom} ${item.profils.prenom}`
+                              : ""}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.chiens?.prenom}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.temps}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.minKm}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.vitesse}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.kmAR}
+                          </td>
+                          <td className="border p-2 text-sm text-center">
+                            {item.classement}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-
-      </div>
       </WhiteBackground>
-      <Footer />
+      <Footer /> {/* Pied de page */}
     </div>
   );
 };

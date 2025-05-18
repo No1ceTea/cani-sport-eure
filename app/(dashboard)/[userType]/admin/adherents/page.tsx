@@ -1,13 +1,14 @@
-"use client";
+"use client"; // Indique que ce composant s'exécute côté client
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/app/components/Auth/AuthProvider";
-import { useRouter } from "next/navigation";
-import SidebarAdmin from "../../../../components/SidebarAdmin";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import ModalConfirm from "@/app/components/ModalConfirm";
-import { FaSearch } from "react-icons/fa";
+import { useEffect, useState } from "react"; // Hooks React
+import { useAuth } from "@/app/components/Auth/AuthProvider"; // Contexte d'authentification
+import { useRouter } from "next/navigation"; // Navigation
+import SidebarAdmin from "../../../../components/SidebarAdmin"; // Barre latérale admin
+import { FaEdit, FaTrash } from "react-icons/fa"; // Icônes d'édition et suppression
+import ModalConfirm from "@/app/components/ModalConfirm"; // Modal de confirmation
+import { FaSearch } from "react-icons/fa"; // Icône de recherche
 
+// Interface définissant la structure d'un utilisateur
 interface User {
   id: string;
   email: string;
@@ -21,22 +22,23 @@ interface User {
 }
 
 export default function ListeAdherents() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [search, setSearch] = useState("");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const { user, role, isLoading } = useAuth();
-  const router = useRouter();
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  // États pour gérer les données et l'interface
+  const [users, setUsers] = useState<User[]>([]); // Liste des utilisateurs
+  const [search, setSearch] = useState(""); // Terme de recherche
+  const [selectedUser, setSelectedUser] = useState<User | null>(null); // Utilisateur en cours d'édition
+  const { user, role, isLoading } = useAuth(); // Données d'authentification
+  const router = useRouter(); // Navigation
+  const [userToDelete, setUserToDelete] = useState<User | null>(null); // Utilisateur à supprimer
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // État d'ouverture de la modal de suppression
 
-
-  // 🔐 Redirection si non-admin
+  // Redirection si non-admin
   useEffect(() => {
     if (!isLoading && (!user || role !== "admin")) {
       router.replace("/connexion");
     }
   }, [user, role, isLoading, router]);
 
+  // Chargement des utilisateurs depuis l'API
   useEffect(() => {
     async function fetchUsers() {
       const res = await fetch("/api/users");
@@ -51,6 +53,7 @@ export default function ListeAdherents() {
     }
   }, [user, role]);
 
+  // Enregistrement des modifications d'un utilisateur
   async function saveUserEdits() {
     if (!selectedUser) return;
 
@@ -61,45 +64,51 @@ export default function ListeAdherents() {
     });
 
     if (res.ok) {
+      // Mise à jour locale de la liste des utilisateurs
       setUsers((prev) =>
         prev.map((user) => (user.id === selectedUser.id ? selectedUser : user))
       );
       alert("Utilisateur mis à jour avec succès !");
-      setSelectedUser(null);
+      setSelectedUser(null); // Fermeture de la modal
     } else {
       alert("Erreur lors de la mise à jour. Veuillez réessayer.");
     }
   }
 
+  // Ouverture de la modal de confirmation de suppression
   function openDeleteModal(user: User) {
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
   }
 
+  // Suppression d'un utilisateur après confirmation
   async function deleteUserConfirmed() {
     if (!userToDelete) return;
-  
+
     const res = await fetch("/api/users", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: userToDelete.id }),
     });
-  
+
     if (res.ok) {
+      // Mise à jour locale après suppression
       setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
       alert("Utilisateur supprimé avec succès !");
     } else {
       const errorData = await res.json();
       alert("Erreur lors de la suppression : " + errorData.error);
     }
-  
-    setIsDeleteModalOpen(false);
-    setUserToDelete(null);
+
+    setIsDeleteModalOpen(false); // Fermeture de la modal
+    setUserToDelete(null); // Réinitialisation de l'utilisateur à supprimer
   }
-  
-  
+
+  // Fonction de suppression (ancienne version avec confirm natif)
   async function deleteUser(userId: string) {
-    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?");
+    const confirmation = window.confirm(
+      "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
+    );
     if (!confirmation) return;
 
     const res = await fetch("/api/users", {
@@ -117,13 +126,14 @@ export default function ListeAdherents() {
     }
   }
 
+  // N'affiche rien si l'utilisateur n'est pas admin
   if (isLoading || !user || role !== "admin") return null;
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <SidebarAdmin />
-
+      <SidebarAdmin /> {/* Barre latérale d'administration */}
       <div className="flex-1 p-6 py-16">
+        {/* Barre de recherche */}
         <div className="relative w-full flex justify-left mb-6">
           <input
             type="text"
@@ -135,67 +145,76 @@ export default function ListeAdherents() {
           <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-900 text-base sm:text-lg" />
         </div>
 
+        {/* Tableau des adhérents avec défilement */}
         <div className="grid grid-cols-1gap-4 max-h-[85vh] overflow-y-auto p-2">
-        <div className="overflow-x-auto">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th>Nom Prénom</th>
-              <th>Naissance</th>
-              <th>Licence</th>
-              <th>Rôle</th>
-              <th>Comptable</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users
-              .filter((user) =>
-                `${user.last_name} ${user.first_name}`
-                  .toLowerCase()
-                  .includes(search.toLowerCase())
-              )
-              .map((user) => (
-                <tr key={user.id}>
-                  <td>{user.last_name} {user.first_name}</td>
-                  <td>{user.birthdate || "N/A"}</td>
-                  <td>{user.license_number || "N/A"}</td>
-                  <td>{user.administrateur ? "Admin" : "Adhérent"}</td>
-                  <td>{user.comptable ? "Oui" : "Non"}</td>
-                  <td>
-                    {user.statut_inscription === "inscrit" ? (
-                      <span className="badge badge-success">Inscrit</span>
-                    ) : user.statut_inscription === "refusé" ? (
-                      <span className="badge badge-error">Refusé</span>
-                    ) : (
-                      <span className="badge badge-warning">En attente</span>
-                    )}
-                  </td>
-                  <td className="flex gap-2">
-                    <button
-                      className="text-blue-600 hover:text-blue-800"
-                      onClick={() => setSelectedUser(user)}
-                      title="Modifier"
-                    >
-                      <FaEdit size={20} />
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-800"
-                      onClick={() => openDeleteModal(user)}
-                      title="Supprimer"
-                    >
-                      <FaTrash size={20} />
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              {/* En-têtes du tableau */}
+              <thead>
+                <tr>
+                  <th>Nom Prénom</th>
+                  <th>Naissance</th>
+                  <th>Licence</th>
+                  <th>Rôle</th>
+                  <th>Comptable</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-          </tbody>
-        </table>
-        </div>
+              </thead>
+              {/* Corps du tableau avec filtrage par recherche */}
+              <tbody>
+                {users
+                  .filter((user) =>
+                    `${user.last_name} ${user.first_name}`
+                      .toLowerCase()
+                      .includes(search.toLowerCase())
+                  )
+                  .map((user) => (
+                    <tr key={user.id}>
+                      <td>
+                        {user.last_name} {user.first_name}
+                      </td>
+                      <td>{user.birthdate || "N/A"}</td>
+                      <td>{user.license_number || "N/A"}</td>
+                      <td>{user.administrateur ? "Admin" : "Adhérent"}</td>
+                      <td>{user.comptable ? "Oui" : "Non"}</td>
+                      {/* Affichage du statut avec code couleur */}
+                      <td>
+                        {user.statut_inscription === "inscrit" ? (
+                          <span className="badge badge-success">Inscrit</span>
+                        ) : user.statut_inscription === "refusé" ? (
+                          <span className="badge badge-error">Refusé</span>
+                        ) : (
+                          <span className="badge badge-warning">
+                            En attente
+                          </span>
+                        )}
+                      </td>
+                      {/* Boutons d'action */}
+                      <td className="flex gap-2">
+                        <button
+                          className="text-blue-600 hover:text-blue-800"
+                          onClick={() => setSelectedUser(user)}
+                          title="Modifier"
+                        >
+                          <FaEdit size={20} />
+                        </button>
+                        <button
+                          className="text-red-600 hover:text-red-800"
+                          onClick={() => openDeleteModal(user)}
+                          title="Supprimer"
+                        >
+                          <FaTrash size={20} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
+      {/* Modal de confirmation pour la suppression */}
       <ModalConfirm
         isOpen={isDeleteModalOpen}
         title="Confirmation de suppression"
@@ -206,13 +225,15 @@ export default function ListeAdherents() {
         }}
         onConfirm={deleteUserConfirmed}
       />
-
-      {/* MODAL DE MODIFICATION */}
+      {/* Modal de modification d'utilisateur */}
       {selectedUser && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Modifier l&apos;utilisateur</h2>
+            <h2 className="text-xl font-bold mb-4">
+              Modifier l&apos;utilisateur
+            </h2>
 
+            {/* Formulaire d'édition */}
             <label className="block mb-2 font-bold">Nom :</label>
             <input
               type="text"
@@ -259,17 +280,24 @@ export default function ListeAdherents() {
               className="input input-bordered w-full mb-2"
               value={selectedUser.license_number}
               onChange={(e) =>
-                setSelectedUser({ ...selectedUser, license_number: e.target.value })
+                setSelectedUser({
+                  ...selectedUser,
+                  license_number: e.target.value,
+                })
               }
             />
 
+            {/* Checkboxes pour les rôles */}
             <div className="flex items-center gap-2 mb-2">
               <input
                 type="checkbox"
                 className="checkbox checkbox-primary"
                 checked={selectedUser.administrateur}
                 onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, administrateur: e.target.checked })
+                  setSelectedUser({
+                    ...selectedUser,
+                    administrateur: e.target.checked,
+                  })
                 }
               />
               <label className="font-bold">Administrateur</label>
@@ -283,21 +311,25 @@ export default function ListeAdherents() {
                 onChange={(e) =>
                   setSelectedUser({
                     ...selectedUser,
-                    comptable: e.target.checked
+                    comptable: e.target.checked,
                   })
                 }
               />
               <label className="font-bold">Comptabilité</label>
             </div>
 
-            <label className="block mb-2 font-bold">Statut d&apos;inscription :</label>
+            {/* Sélecteur de statut */}
+            <label className="block mb-2 font-bold">
+              Statut d&apos;inscription :
+            </label>
             <select
               className="select select-bordered w-full mb-2"
               value={selectedUser.statut_inscription}
               onChange={(e) =>
                 setSelectedUser({
                   ...selectedUser,
-                  statut_inscription: e.target.value as User["statut_inscription"],
+                  statut_inscription: e.target
+                    .value as User["statut_inscription"],
                 })
               }
             >
@@ -306,8 +338,12 @@ export default function ListeAdherents() {
               <option value="refusé">Refusé</option>
             </select>
 
+            {/* Boutons de la modal */}
             <div className="flex justify-end gap-2 mt-4">
-              <button className="btn btn-secondary" onClick={() => setSelectedUser(null)}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setSelectedUser(null)}
+              >
                 Annuler
               </button>
               <button className="btn btn-primary" onClick={saveUserEdits}>

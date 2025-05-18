@@ -1,32 +1,35 @@
-"use client";
+"use client"; // Indique que ce composant s'exécute côté client
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Sidebar from "../components/sidebars/Sidebar";
-import { useAuth } from "../components/Auth/AuthProvider";
+import { useState, useEffect } from "react"; // Hooks React
+import { useRouter } from "next/navigation"; // Navigation entre pages
+import Image from "next/image"; // Composant d'image optimisé
+import Link from "next/link"; // Navigation entre pages
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"; // Client Supabase
+import Sidebar from "../components/sidebars/Sidebar"; // Barre latérale
+import { useAuth } from "../components/Auth/AuthProvider"; // Contexte d'authentification
 
 export default function LoginPage() {
-  const supabase = createClientComponentClient();
-  const router = useRouter();
-  const { role, isLoading } = useAuth();
+  const supabase = createClientComponentClient(); // Initialisation du client Supabase
+  const router = useRouter(); // Router pour la navigation
+  const { role, isLoading } = useAuth(); // Récupération du rôle utilisateur
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  // États pour le formulaire
+  const [email, setEmail] = useState(""); // Email de l'utilisateur
+  const [password, setPassword] = useState(""); // Mot de passe
+  const [rememberMe, setRememberMe] = useState(false); // Option se souvenir de moi
+  const [loading, setLoading] = useState(false); // État de chargement
+  const [error, setError] = useState<string | null>(null); // Message d'erreur
+  const [showPassword, setShowPassword] = useState(false); // Afficher le mot de passe
+  const [isClient, setIsClient] = useState(false); // Vérification du rendu côté client
 
+  // Récupération des identifiants enregistrés au chargement
   useEffect(() => {
-    setIsClient(true);
+    setIsClient(true); // Marque que le composant est chargé côté client
 
     const savedEmail = localStorage.getItem("rememberedEmail");
     const savedPassword = localStorage.getItem("rememberedPassword");
 
+    // Restauration des identifiants si présents
     if (savedEmail) {
       setEmail(savedEmail);
       setRememberMe(true);
@@ -34,23 +37,25 @@ export default function LoginPage() {
 
     if (savedPassword) {
       try {
-        setPassword(atob(savedPassword)); // ✅ déchiffre
+        setPassword(atob(savedPassword)); // Déchiffrement du mot de passe
       } catch (e) {
         console.warn("Mot de passe corrompu dans le localStorage");
       }
     }
   }, []);
 
+  // Redirection si déjà connecté
   useEffect(() => {
     if (!isLoading) {
       if (role === "admin") {
-        router.push("/dashboard/admin");
+        router.push("/dashboard/admin"); // Redirection vers le dashboard admin
       } else if (role === "adherent") {
-        router.push("/");
+        router.push("/"); // Redirection vers la page d'accueil
       }
     }
   }, [role, isLoading]);
 
+  // Traduction des messages d'erreur en français
   const translateError = (errorMessage: string): string => {
     switch (errorMessage) {
       case "Invalid login credentials":
@@ -70,11 +75,13 @@ export default function LoginPage() {
     }
   };
 
+  // Gestion de la connexion
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    // Tentative de connexion avec Supabase
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -92,15 +99,16 @@ export default function LoginPage() {
       return;
     }
 
-    // ✅ Sauvegarde si la case est cochée
+    // Sauvegarde des identifiants si l'option est cochée
     if (rememberMe) {
       localStorage.setItem("rememberedEmail", email);
-      localStorage.setItem("rememberedPassword", btoa(password)); // ✅ encodage
+      localStorage.setItem("rememberedPassword", btoa(password)); // Encodage du mot de passe
     } else {
       localStorage.removeItem("rememberedEmail");
       localStorage.removeItem("rememberedPassword");
     }
 
+    // Récupération des données utilisateur pour déterminer son rôle
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
     if (userError || !userData?.user) {
@@ -109,10 +117,12 @@ export default function LoginPage() {
       return;
     }
 
+    // Vérification du rôle dans les métadonnées
     const metadata = userData.user.user_metadata;
     const isAdmin = metadata?.administrateur === true;
     const isAdherent = metadata?.statut_inscription === "inscrit";
 
+    // Redirection selon le rôle
     if (isAdmin) {
       router.push("/dashboard/admin");
     } else if (isAdherent) {
@@ -124,17 +134,20 @@ export default function LoginPage() {
     setLoading(false);
   };
 
+  // Navigation vers la page d'inscription
   const redirectToSignup = () => {
     router.push("/inscription");
   };
 
   return (
     <div>
+      {/* Arrière-plan avec image */}
       <div
         className="flex items-center justify-center h-screen bg-cover bg-center"
         style={{ backgroundImage: "url('/photos/MainPage_bg.jpg')" }}
       >
         <div className="flex flex-col md:flex-row items-center justify-center gap-32">
+          {/* Logo (affiché uniquement sur desktop) */}
           {isClient && (
             <div className="hidden md:flex items-center justify-center">
               <Image
@@ -147,17 +160,20 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* Formulaire de connexion */}
           <div className="card w-full max-w-sm bg-blue-900 bg-opacity-90 shadow-xl p-6 md:p-8">
             <h2 className="text-2xl font-bold text-center mb-6 text-white">
               Connexion
             </h2>
             <form onSubmit={handleLogin}>
+              {/* Affichage des erreurs */}
               {error && (
                 <div className="alert alert-error shadow-lg mb-4">
                   <span>{error}</span>
                 </div>
               )}
 
+              {/* Champ email */}
               <div className="form-control mb-4">
                 <label className="label text-white">
                   <span>Email</span>
@@ -172,6 +188,7 @@ export default function LoginPage() {
                 />
               </div>
 
+              {/* Champ mot de passe avec option de visibilité */}
               <div className="form-control mb-4">
                 <label className="label text-white">
                   <span>Mot de passe</span>
@@ -195,7 +212,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* ✅ Case "Se souvenir de moi" */}
+              {/* Option "Se souvenir de moi" */}
               <div className="form-control mb-4">
                 <label className="cursor-pointer flex items-center gap-2 text-white">
                   <input
@@ -208,6 +225,7 @@ export default function LoginPage() {
                 </label>
               </div>
 
+              {/* Bouton de connexion */}
               <button
                 type="submit"
                 className={`btn btn-primary w-full text-black bg-white border-none hover:bg-gray-100 ${
@@ -219,6 +237,7 @@ export default function LoginPage() {
               </button>
             </form>
 
+            {/* Liens de navigation */}
             <div className="mt-6 text-center">
               <Link
                 href="/mot-de-passe-oublie"
@@ -239,7 +258,7 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <Sidebar />
+      <Sidebar /> {/* Barre latérale de navigation */}
     </div>
   );
 }

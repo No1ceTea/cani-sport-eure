@@ -18,19 +18,17 @@ const GalleryPage = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isPc, setIsPc] = useState(false);
 
-  // Vérifier si on est sur PC
   useEffect(() => {
     const handleResize = () => {
-      setIsPc(window.innerWidth > 768); // Par exemple, écran supérieur à 768px est considéré comme PC
+      setIsPc(window.innerWidth > 768);
     };
 
-    handleResize(); // Vérifier lors du chargement initial
+    handleResize();
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fonction pour récupérer les images depuis Supabase
   useEffect(() => {
     const fetchImages = async () => {
       const { data, error } = await supabase.storage.from("photo").list();
@@ -41,9 +39,16 @@ const GalleryPage = () => {
       }
 
       const imageUrls = data
-        .filter((file) => file.name.endsWith(".png") || file.name.endsWith(".jpg") || file.name.endsWith(".jpeg"))
+        .filter(
+          (file) =>
+            file.name.endsWith(".png") ||
+            file.name.endsWith(".jpg") ||
+            file.name.endsWith(".jpeg")
+        )
         .map((file) => ({
-          url: supabase.storage.from("photo").getPublicUrl(file.name).data.publicUrl || "",
+          url:
+            supabase.storage.from("photo").getPublicUrl(file.name).data
+              .publicUrl || "",
           createdAt: file.created_at || "",
         }));
 
@@ -54,22 +59,15 @@ const GalleryPage = () => {
   }, []);
 
   const filteredImages = images.filter((image) => {
-    const matchesSearch = searchTerm === "" || image.url.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      searchTerm === "" ||
+      image.url.toLowerCase().includes(searchTerm.toLowerCase());
     const imageDate = new Date(image.createdAt);
-    const matchesStartDate = startDate === "" || imageDate >= new Date(startDate);
+    const matchesStartDate =
+      startDate === "" || imageDate >= new Date(startDate);
     const endDateObj = endDate ? new Date(endDate + "T23:59:59") : null;
-    const matchesEndDate = endDate === "" || (endDateObj && imageDate <= endDateObj);
-
-
-const handleDelete = (id: string) => {
-  console.log(`Supprimer l'article avec l'id: ${id}`);
-  // Logique pour supprimer l'article
-};
-
-const handleEdit = (id: string) => {
-  console.log(`Modifier l'article avec l'id: ${id}`);
-  // Logique pour modifier l'article
-};
+    const matchesEndDate =
+      endDate === "" || (endDateObj && imageDate <= endDateObj);
 
     return matchesSearch && matchesStartDate && matchesEndDate;
   });
@@ -96,7 +94,6 @@ const handleEdit = (id: string) => {
         Galerie de photo
       </h1>
 
-      {/* Filtres de recherche */}
       <div className="flex flex-wrap gap-4 mb-8">
         <div
           className="flex items-center px-4 py-2 border w-full sm:w-auto"
@@ -128,7 +125,12 @@ const handleEdit = (id: string) => {
           }}
         >
           <label className="mr-2 font-calibri text-black">Du</label>
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="outline-none" />
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="outline-none"
+          />
         </div>
 
         <div
@@ -141,15 +143,26 @@ const handleEdit = (id: string) => {
           }}
         >
           <label className="mr-2 font-calibri text-black">Au</label>
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="outline-none" />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="outline-none"
+          />
         </div>
       </div>
 
-      {/* Galerie des images */}
-      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4" style={{ paddingLeft: "2rem", paddingRight: "2rem" }}>
+      <div
+        className="columns-1 sm:columns-2 lg:columns-3 gap-4"
+        style={{ paddingLeft: "2rem", paddingRight: "2rem" }}
+      >
         {filteredImages.length > 0 ? (
           filteredImages.map((image, index) => (
-            <div key={index} className="mb-4 cursor-pointer" onClick={() => isPc && setSelectedImage(image.url)}>
+            <div
+              key={index}
+              className="mb-4 cursor-pointer"
+              onClick={() => isPc && setSelectedImage(image.url)}
+            >
               <Image
                 src={image.url}
                 alt={`Gallery image ${index}`}
@@ -164,7 +177,6 @@ const handleEdit = (id: string) => {
         )}
       </div>
 
-      {/* Lightbox / Modale */}
       {selectedImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
@@ -174,7 +186,7 @@ const handleEdit = (id: string) => {
             <Image
               src={selectedImage}
               alt="Image en grand"
-              width={800} // Dimensions pour la version grand écran
+              width={800}
               height={800}
               className="rounded-lg"
             />

@@ -1,16 +1,17 @@
-"use client";
+"use client"; // Indique que ce composant s'exécute côté client
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { ArticleCardAdmin } from "../components/ArticlesComponentsAdmin";
-import AddArticleModal from "../components/AddArticleModal";
-import EditArticleModal from "../components/EditArticleModal";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import SidebarAdmin from "../components/SidebarAdmin";
-import ModalConfirm from "../components/ModalConfirm";
-import { useAuth } from "@/app/components/Auth/AuthProvider";
-import { FaSearch } from "react-icons/fa";
+import { useState, useEffect } from "react"; // Hooks React pour les états et effets
+import { useRouter } from "next/navigation"; // Navigation entre pages
+import { ArticleCardAdmin } from "../components/ArticlesComponentsAdmin"; // Composant de carte d'article
+import AddArticleModal from "../components/AddArticleModal"; // Modal d'ajout d'article
+import EditArticleModal from "../components/EditArticleModal"; // Modal d'édition d'article
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"; // Client Supabase
+import SidebarAdmin from "../components/SidebarAdmin"; // Barre latérale admin
+import ModalConfirm from "../components/ModalConfirm"; // Modal de confirmation
+import { useAuth } from "@/app/components/Auth/AuthProvider"; // Contexte d'authentification
+import { FaSearch } from "react-icons/fa"; // Icône de recherche
 
+// Structure des articles
 interface Article {
   id: string;
   title: string;
@@ -23,26 +24,31 @@ interface Article {
 }
 
 const ArticlesPage: React.FC = () => {
-  const supabase = createClientComponentClient();
-  const { user, role, isLoading } = useAuth();
-  const router = useRouter();
+  const supabase = createClientComponentClient(); // Initialisation du client Supabase
+  const { user, role, isLoading } = useAuth(); // Récupération des infos d'authentification
+  const router = useRouter(); // Router pour la navigation
 
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [currentArticleId, setCurrentArticleId] = useState<string | null>(null);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
+  // États pour la gestion des articles
+  const [articles, setArticles] = useState<Article[]>([]); // Liste des articles
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Terme de recherche
+  const [startDate, setStartDate] = useState<string>(""); // Filtre de date début
+  const [endDate, setEndDate] = useState<string>(""); // Filtre de date fin
 
+  // États pour les modales
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal d'ajout
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal d'édition
+  const [currentArticleId, setCurrentArticleId] = useState<string | null>(null); // ID de l'article en cours d'édition
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // Modal de confirmation
+  const [articleToDelete, setArticleToDelete] = useState<string | null>(null); // ID de l'article à supprimer
+
+  // Protection de la route - redirection si l'utilisateur n'est pas admin
   useEffect(() => {
     if (!isLoading && (!user || role !== "admin")) {
       router.replace("/connexion");
     }
   }, [user, role, isLoading, router]);
 
+  // Récupération des articles depuis Supabase
   const fetchArticles = async () => {
     const { data, error } = await supabase
       .from("publication")
@@ -53,6 +59,7 @@ const ArticlesPage: React.FC = () => {
       return;
     }
 
+    // Enrichissement des articles avec les données des auteurs
     const articlesWithProfiles = await Promise.all(
       data.map(async (article) => {
         const { data: profileData } = await supabase
@@ -77,50 +84,63 @@ const ArticlesPage: React.FC = () => {
     setArticles(articlesWithProfiles);
   };
 
+  // Chargement des articles au montage du composant
   useEffect(() => {
     if (user && role === "admin") fetchArticles();
   }, [user, role]);
 
+  // Préparation de la suppression d'un article
   const confirmDelete = (id: string) => {
     setArticleToDelete(id);
     setIsConfirmOpen(true);
   };
 
+  // Suppression effective d'un article
   const handleDelete = async () => {
     if (!articleToDelete) return;
-    const { error } = await supabase.from("publication").delete().eq("id", articleToDelete);
-    if (!error) setArticles((prev) => prev.filter((a) => a.id !== articleToDelete));
+    const { error } = await supabase
+      .from("publication")
+      .delete()
+      .eq("id", articleToDelete);
+    if (!error)
+      setArticles((prev) => prev.filter((a) => a.id !== articleToDelete));
     setIsConfirmOpen(false);
     setArticleToDelete(null);
   };
 
+  // Ouverture de l'éditeur d'article
   const handleEdit = (id: string) => {
     setCurrentArticleId(id);
     setIsEditModalOpen(true);
   };
 
+  // Fermeture des modales
   const handleCloseModal = () => setIsModalOpen(false);
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setCurrentArticleId(null);
   };
 
+  // Filtrage des articles selon les critères de recherche
   const filteredArticles = articles.filter((article) => {
     return (
-      (!searchQuery || article.title.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!searchQuery ||
+        article.title.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (!startDate || article.date >= startDate) &&
       (!endDate || article.date <= endDate)
     );
   });
 
+  // Affichage vide pendant le chargement ou si non autorisé
   if (isLoading || !user || role !== "admin") return null;
 
   return (
     <div className="flex h-screen overflow-hidden">
+      {/* Barre latérale avec bouton d'ajout */}
       <SidebarAdmin onAdd={() => setIsModalOpen(true)} />
 
       <div className="p-6 py-16 mx-auto flex-1 flex flex-col">
-        {/* 🔍 Barre de recherche responsive */}
+        {/* Barre de recherche responsive */}
         <div className="relative w-full max-w-2xl mb-6">
           <input
             type="text"
@@ -132,17 +152,21 @@ const ArticlesPage: React.FC = () => {
           <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-900 text-base sm:text-lg" />
         </div>
 
-        {/* 📰 Grille d'articles responsive */}
+        {/* Grille d'articles responsive */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full overflow-y-auto p-2">
           {filteredArticles.map((article) => (
             <div key={article.id}>
-              <ArticleCardAdmin article={article} onDelete={() => confirmDelete(article.id)} onEdit={handleEdit} />
+              <ArticleCardAdmin
+                article={article}
+                onDelete={() => confirmDelete(article.id)}
+                onEdit={handleEdit}
+              />
             </div>
           ))}
         </div>
       </div>
 
-      {/* 🔒 Modales */}
+      {/* Modales de confirmation, ajout et édition */}
       <ModalConfirm
         isOpen={isConfirmOpen}
         title="Confirmer la suppression"
