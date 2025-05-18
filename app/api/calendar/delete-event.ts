@@ -16,6 +16,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!eventId) {
     return res.status(400).json({ error: "ID de l'événement requis" });
   }
+  // Validation de l'ID de l'événement
+  const eventIdPattern = /^[a-zA-Z0-9_-]+$/; // Autorise uniquement les caractères alphanumériques, tirets et underscores
+  if (!eventIdPattern.test(eventId)) {
+    return res.status(400).json({ error: "ID de l'événement invalide" });
+  }
 
   try {
     // Requête DELETE à l'API Google Calendar pour supprimer l'événement
