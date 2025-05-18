@@ -80,6 +80,13 @@ export default function PetProfileForm() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Veuillez sélectionner un fichier image valide.");
+      return;
+    }
+
     setImage(file);
     setPhotoPreview(URL.createObjectURL(file)); // Création d'URL pour prévisualisation
   };
@@ -220,6 +227,10 @@ export default function PetProfileForm() {
                     src={photoPreview}
                     alt="Photo du chien"
                     className="w-32 h-32 object-cover rounded-full shadow-md"
+                    onError={(e) => {
+                      e.currentTarget.src = ""; // Fallback to empty if the URL is invalid
+                      alert("Erreur lors du chargement de l'image.");
+                    }}
                   />
                 ) : (
                   <div className="w-32 h-32 flex items-center justify-center text-center text-sm font-medium bg-gray-300 rounded-full text-black">
