@@ -17,6 +17,7 @@ export default function Inscription() {
   const [error, setError] = useState<string | null>(null); // Message d'erreur
   const [passwordError, setPasswordError] = useState<string | null>(null); // Erreur spécifique au mot de passe
   const [showSuccessModal, setShowSuccessModal] = useState(false); // Affichage de la modale de succès
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false); // Affichage de la modale de politique de confidentialité
 
   // Validation du mot de passe selon les normes européennes
   const validatePassword = (password: string): string | null => {
@@ -191,9 +192,13 @@ export default function Inscription() {
                   />
                   <span>
                     J&apos;accepte la{" "}
-                    <a href="/politique" className="hover:underline">
+                    <button
+                      type="button"
+                      onClick={() => setShowPrivacyModal(true)}
+                      className="text-blue-300 underline hover:text-blue-200"
+                    >
                       politique de confidentialité
-                    </a>
+                    </button>
                   </span>
                 </label>
               </div>
@@ -232,6 +237,63 @@ export default function Inscription() {
                 vers la page de connexion.
               </p>
               <span className="loading loading-spinner mt-4"></span>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de politique de confidentialité */}
+        {showPrivacyModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              <h3 className="text-2xl font-bold mb-4">Politique de confidentialité</h3>
+
+              <div className="prose prose-sm">
+                <h4>1. Collecte des données personnelles</h4>
+                <p>
+                  Nous collectons les informations suivantes lorsque vous vous inscrivez sur notre site :
+                  nom, prénom, adresse e-mail, et informations de licence sportive. Ces informations sont
+                  nécessaires à la gestion de votre compte et à votre participation aux activités du club.
+                </p>
+
+                <h4>2. Utilisation des données</h4>
+                <p>
+                  Vos données sont utilisées pour :
+                </p>
+                <ul>
+                  <li>Gérer votre adhésion au club</li>
+                  <li>Vous informer des événements et activités</li>
+                  <li>Traiter vos inscriptions aux compétitions</li>
+                  <li>Communiquer avec vous concernant le fonctionnement du club</li>
+                </ul>
+
+                <h4>3. Conservation des données</h4>
+                <p>
+                  Vos données sont conservées pendant la durée de votre adhésion au club,
+                  puis archivées pendant une période de 3 ans après votre dernière activité.
+                </p>
+
+                <h4>4. Sécurité</h4>
+                <p>
+                  Nous mettons en œuvre des mesures de sécurité pour protéger vos informations
+                  personnelles contre tout accès non autorisé et toute divulgation.
+                </p>
+
+                <h4>5. Vos droits</h4>
+                <p>
+                  Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de rectification,
+                  d&apos;opposition et de suppression de vos données. Pour exercer ces droits,
+                  veuillez nous contacter à l&apos;adresse <strong>g4simgamecs27@gmail.com</strong>.
+                </p>
+              </div>
+
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => setShowPrivacyModal(false)}
+                  className="btn btn-primary"
+                >
+                  Fermer
+                </button>
+              </div>
             </div>
           </div>
         )}
