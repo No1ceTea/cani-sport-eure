@@ -31,6 +31,7 @@
     "cookies-next": "^5.1.0",
     "daisyui": "^4.12.24",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.12.1",
     "gapi": "^0.0.3",
     "gapi-script": "^1.2.0",
     "googleapis": "^146.0.0",
