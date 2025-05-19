@@ -45,8 +45,12 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
     const fetchData = async () => {
       const { data: chiensData } = await supabase.from("chiens").select("*");
       const { data: profilsData } = await supabase.from("profils").select("*");
-      const { data: catData } = await supabase.from("categorieResultat").select("*");
-      const { data: typeData } = await supabase.from("resultatType").select("*");
+      const { data: catData } = await supabase
+        .from("categorieResultat")
+        .select("*");
+      const { data: typeData } = await supabase
+        .from("resultatType")
+        .select("*");
 
       if (chiensData) setChiens(chiensData);
       if (profilsData) setProfils(profilsData);
@@ -59,7 +63,9 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
 
   useEffect(() => {
     if (id_profil) {
-      const relatedChiens = chiens.filter((chien) => chien.id_profil === id_profil);
+      const relatedChiens = chiens.filter(
+        (chien) => chien.id_profil === id_profil
+      );
       setFilteredChiens(relatedChiens);
       setIdChien("");
     } else {
@@ -75,13 +81,35 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
   }, []);
 
   const resetForm = () => {
-    setDate(""); setTemps(""); setVitesse(""); setDistance("");
-    setRegion(""); setLieu(""); setNomActivite(""); setKmAR(""); setClassement("");
-    setIdChien(""); setIdProfil(""); setIdCategorie(""); setIdType("");
+    setDate("");
+    setTemps("");
+    setVitesse("");
+    setDistance("");
+    setRegion("");
+    setLieu("");
+    setNomActivite("");
+    setKmAR("");
+    setClassement("");
+    setIdChien("");
+    setIdProfil("");
+    setIdCategorie("");
+    setIdType("");
   };
 
   const handleAddResult = async () => {
-    if (!date || !temps || !vitesse || !distance || !region || !lieu || !nomActivite || !id_chien || !id_profil || !id_categorie || !id_type) {
+    if (
+      !date ||
+      !temps ||
+      !vitesse ||
+      !distance ||
+      !region ||
+      !lieu ||
+      !nomActivite ||
+      !id_chien ||
+      !id_profil ||
+      !id_categorie ||
+      !id_type
+    ) {
       setMessage("❌ Veuillez remplir tous les champs obligatoires.");
       return;
     }
@@ -91,11 +119,23 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
 
     const insertResponse = await supabase
       .from("resultats")
-      .insert([{
-        date, temps, vitesse, distance, region, lieu,
-        nomActivite, kmAR, classement,
-        id_chien, id_profil, id_categorie, id_type,
-      }])
+      .insert([
+        {
+          date,
+          temps,
+          vitesse,
+          distance,
+          region,
+          lieu,
+          nomActivite,
+          kmAR,
+          classement,
+          id_chien,
+          id_profil,
+          id_categorie,
+          id_type,
+        },
+      ])
       .select("id")
       .single();
 
@@ -108,13 +148,15 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
 
     const { data: fullData, error: refetchError } = await supabase
       .from("resultats")
-      .select(`
+      .select(
+        `
         *,
         chiens ( prenom ),
         profils ( nom, prenom ),
         categorieResultat ( nom_categorie ),
         resultatType ( nom_resultat )
-      `)
+      `
+      )
       .eq("id", insertResponse.data.id)
       .single();
 
@@ -131,82 +173,201 @@ const ModalAdd = ({ isOpen, onClose, onAdd }: ModalAddProps) => {
     setLoading(false);
   };
 
+  const regions = [
+    "Auvergne-Rhône-Alpes",
+    "Bourgogne-Franche-Comté",
+    "Bretagne",
+    "Centre-Val de Loire",
+    "Corse",
+    "Grand Est",
+    "Hauts-de-France",
+    "Île-de-France",
+    "Normandie",
+    "Nouvelle-Aquitaine",
+    "Occitanie",
+    "Pays de la Loire",
+    "Provence-Alpes-Côte d'Azur",
+    "Guadeloupe",
+    "Guyane",
+    "Martinique",
+    "Mayotte",
+    "La Réunion",
+  ];
+
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${
-        isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        isOpen
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none"
       }`}
     >
       <div className="p-4 sm:p-8 w-full h-full flex items-center justify-center">
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-full overflow-y-auto relative">
-
-        <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
-          <FaTimes />
-        </button>
-
-        <h2 className="text-2xl font-bold mb-4 text-center">Ajouter un Résultat</h2>
-        <hr className="mb-6 border-gray-300" />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <select value={id_profil} onChange={(e) => setIdProfil(e.target.value)} className="p-3 border border-gray-300 rounded">
-            <option value="">-- Sélectionner un participant --</option>
-            {profils.map((p) => (
-              <option key={p.id} value={p.id}>{p.nom} {p.prenom}</option>
-            ))}
-          </select>
-
-          <select value={id_chien} onChange={(e) => setIdChien(e.target.value)} className="p-3 border border-gray-300 rounded">
-            <option value="">-- Sélectionner un chien --</option>
-            {filteredChiens.map((c) => (
-              <option key={c.id} value={c.id}>{c.prenom}</option>
-            ))}
-          </select>
-
-          <select value={id_categorie} onChange={(e) => setIdCategorie(e.target.value)} className="p-3 border border-gray-300 rounded">
-            <option value="">-- Sélectionner une catégorie --</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.nom_categorie}</option>
-            ))}
-          </select>
-
-          <select value={id_type} onChange={(e) => setIdType(e.target.value)} className="p-3 border border-gray-300 rounded">
-            <option value="">-- Sélectionner un type --</option>
-            {types.map((t) => (
-              <option key={t.id} value={t.id}>{t.nom_resultat}</option>
-            ))}
-          </select>
-
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Date compétition / événements</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="p-3 border border-gray-300 rounded w-full" />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">Temps de parcours du participant</label>
-            <input type="time" step="1" value={temps} onChange={(e) => setTemps(e.target.value)} className="p-3 border border-gray-300 rounded w-full" placeholder="Temps" />
-          </div>
-
-          <input type="text" value={vitesse} onChange={(e) => setVitesse(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Vitesse" />
-          <input type="text" value={distance} onChange={(e) => setDistance(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Distance" />
-          <input type="text" value={region} onChange={(e) => setRegion(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Région" />
-          <input type="text" value={lieu} onChange={(e) => setLieu(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Lieu" />
-          <input type="text" value={nomActivite} onChange={(e) => setNomActivite(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Nom Activité" />
-          <input type="text" value={kmAR} onChange={(e) => setKmAR(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="km Aller-Retour" />
-          <input type="text" value={classement} onChange={(e) => setClassement(e.target.value)} className="p-3 border border-gray-300 rounded" placeholder="Classement" />
-        </div>
-
-        <div className="text-center mt-6">
           <button
-            onClick={handleAddResult}
-            disabled={loading}
-            className="bg-blue-700 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-blue-900"
+            onClick={onClose}
+            className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
           >
-            {loading ? "Ajout en cours..." : "Ajouter le résultat"}
+            <FaTimes />
           </button>
-        </div>
 
-        {message && <p className="text-center text-sm mt-4 text-red-500">{message}</p>}
-      </div>
+          <h2 className="text-2xl font-bold mb-4 text-center">
+            Ajouter un Résultat
+          </h2>
+          <hr className="mb-6 border-gray-300" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <select
+              value={id_profil}
+              onChange={(e) => setIdProfil(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+            >
+              <option value="">-- Sélectionner un participant --</option>
+              {profils.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nom} {p.prenom}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={id_chien}
+              onChange={(e) => setIdChien(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+            >
+              <option value="">-- Sélectionner un chien --</option>
+              {filteredChiens.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.prenom}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={id_categorie}
+              onChange={(e) => setIdCategorie(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+            >
+              <option value="">-- Sélectionner une catégorie --</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.nom_categorie}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={id_type}
+              onChange={(e) => setIdType(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+            >
+              <option value="">-- Sélectionner un type --</option>
+              {types.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.nom_resultat}
+                </option>
+              ))}
+            </select>
+
+            <div>
+              <label className="block text-sm text-gray-700 mb-1">
+                Date compétition / événements
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="p-3 border border-gray-300 rounded w-full"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-700 mb-1">
+                Temps de parcours du participant
+              </label>
+              <input
+                type="time"
+                step="1"
+                value={temps}
+                onChange={(e) => setTemps(e.target.value)}
+                className="p-3 border border-gray-300 rounded w-full"
+                placeholder="Temps"
+              />
+            </div>
+
+            <input
+              type="text"
+              value={vitesse}
+              onChange={(e) => setVitesse(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+              placeholder="Vitesse"
+            />
+            <input
+              type="text"
+              value={distance}
+              onChange={(e) => setDistance(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+              placeholder="Distance"
+            />
+            <div>
+              <label className="block text-sm text-gray-700 mb-1">Région</label>
+              <select
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                className="p-3 border border-gray-300 rounded w-full"
+              >
+                <option value="">-- Sélectionner une région --</option>
+                {regions.map((regionName) => (
+                  <option key={regionName} value={regionName}>
+                    {regionName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <input
+              type="text"
+              value={lieu}
+              onChange={(e) => setLieu(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+              placeholder="Lieu"
+            />
+            <input
+              type="text"
+              value={nomActivite}
+              onChange={(e) => setNomActivite(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+              placeholder="Nom Activité"
+            />
+            <input
+              type="text"
+              value={kmAR}
+              onChange={(e) => setKmAR(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+              placeholder="km Aller-Retour"
+            />
+            <input
+              type="text"
+              value={classement}
+              onChange={(e) => setClassement(e.target.value)}
+              className="p-3 border border-gray-300 rounded"
+              placeholder="Classement"
+            />
+          </div>
+
+          <div className="text-center mt-6">
+            <button
+              onClick={handleAddResult}
+              disabled={loading}
+              className="bg-blue-700 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-blue-900"
+            >
+              {loading ? "Ajout en cours..." : "Ajouter le résultat"}
+            </button>
+          </div>
+
+          {message && (
+            <p className="text-center text-sm mt-4 text-red-500">{message}</p>
+          )}
+        </div>
       </div>
     </div>
   );
