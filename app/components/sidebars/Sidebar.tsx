@@ -105,6 +105,14 @@ export default function Sidebar() {
                 Boutique
               </a>
             </li>
+            <li>
+              <a
+                href="https://courses.ffslc.fr/license-ffslc-subscribe"
+                className="hover:text-gray-300"
+              >
+                Prendre une licence
+              </a>
+            </li>
 
             {/* ✅ Si connecté (adhérent ou admin) */}
             {(role === "adherent" || role === "admin") && (
