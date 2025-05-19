@@ -286,49 +286,10 @@ const ArticleDetail = () => {
                             })}</span>
                           </div>
                         </div>
-                        
-                        <div className="ml-auto flex space-x-2">
-                          <button 
-                            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                            aria-label="Partager"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                            </svg>
-                          </button>
-                        </div>
                       </div>
                       
                       {/* Table des matières (mobile) */}
                       <TableOfContents content={article.contenu} />
-                      
-                      {/* Boutons de partage */}
-                      <div className="flex space-x-4 mb-6">
-                        <a 
-                          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                          aria-label="Partager sur Facebook"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M22.675 0h-21.35C.596 0 0 .596 0 1.325v21.35C0 23.404.596 24 1.325 24h11.494v-9.294H9.691V12h3.128c.391-2.834 2.451-4.978 5.091-4.978 1.446 0 2.748.529 3.765 1.398.227.197.43.415.615.646.173.213.327.44.46.675.113.203.215.413.293.628.073.204.134.415.174.628.034.173.057.348.057.525v2.293h-4.812c-.391 0-.708.317-.708.708v3.582c0 .391.317.708.708.708h4.812v9.294h4.812V12h3.128c.391 0 .708-.317.708-.708v-3.582c0-.391-.317-.708-.708-.708h-3.128V4.293c0-1.173.195-2.293.577-3.325C22.078.596 22.675 0 23.404 0h.271c.729 0 1.326.596 1.326 1.325v21.35c0 .729-.597 1.325-1.326 1.325h-.271c-.729 0-1.326-.596-1.326-1.325v-9.294h-4.812v9.294h-4.812v-9.294H9.691v9.294H5.879v-9.294H1.325C.596 12 0 11.404 0 10.675V1.325C0 .596.596 0 1.325 0h21.35c.729 0 1.325.596 1.325 1.325v21.35c0 .729-.596 1.325-1.325 1.325h-21.35C.596 24 0 23.404 0 22.675V1.325C0 .596.596 0 1.325 0h21.35z" />
-                          </svg>
-                          Partager sur Facebook
-                        </a>
-                        <a 
-                          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${encodeURIComponent(article.titre)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
-                          aria-label="Partager sur Twitter"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M23.643 4.937c-.835.392-1.732.656-2.675.775a4.686 4.686 0 002.043-2.573 9.354 9.354 0 01-2.977 1.134A4.659 4.659 0 0016.337 3c-2.573 0-4.658 2.085-4.658 4.658 0 .365.041.719.122 1.061-3.872-.194-7.303-2.051-9.605-4.867a4.646 4.646 0 00-.628 2.337c0 1.617.823 3.057 2.073 3.895a4.617 4.617 0 01-2.107-.582v.059c0 2.247 1.596 4.115 3.719 4.54a4.645 4.645 0 01-2.103.08 4.66 4.66 0 004.348 3.233A9.354 9.354 0 012.5 18.54a13.186 13.186 0 007.29 2.146c8.748 0 13.548-7.25 13.548-13.548 0-.207 0-.413-.014-.619a9.688 9.688 0 002.385-2.465z" />
-                          </svg>
-                          Partager sur Twitter
-                        </a>
-                      </div>
                       
                       {/* Contenu */}
                       <div className="prose prose-lg max-w-none">

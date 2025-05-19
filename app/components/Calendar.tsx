@@ -2,7 +2,7 @@
 
 import "moment/locale/fr";
 import { useEffect, useState } from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import { Calendar, momentLocalizer, View } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import supabase from "@/lib/supabaseClient";
@@ -18,9 +18,9 @@ interface EventData {
   title: string;
   start: Date;
   end: Date;
-  color?: string;
+  color: string;
   allDay?: boolean;
-  location?: string;
+  location: string;
   description?: string;
 }
 
@@ -86,9 +86,7 @@ export default function MyCalendar({
   const [windowWidth, setWindowWidth] = useState(0);
   const [currentDate, setCurrentDate] = useState(new Date());
   // 1. Ajoutez un nouvel état pour suivre la vue active
-  const [view, setView] = useState<"month" | "week" | "day" | "agenda">(
-    "month"
-  );
+  const [view, setView] = useState<View>("month");
 
   useEffect(() => {
     const getToken = async () => {
@@ -127,69 +125,40 @@ export default function MyCalendar({
     };
   }, []);
 
-  // 1. Modifier la fonction fetchEvents pour garantir que tous les événements ont les propriétés requises
   const fetchEvents = async (token: string | null = null) => {
-    setIsLoading(true);
     try {
       const res = await fetch("/api/calendar", {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await res.json();
       if (Array.isArray(data)) {
-        // Filtrer et mapper les événements tout en vérifiant qu'ils sont valides
-        const validEvents = data
-          .filter((event: any) => {
-            // Vérifier que l'événement est valide et possède les propriétés nécessaires
-            if (!event || !event.start || !event.summary) {
-              console.warn("Événement invalide détecté:", event);
-              return false;
-            }
-            const { visibility } = parseColorVisibility(
-              event.description || ""
-            );
-            return !(hidePrivate && visibility === "private");
-          })
-          .map((event: any) => {
-            try {
-              const { color, description, visibility } = parseColorVisibility(
-                event.description || ""
-              );
+        setEvents(
+          data
+            .filter((event: any) => {
+              const { visibility } = parseColorVisibility(event.description || "");
+              return !(hidePrivate && visibility === "private");
+            })
+            .map((event: any) => {
+              const { color, description, visibility } = parseColorVisibility(event.description || "");
               const start = new Date(event.start.dateTime || event.start.date);
               const end = new Date(event.end.dateTime || event.end.date);
               const icon = visibility === "private" ? "🔒" : "🌍";
               const cleanTitle = event.summary.replace(/^🔒 |^🌍 /, "");
-
               return {
                 id: event.id,
-                title: `${icon} ${cleanTitle || "Sans titre"}`,
+                title: `${icon} ${cleanTitle}`,
                 start,
                 end,
                 color,
-                location: event.location || "",
-                description: description || "",
+                location: event.location,
+                description,
               };
-            } catch (err) {
-              console.warn(
-                "Erreur lors de la transformation d'un événement:",
-                err
-              );
-              return null;
-            }
-          })
-          // Remplacer filter(Boolean) par un filtrage explicite avec un type predicate
-          .filter((event): event is EventData => event !== null);
-
-        setEvents(validEvents);
+            })
+        );
       }
     } catch (err) {
       console.error("Erreur API Calendar:", err);
-      setToast({
-        show: true,
-        message: "Impossible de charger les événements.",
-        type: "error",
-      });
-    } finally {
-      setIsLoading(false);
+      alert("Impossible de charger les événements.");
     }
   };
 
@@ -222,8 +191,8 @@ export default function MyCalendar({
     setShowActionModal(true);
   };
 
-  const handleViewChange = (newView: "month" | "week" | "day" | "agenda") => {
-    setView(newView);
+  const handleViewChange = (view: View) => {
+    setView(view);
   };
 
   const handleCalendarNavigate = (date: Date, view: any, action: string) => {
