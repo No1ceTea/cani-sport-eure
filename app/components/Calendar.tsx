@@ -79,8 +79,14 @@ export default function MyCalendar({ mode = "public", hidePrivate = false }: Cal
   }, []);
 
   useEffect(() => {
-    if (userToken !== null) fetchEvents(userToken);
-  }, [userToken]);
+    // Pour utilisateurs non connectés ou en mode public, fetcher les événements sans token
+    if (mode === "public" || userToken === null) {
+      fetchEvents(null);
+    } else {
+      // Pour adhérents et admins connectés, utiliser le token
+      fetchEvents(userToken);
+    }
+  }, [userToken, mode]);
 
   const fetchEvents = async (token: string | null = null) => {
     try {
