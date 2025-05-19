@@ -8,6 +8,7 @@ import { fr } from "date-fns/locale"; // Localisation française pour les dates
 import WhiteBackground from "@/app/components/backgrounds/WhiteBackground"; // Composant pour le fond blanc
 import Footer from "@/app/components/sidebars/Footer"; // Composant de pied de page
 import Sidebar from "@/app/components/sidebars/Sidebar"; // Barre latérale de navigation
+import Image from "next/image"; // Composant d'image optimisé de Next.js
 
 // Interface définissant la structure d'un article
 interface Article {
@@ -70,38 +71,55 @@ const ArticleDetail = () => {
   if (!article) return <p>Chargement...</p>;
 
   // Calcul du temps écoulé depuis la publication (ex: "il y a 2 jours")
-  const timeAgo = formatDistanceToNow(new Date(article.created_at), { locale: fr, addSuffix: true });
+  const timeAgo = formatDistanceToNow(new Date(article.created_at), {
+    locale: fr,
+    addSuffix: true,
+  });
 
   return (
     <div>
-      <WhiteBackground> {/* Conteneur avec fond blanc */}
+      <WhiteBackground>
+        {" "}
+        {/* Conteneur avec fond blanc */}
         <Sidebar /> {/* Barre latérale de navigation */}
         <div className="min-h-screen px-10 py-6">
           {/* Titre principal de la page */}
-          <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Articles</h1>
+          <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">
+            Articles
+          </h1>
 
           {/* Carte contenant l'article */}
           <div className="bg-blue-900 text-white p-10 rounded-3xl shadow-lg flex flex-col md:flex-row items-left gap-6 max-w-6xl mx-auto border-black border-2 max-h-[800px] overflow-hidden">
-            
             {/* Partie gauche : Texte avec défilement */}
             <div className="flex-1 flex flex-col max-h-[700px] overflow-y-auto p-4">
               {/* Bloc auteur avec avatar */}
               <div className="flex gap-3 mb-4 items-center">
-                <img
+                <Image
                   src={author?.photo_profil || "/default-avatar.png"} // Avatar avec image par défaut
-                  alt={author ? `${author.prenom} ${author.nom}` : "Auteur inconnu"}
+                  alt={
+                    author ? `${author.prenom} ${author.nom}` : "Auteur inconnu"
+                  }
                   className="w-10 h-10 rounded-full"
+                  width={1600}
+                  height={1600}
                 />
                 <div>
-                  <p className="font-bold">{author ? `${author.prenom} ${author.nom}` : "Auteur inconnu"}</p>
-                  <p className="text-sm text-gray-300">{timeAgo}</p> {/* Temps écoulé */}
+                  <p className="font-bold">
+                    {author
+                      ? `${author.prenom} ${author.nom}`
+                      : "Auteur inconnu"}
+                  </p>
+                  <p className="text-sm text-gray-300">{timeAgo}</p>{" "}
+                  {/* Temps écoulé */}
                 </div>
               </div>
-
               {/* Contenu de l'article */}
-              <h2 className="text-xl font-bold">{article.titre}</h2> {/* Titre de l'article */}
-              <p className="mt-2 text-gray-200 whitespace-pre-line">{article.contenu}</p> {/* Contenu avec préservation des sauts de ligne */}
-
+              <h2 className="text-xl font-bold">{article.titre}</h2>{" "}
+              {/* Titre de l'article */}
+              <p className="mt-2 text-gray-200 whitespace-pre-line">
+                {article.contenu}
+              </p>{" "}
+              {/* Contenu avec préservation des sauts de ligne */}
               {/* Date de création formatée */}
               <p className="mt-4 text-sm text-gray-300">
                 Créé le {new Date(article.created_at).toLocaleDateString()}
@@ -110,11 +128,17 @@ const ArticleDetail = () => {
 
             {/* Partie droite : Image fixe */}
             <div className="w-64 h-64 flex-shrink-0">
-              <img src={article.image_url} alt={article.titre} className="w-full h-full object-cover rounded-lg" />
+              <Image
+                src={article.image_url}
+                alt={article.titre}
+                className="w-full h-full object-cover rounded-lg"
+                width={800}
+                height={800}
+              />
             </div>
           </div>
         </div>
-      </WhiteBackground> 
+      </WhiteBackground>
       <Footer /> {/* Pied de page */}
     </div>
   );
