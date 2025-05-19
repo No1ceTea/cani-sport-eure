@@ -11,6 +11,7 @@ import {
   FaChevronRight,
   FaPlus,
   FaTimes,
+  FaDownload, // 👈 Ajoutez cette icône
 } from "react-icons/fa";
 import ModalAddDocument from "../components/ModalAddDocument";
 import Sidebar from "../components/SidebarAdmin";
@@ -35,6 +36,26 @@ interface DocumentFile {
   parent_id?: string | null;
 }
 
+const formatFileSize = (bytes: number | null | undefined): string => {
+  if (bytes === null || bytes === undefined) return "-";
+
+  // Conversion en différentes unités
+  const kb = bytes / 1024;
+  const mb = kb / 1024;
+  const gb = mb / 1024;
+
+  // Sélection de l'unité appropriée
+  if (gb >= 1) {
+    return `${gb.toFixed(2)} GB`;
+  } else if (mb >= 1) {
+    return `${mb.toFixed(2)} MB`;
+  } else if (kb >= 1) {
+    return `${kb.toFixed(2)} KB`;
+  } else {
+    return `${bytes} octets`;
+  }
+};
+
 export default function DocumentManager() {
   const { role, isLoading } = useAuth();
   const router = useRouter();
@@ -52,6 +73,32 @@ export default function DocumentManager() {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 
   const isAdmin = role === "admin";
+
+  const isFolderEmpty = async (folderId: string) => {
+    const { data } = await supabase
+      .from("club_documents")
+      .select("id")
+      .eq("parent_id", folderId);
+    return data?.length === 0;
+  };
+
+  const handleDeleteFolder = async (folderId: string) => {
+    const isEmpty = await isFolderEmpty(folderId);
+    if (isEmpty) {
+      const { error } = await supabase
+        .from("club_documents")
+        .delete()
+        .eq("id", folderId);
+      if (error) {
+        console.error("❌ Erreur de suppression du dossier :", error);
+      } else {
+        console.log(`✅ Dossier supprimé : ${folderId}`);
+        setFiles((prev) => prev.filter((f) => f.id !== folderId));
+      }
+    } else {
+      console.error("❌ Le dossier n'est pas vide !");
+    }
+  };
 
   useEffect(() => {
     if (!isLoading && role !== "admin") {
@@ -79,7 +126,7 @@ export default function DocumentManager() {
           data.map((file) => ({
             id: file.id,
             name: file.name,
-            size: file.size ? (file.size / 1024).toFixed(2) + " KB" : "-",
+            size: formatFileSize(file.size), // Utilisez la fonction de formatage ici
             type: file.type || "Dossier",
             createdAt: file.created_at
               ? new Date(file.created_at).toLocaleString()
@@ -98,33 +145,49 @@ export default function DocumentManager() {
     fetchFiles();
   }, [folderPath, isLoading]);
 
-  const confirmDelete = (id: string) => {
-    setFileToDeleteId(id);
-    setIsConfirmOpen(true);
+  const confirmDelete = (id: string, isFolder: boolean) => {
+    if (isFolder) {
+      // Si c'est un dossier, vérifier d'abord s'il est vide
+      isFolderEmpty(id).then((isEmpty) => {
+        if (isEmpty) {
+          setFileToDeleteId(id);
+          setIsConfirmOpen(true);
+        } else {
+          // Afficher un message d'erreur si le dossier n'est pas vide
+          alert(
+            "Ce dossier contient des éléments et ne peut pas être supprimé. Veuillez d'abord supprimer son contenu."
+          );
+        }
+      });
+    } else {
+      // Pour les fichiers, continuer comme avant
+      setFileToDeleteId(id);
+      setIsConfirmOpen(true);
+    }
   };
 
   const handleDelete = async () => {
     if (!fileToDeleteId) return;
 
-    const { data: session, error: sessionError } =
-      await supabase.auth.getSession();
-    if (sessionError || !session?.session) {
-      console.error("⚠️ Aucun utilisateur connecté ou erreur de session !");
-      setIsErrorModalOpen(true);
-      return;
-    }
+    const fileToDelete = files.find((f) => f.id === fileToDeleteId);
+    if (!fileToDelete) return;
 
-    const { error } = await supabase
-      .from("club_documents")
-      .delete()
-      .match({ id: fileToDeleteId })
-      .single();
-
-    if (error) {
-      console.error("❌ Erreur de suppression :", error);
+    if (fileToDelete.is_folder) {
+      // Utiliser handleDeleteFolder pour les dossiers
+      await handleDeleteFolder(fileToDeleteId);
     } else {
-      console.log(`✅ Fichier/Dossier supprimé : ${fileToDeleteId}`);
-      setFiles((prev) => prev.filter((f) => f.id !== fileToDeleteId));
+      // Code existant pour supprimer les fichiers
+      const { error } = await supabase
+        .from("club_documents")
+        .delete()
+        .match({ id: fileToDeleteId });
+
+      if (error) {
+        console.error("❌ Erreur de suppression :", error);
+      } else {
+        console.log(`✅ Fichier supprimé : ${fileToDeleteId}`);
+        setFiles((prev) => prev.filter((f) => f.id !== fileToDeleteId));
+      }
     }
 
     setFileToDeleteId(null);
@@ -210,6 +273,61 @@ export default function DocumentManager() {
     return "file";
   };
 
+  const refreshCurrentFolder = async () => {
+    if (!isLoading) {
+      // Utiliser la même logique que votre useEffect existant
+      try {
+        const { data, error } = await supabase
+          .from("club_documents")
+          .select("*")
+          .eq("parent_id", folderPath[folderPath.length - 1].id);
+
+        if (error) {
+          console.error("❌ Erreur de chargement des fichiers:", error);
+          return;
+        }
+
+        setFiles(data || []);
+      } catch (error) {
+        console.error("❌ Exception lors du chargement des fichiers:", error);
+      }
+    }
+  };
+
+  const handleDownload = async (url: string | undefined, fileName: string) => {
+    if (!url) {
+      console.error("❌ URL de téléchargement manquante");
+      return;
+    }
+
+    try {
+      // Afficher un indicateur de chargement (facultatif)
+      console.log("⏳ Téléchargement en cours...");
+
+      // Récupérer le contenu du fichier
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      // Créer une URL objet pour le blob
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Créer un lien et déclencher le téléchargement
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+
+      // Nettoyer
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl); // Libérer la mémoire
+
+      console.log("✅ Téléchargement terminé");
+    } catch (error) {
+      console.error("❌ Erreur lors du téléchargement:", error);
+    }
+  };
+
   if (isLoading || !role) return <div>Chargement...</div>;
 
   return (
@@ -260,42 +378,62 @@ export default function DocumentManager() {
               </tr>
             </thead>
             <tbody>
-              {files.map((file) => (
-                <tr
-                  key={file.id}
-                  className="border-b text-md hover:bg-gray-50 cursor-pointer"
-                  onDoubleClick={() =>
-                    file.is_folder && handleFolderClick(file.id, file.name)
+              {files
+                .sort((a, b) => {
+                  // Tri principal: dossiers d'abord (true avant false)
+                  if (a.is_folder !== b.is_folder) {
+                    return a.is_folder ? -1 : 1;
                   }
-                >
-                  <td className="p-4 flex items-center gap-2">
-                    {file.is_folder ? (
-                      <FaFolder className="text-yellow-500" />
-                    ) : (
-                      <Image
-                        src={`/${getIconName(file.type)}.png`}
-                        alt="icon"
-                        width={20}
-                        height={20}
-                      />
-                    )}
-                    <span className="text-blue-500 hover:underline">
-                      {file.name}
-                    </span>
-                  </td>
-                  <td className="p-4">{file.size}</td>
-                  <td className="p-4">{file.type}</td>
-                  <td className="p-4">{file.createdAt}</td>
-                  <td className="p-4 flex justify-center gap-4">
-                    <button
-                      onClick={() => confirmDelete(file.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+
+                  // Tri secondaire par nom (pour les éléments de même type)
+                  return a.name.localeCompare(b.name);
+                })
+                .map((file) => (
+                  <tr
+                    key={file.id}
+                    className="border-b text-md hover:bg-gray-50 cursor-pointer"
+                    onDoubleClick={() =>
+                      file.is_folder && handleFolderClick(file.id, file.name)
+                    }
+                  >
+                    <td className="p-4 flex items-center gap-2">
+                      {file.is_folder ? (
+                        <FaFolder className="text-yellow-500" />
+                      ) : (
+                        <Image
+                          src={`/${getIconName(file.type)}.png`}
+                          alt="icon"
+                          width={20}
+                          height={20}
+                        />
+                      )}
+                      <span className="text-blue-500 hover:underline">
+                        {file.name}
+                      </span>
+                    </td>
+                    <td className="p-4">{file.size}</td>
+                    <td className="p-4">{file.type}</td>
+                    <td className="p-4">{file.createdAt}</td>
+                    <td className="p-4 flex justify-center gap-4">
+                      {!file.is_folder && (
+                        <button
+                          onClick={() => handleDownload(file.url, file.name)}
+                          className="text-blue-500 hover:text-blue-700"
+                          title="Télécharger"
+                        >
+                          <FaDownload />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => confirmDelete(file.id, file.is_folder)}
+                        className="text-red-500 hover:text-red-700"
+                        title="Supprimer"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -324,7 +462,6 @@ export default function DocumentManager() {
                 onChange={(e) => setNewFolderAccess(e.target.value)}
                 className="border p-2 w-full mb-4"
               >
-                <option value="public">Public (tout le monde)</option>
                 <option value="adherent">Adhérents (connectés)</option>
                 <option value="admin">Admin (restreint)</option>
               </select>
@@ -372,6 +509,7 @@ export default function DocumentManager() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           currentFolderId={folderPath[folderPath.length - 1].id}
+          onUploadSuccess={refreshCurrentFolder}
         />
       </div>
     </div>
