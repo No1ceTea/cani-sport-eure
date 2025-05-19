@@ -23,7 +23,9 @@ export default function Sidebar() {
       <button
         className="fixed top-4 right-4 primary_button shadow-lg transition p-2 z-[9999]"
         onClick={() => {
-          document.getElementById("sidebar")?.classList.toggle("translate-x-full");
+          document
+            .getElementById("sidebar")
+            ?.classList.toggle("translate-x-full");
         }}
       >
         <Image
@@ -48,7 +50,9 @@ export default function Sidebar() {
           <button
             className="absolute top-0 right-0 translate-y-[-90%] p-2 drop-shadow-lg"
             onClick={() => {
-              document.getElementById("sidebar")?.classList.add("translate-x-full");
+              document
+                .getElementById("sidebar")
+                ?.classList.add("translate-x-full");
             }}
           >
             <Image
@@ -62,7 +66,12 @@ export default function Sidebar() {
 
           <ul className="primary_sidebar tracking-wide space-y-4 text-center">
             <li>
-              <a href="/#accueil" className={`hover:text-gray-300 ${pathname === "/accueil" ? "font-bold" : ""}`}>Le Club</a>
+              <a
+                href="/#accueil"
+                className={`hover:text-gray-300 ${pathname === "/accueil" ? "font-bold" : ""}`}
+              >
+                Le Club
+              </a>
             </li>
             <li>
               <a
@@ -73,52 +82,104 @@ export default function Sidebar() {
               </a>
             </li>
             <li>
-              <a href="/listeEvenement" className={`hover:text-gray-300 ${pathname === "/listeEvenement" ? "font-bold" : ""}`}>Événements</a>
+              <a
+                href="/listeEvenement"
+                className={`hover:text-gray-300 ${pathname === "/listeEvenement" ? "font-bold" : ""}`}
+              >
+                Événements
+              </a>
             </li>
             <li>
-              <a href="/SortieCanine" className={`hover:text-gray-300 ${pathname === "/SortieCanine" ? "font-bold" : ""}`}>Catalogue des sorties</a>
+              <a
+                href="/SortieCanine"
+                className={`hover:text-gray-300 ${pathname === "/SortieCanine" ? "font-bold" : ""}`}
+              >
+                Catalogue des sorties
+              </a>
             </li>
             <li>
-              <a href="/resultats" className={`hover:text-gray-300 ${pathname === "/resultats" ? "font-bold" : ""}`}>Resultats</a>
-            </li>
-            <li>
-              <a href="/Document" className={`hover:text-gray-300 ${pathname === "/Document" ? "font-bold" : ""}`}>Documents</a>
-            </li>
-            <li>
-              <a href="https://sublimtout.com/200-canisports-eure" className="hover:text-gray-300">Boutique</a>
+              <a
+                href="https://sublimtout.com/200-canisports-eure"
+                className="hover:text-gray-300"
+              >
+                Boutique
+              </a>
             </li>
 
             {/* ✅ Si connecté (adhérent ou admin) */}
             {(role === "adherent" || role === "admin") && (
               <>
                 <li>
-                  <a href="/album" className={`hover:text-gray-300 ${pathname === "/album" ? "font-bold" : ""}`}>Album</a>
+                  <a
+                    href="/album"
+                    className={`hover:text-gray-300 ${pathname === "/album" ? "font-bold" : ""}`}
+                  >
+                    Album
+                  </a>
                 </li>
                 <li>
-                  <a href="/agenda" className={`hover:text-gray-300 ${pathname === "/agenda" ? "font-bold" : ""}`}>
+                  <a
+                    href="/agenda"
+                    className={`hover:text-gray-300 ${pathname === "/agenda" ? "font-bold" : ""}`}
+                  >
                     Agenda
                   </a>
                 </li>
                 <li>
-                  <a href="/creation-profil" className={`hover:text-gray-300 ${pathname === "/creation-profil" ? "font-bold" : ""}`}>Mon profil</a>
+                  <a
+                    href="/resultats"
+                    className={`hover:text-gray-300 ${pathname === "/resultats" ? "font-bold" : ""}`}
+                  >
+                    Resultats
+                  </a>
                 </li>
                 <li>
-                  <a href="/dashboard/client" className={`hover:text-gray-300 ${pathname === "/dashboard/client" ? "font-bold" : ""}`}>Tableau de bord</a>
+                  <a
+                    href="/creation-profil"
+                    className={`hover:text-gray-300 ${pathname === "/creation-profil" ? "font-bold" : ""}`}
+                  >
+                    Mon profil
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/dashboard/client"
+                    className={`hover:text-gray-300 ${pathname === "/dashboard/client" ? "font-bold" : ""}`}
+                  >
+                    Tableau de bord
+                  </a>
                 </li>
               </>
             )}
 
             {/* ✅ Si admin */}
             {role === "admin" && (
-              <li>
-                <a href="/dashboard/admin" className="hover:text-gray-300">Admin</a>
-              </li>
+              <>
+                <li>
+                  <a
+                    href="/Document"
+                    className={`hover:text-gray-300 ${pathname === "/Document" ? "font-bold" : ""}`}
+                  >
+                    Documents
+                  </a>
+                </li>
+                <li>
+                  <a href="/dashboard/admin" className="hover:text-gray-300">
+                    Admin
+                  </a>
+                </li>
+              </>
             )}
 
             {/* 🔒 Se connecter / Se déconnecter */}
             {!user && (
               <li>
-                <a href="/connexion" className={`hover:text-yellow_primary ${pathname === "/dashboard/client" ? "font-bold" : ""}`}>Se connecter</a>
+                <a
+                  href="/connexion"
+                  className={`hover:text-yellow_primary ${pathname === "/dashboard/client" ? "font-bold" : ""}`}
+                >
+                  Se connecter
+                </a>
               </li>
             )}
             {user && (
