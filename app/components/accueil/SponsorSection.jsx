@@ -12,7 +12,9 @@ export default function Sponsor() {
             { src: "/SponsorImg/vernon.png", alt: "Vernon" },
             { src: "/SponsorImg/normandie.png", alt: "Région Normandie" },
             { src: "/SponsorImg/assurance.png", alt: "Asuurance poitiers" },
-            { src: "/SponsorImg/ffslc.jpg", alt: "FFSLC" }
+            { src: "/SponsorImg/ffslc.jpg", alt: "FFSLC" },
+            { src: "/SponsorImg/LogoEure.png", alt: "Eure" },
+            { src: "/SponsorImg/LogoSNA.png", alt: "SNA" }
           ].map((sponsor, index) => (
             <div key={index} className="w-60 h-24 flex justify-center">
               <Image
