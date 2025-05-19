@@ -4,6 +4,7 @@ import { use, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../Auth/AuthProvider"; // ✅ Utilisation du contexte
 import BlueBackground from "../backgrounds/BlueBackground";
+import Image from "next/image";
 
 export default function Footer() {
   const { user, role, isLoading } = useAuth();
@@ -22,10 +23,12 @@ export default function Footer() {
           <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-start text-center md:text-left">
             {/* Colonne de gauche : Logo centré */}
             <div className="flex items-center justify-center md:justify-start">
-              <img
+              <Image
                 src="/Logo-ContourBlanc-SansFond.png"
                 alt="Cani-Sports Eure"
                 className="h-36 md:h-40"
+                width={160}
+                height={196}
               />
             </div>
 
@@ -65,7 +68,7 @@ export default function Footer() {
                         Boutique
                       </a>
                     </li>
-                    {(role === "adherent" || role === "admin" ) && (
+                    {(role === "adherent" || role === "admin") && (
                       <>
                         <li>
                           <a
@@ -122,10 +125,12 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="flex items-center space-x-2"
                 >
-                  <img
+                  <Image
                     src="/logos/instagram.svg"
                     alt="Instagram"
                     className="h-5"
+                    width={20}
+                    height={20}
                   />
                   <span>@canisports_eure</span>
                 </a>
@@ -133,7 +138,13 @@ export default function Footer() {
                   href="mailto:cani.sports.eure@gmail.com"
                   className="flex items-center space-x-2"
                 >
-                  <img src="/icons/email.svg" alt="Email" className="h-5" />
+                  <Image
+                    src="/icons/email.svg"
+                    alt="Email"
+                    className="h-5"
+                    width={20}
+                    height={20}
+                  />
                   <span>cani.sports.eure@gmail.com</span>
                 </a>
                 <a
@@ -142,10 +153,12 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="flex items-center space-x-2"
                 >
-                  <img
+                  <Image
                     src="/logos/facebook.svg"
                     alt="Facebook"
                     className="h-5"
+                    width={20}
+                    height={20}
                   />
                   <span>CanisportsEure</span>
                 </a>

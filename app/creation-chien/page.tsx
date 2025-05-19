@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid"; // Générateur d'identifiants uniques
 import Sidebar from "../components/sidebars/Sidebar"; // Barre latérale
 import Footer from "../components/sidebars/Footer"; // Pied de page
 import WhiteBackground from "../components/backgrounds/WhiteBackground"; // Fond blanc
+import Image from "next/image"; // Composant d'image optimisé
 
 const supabase = createClientComponentClient(); // Initialisation du client Supabase
 
@@ -54,7 +55,11 @@ export default function PetProfileForm() {
 
   // Récupération des données du chien depuis Supabase
   const fetchChienData = async () => {
-    const { data, error } = await supabase.from("chiens").select("*").eq("id", id).single();
+    const { data, error } = await supabase
+      .from("chiens")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     if (error) {
       console.error("Erreur lors de la récupération du chien:", error.message);
@@ -156,16 +161,22 @@ export default function PetProfileForm() {
       const uniqueFileName = `${uuidv4()}-${cleanFileName}`;
 
       // Téléchargement vers le bucket Supabase
-      const { data, error } = await supabase.storage.from("images").upload(`chiens/${uniqueFileName}`, image);
+      const { data, error } = await supabase.storage
+        .from("images")
+        .upload(`chiens/${uniqueFileName}`, image);
 
       if (error) {
-        console.error("❌ Erreur lors du téléchargement de l'image:", error.message);
+        console.error(
+          "❌ Erreur lors du téléchargement de l'image:",
+          error.message
+        );
         alert("Erreur lors du téléchargement de l'image.");
         return;
       }
 
       // Récupération de l'URL publique
-      imageUrl = supabase.storage.from("images").getPublicUrl(data.path).data.publicUrl;
+      imageUrl = supabase.storage.from("images").getPublicUrl(data.path)
+        .data.publicUrl;
     }
 
     // Insertion ou mise à jour dans la base de données
@@ -189,7 +200,9 @@ export default function PetProfileForm() {
 
   // Suppression du profil de chien
   const handleDelete = async () => {
-    const confirmDelete = confirm("❗ Êtes-vous sûr de vouloir supprimer ce chien ?");
+    const confirmDelete = confirm(
+      "❗ Êtes-vous sûr de vouloir supprimer ce chien ?"
+    );
     if (!confirmDelete) return;
 
     // Suppression dans la base de données
@@ -207,7 +220,9 @@ export default function PetProfileForm() {
   return (
     <div>
       <Sidebar /> {/* Barre latérale de navigation */}
-      <WhiteBackground> {/* Fond blanc pour le contenu */}
+      <WhiteBackground>
+        {" "}
+        {/* Fond blanc pour le contenu */}
         {/* Titre en haut à gauche */}
         <div className="relative px-4 sm:px-6 pt-28 pb-12 flex justify-center">
           <h1 className="absolute top-6 left-6 text-3xl sm:text-4xl font-bold text-black">
@@ -223,7 +238,7 @@ export default function PetProfileForm() {
             <div className="flex flex-col items-center">
               <label htmlFor="photo-upload" className="cursor-pointer mb-2">
                 {photoPreview ? (
-                  <img
+                  <Image
                     src={photoPreview}
                     alt="Photo du chien"
                     className="w-32 h-32 object-cover rounded-full shadow-md"
@@ -231,6 +246,8 @@ export default function PetProfileForm() {
                       e.currentTarget.src = ""; // Fallback to empty if the URL is invalid
                       alert("Erreur lors du chargement de l'image.");
                     }}
+                    width={200}
+                    height={200}
                   />
                 ) : (
                   <div className="w-32 h-32 flex items-center justify-center text-center text-sm font-medium bg-gray-300 rounded-full text-black">
@@ -238,7 +255,13 @@ export default function PetProfileForm() {
                   </div>
                 )}
               </label>
-              <input id="photo-upload" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+              <input
+                id="photo-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </div>
 
             {/* Champs du formulaire générés dynamiquement */}
@@ -252,8 +275,16 @@ export default function PetProfileForm() {
                   type: "date",
                   max: new Date().toISOString().split("T")[0], // Date max = aujourd'hui
                 },
-                { name: "numero_de_puce", label: "Numéro de puce", maxLength: 15 },
-                { name: "numero_de_tatouage", label: "Numéro de tatouage", maxLength: 6 },
+                {
+                  name: "numero_de_puce",
+                  label: "Numéro de puce",
+                  maxLength: 15,
+                },
+                {
+                  name: "numero_de_tatouage",
+                  label: "Numéro de tatouage",
+                  maxLength: 6,
+                },
                 { name: "age", label: "Âge", type: "number", readOnly: true }, // Champ calculé automatiquement
               ].map(({ name, label, ...rest }) => (
                 <div key={name} className="flex flex-col">

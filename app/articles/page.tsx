@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"; // Navigation entre pages
 import { SearchBar, DateFilter } from "../components/ArticlesComponents"; // Composants pour les filtres
 import Sidebar from "../components/sidebars/Sidebar"; // Barre latérale
 import Footer from "../components/sidebars/Footer"; // Pied de page
+import Image from "next/image"; // Composant d'image optimisé
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"; // Client Supabase
 import WhiteBackground from "../components/backgrounds/WhiteBackground"; // Fond blanc pour le contenu
 
@@ -55,7 +56,8 @@ const ArticlesPage = () => {
   // Application des filtres (recherche et dates)
   const filteredArticles = articles.filter((article) => {
     return (
-      (!searchQuery || article.title.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!searchQuery ||
+        article.title.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (!startDate || article.date >= startDate) &&
       (!endDate || article.date <= endDate)
     );
@@ -71,11 +73,15 @@ const ArticlesPage = () => {
   return (
     <div>
       <Sidebar /> {/* Barre latérale de navigation */}
-      <WhiteBackground> {/* Fond blanc pour le contenu */}
+      <WhiteBackground>
+        {" "}
+        {/* Fond blanc pour le contenu */}
         <div className="min-h-screen px-10 py-6">
           {/* Titre principal */}
           <div className="text-left">
-            <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">Articles</h1>
+            <h1 className="primary_title_blue text-4xl font-bold text-black mb-6">
+              Articles
+            </h1>
           </div>
 
           {/* Barre de recherche et filtres de date */}
@@ -92,17 +98,33 @@ const ArticlesPage = () => {
           <div className="max-w-6xl mx-auto max-h-[700px] overflow-y-auto px-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredArticles.map((article) => (
-                <div key={article.id} className="bg-white shadow-lg rounded-2xl p-4 max-w-xs relative">
+                <div
+                  key={article.id}
+                  className="bg-white shadow-lg rounded-2xl p-4 max-w-xs relative"
+                >
                   {/* Image de l'article */}
-                  <img src={article.image_url} alt={article.title} className="rounded-xl w-full h-40 object-cover" />
+                  <Image
+                    src={article.image_url}
+                    alt={article.title}
+                    className="rounded-xl w-full h-40 object-cover"
+                    width={800}
+                    height={800}
+                  />
                   {/* Titre de l'article */}
                   <h3 className="text-lg font-bold mt-2">{article.title}</h3>
                   {/* Extrait du contenu */}
-                  <p className="text-sm text-gray-600">{article.content.slice(0, 100)}...</p>
+                  <p className="text-sm text-gray-600">
+                    {article.content.slice(0, 100)}...
+                  </p>
                   {/* Date de publication */}
-                  <p className="text-xs text-gray-500 mt-2">{new Date(article.date).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {new Date(article.date).toLocaleDateString()}
+                  </p>
                   {/* Bouton pour lire l'article complet */}
-                  <button onClick={() => handleClick(article.id)} className="text-blue-500">
+                  <button
+                    onClick={() => handleClick(article.id)}
+                    className="text-blue-500"
+                  >
                     Lire plus →
                   </button>
                 </div>
