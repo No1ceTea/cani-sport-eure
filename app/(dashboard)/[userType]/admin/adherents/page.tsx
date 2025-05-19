@@ -303,21 +303,6 @@ export default function ListeAdherents() {
               <label className="font-bold">Administrateur</label>
             </div>
 
-            <div className="flex items-center gap-2 mb-2">
-              <input
-                type="checkbox"
-                className="checkbox checkbox-primary"
-                checked={selectedUser.comptable}
-                onChange={(e) =>
-                  setSelectedUser({
-                    ...selectedUser,
-                    comptable: e.target.checked,
-                  })
-                }
-              />
-              <label className="font-bold">Comptabilité</label>
-            </div>
-
             {/* Sélecteur de statut */}
             <label className="block mb-2 font-bold">
               Statut d&apos;inscription :
