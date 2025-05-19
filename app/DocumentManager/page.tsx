@@ -324,7 +324,6 @@ export default function DocumentManager() {
                 onChange={(e) => setNewFolderAccess(e.target.value)}
                 className="border p-2 w-full mb-4"
               >
-                <option value="public">Public (tout le monde)</option>
                 <option value="adherent">Adhérents (connectés)</option>
                 <option value="admin">Admin (restreint)</option>
               </select>

@@ -125,7 +125,6 @@ const ModalAddDocument: React.FC<ModalAddDocumentProps> = ({ isOpen, onClose, cu
           onChange={(e) => setVisibility(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded mb-4"
         >
-          <option value="public">Public</option>
           <option value="adherent">Adhérents</option>
           <option value="admin">Administrateurs</option>
         </select>
