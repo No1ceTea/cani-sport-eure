@@ -156,7 +156,6 @@ export default function ListeAdherents() {
                   <th>Naissance</th>
                   <th>Licence</th>
                   <th>Rôle</th>
-                  <th>Comptable</th>
                   <th>Statut</th>
                   <th>Actions</th>
                 </tr>
