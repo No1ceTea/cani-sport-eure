@@ -28,7 +28,6 @@ export default function UserProfileForm() {
     ville: "",
     photo_profil: "",
     date_de_naissance: "",
-    date_renouvellement: "",
     licence: "",
   });
 
@@ -260,11 +259,6 @@ export default function UserProfileForm() {
               {
                 name: "date_de_naissance",
                 label: "Date de naissance",
-                type: "date",
-              },
-              {
-                name: "date_renouvellement",
-                label: "Date de renouvellement",
                 type: "date",
               },
             ].map(({ name, label, type = "text", handler }) => (
