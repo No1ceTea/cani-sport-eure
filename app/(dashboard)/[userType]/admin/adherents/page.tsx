@@ -17,7 +17,7 @@ interface User {
   birthdate: string;
   license_number: string;
   administrateur: boolean;
-  comptable: boolean;
+  animateur: boolean;
   statut_inscription: "en attente" | "inscrit" | "refusé";
 }
 
@@ -104,7 +104,8 @@ export default function ListeAdherents() {
         // Filtre par rôle
         const roleMatch = roleFilter === "tous" || 
           (roleFilter === "admin" && user.administrateur) ||
-          (roleFilter === "adherent" && !user.administrateur);
+          (roleFilter === "animateur" && user.animateur) || // Nouveau cas
+          (roleFilter === "adherent" && !user.administrateur && !user.animateur); // Mise à jour
         
         return searchMatch && statusMatch && roleMatch;
       })
@@ -275,6 +276,7 @@ export default function ListeAdherents() {
                 >
                   <option value="tous">Tous les rôles</option>
                   <option value="admin">Administrateurs</option>
+                  <option value="animateur">Animateurs</option> {/* Nouvelle option */}
                   <option value="adherent">Adhérents</option>
                 </select>
               </div>
@@ -318,6 +320,7 @@ export default function ListeAdherents() {
                       >
                         <option value="tous">Tous</option>
                         <option value="admin">Administrateurs</option>
+                        <option value="animateur">Animateurs</option> {/* Nouvelle option */}
                         <option value="adherent">Adhérents</option>
                       </select>
                     </div>
@@ -327,7 +330,7 @@ export default function ListeAdherents() {
             </AnimatePresence>
             
             {/* Statistiques rapides */}
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-2">
               <div className="bg-blue-50 p-2 rounded text-center">
                 <div className="text-sm text-gray-500">Total</div>
                 <div className="font-bold text-blue-700">{users.length}</div>
@@ -348,6 +351,13 @@ export default function ListeAdherents() {
                 <div className="text-sm text-gray-500">Refusés</div>
                 <div className="font-bold text-red-700">
                   {users.filter(u => u.statut_inscription === "refusé").length}
+                </div>
+              </div>
+              {/* Nouvelle statistique pour les animateurs */}
+              <div className="bg-blue-50 p-2 rounded text-center">
+                <div className="text-sm text-gray-500">Animateurs</div>
+                <div className="font-bold text-blue-700">
+                  {users.filter(u => u.animateur).length}
                 </div>
               </div>
             </div>
@@ -422,6 +432,10 @@ export default function ListeAdherents() {
                               <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
                                 Admin
                               </span>
+                            ) : user.animateur ? (
+                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                Animateur
+                              </span>
                             ) : (
                               "Adhérent"
                             )}
@@ -472,7 +486,7 @@ export default function ListeAdherents() {
                                 <span className="text-gray-500">Licence:</span> {user.license_number || "N/A"}
                               </div>
                               <div>
-                                <span className="text-gray-500">Rôle:</span> {user.administrateur ? "Admin" : "Adhérent"}
+                                <span className="text-gray-500">Rôle:</span> {user.administrateur ? "Admin" : user.animateur ? "Animateur" : "Adhérent"}
                               </div>
                               <div>
                                 <span className="text-gray-500">Statut:</span> {renderStatusBadge(user.statut_inscription)}
@@ -484,17 +498,17 @@ export default function ListeAdherents() {
                           <div className="flex flex-col gap-2">
                             <button
                               onClick={() => setSelectedUser(user)}
-                              className="p-2 bg-indigo-50 rounded text-indigo-600"
-                              aria-label="Modifier"
+                              className="p-2 bg-indigo-50 rounded-md text-indigo-600 hover:bg-indigo-100"
+                              title="Modifier"
                             >
-                              <FaEdit />
+                              <FaEdit className="h-5 w-5" />
                             </button>
                             <button
                               onClick={() => openDeleteModal(user)}
-                              className="p-2 bg-red-50 rounded text-red-600"
-                              aria-label="Supprimer"
+                              className="p-2 bg-red-50 rounded-md text-red-600 hover:bg-red-100"
+                              title="Supprimer"
                             >
-                              <FaTrash />
+                              <FaTrash className="h-5 w-5" />
                             </button>
                           </div>
                         </div>
@@ -504,202 +518,147 @@ export default function ListeAdherents() {
                 </div>
               </>
             )}
-            
-            {/* Pagination */}
-            {filteredAndSortedUsers.length > 0 && (
-              <nav
-                className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200"
-                aria-label="Pagination"
-              >
-                <div className="hidden sm:block">
-                  <p className="text-sm text-gray-700">
-                    Affichage de <span className="font-medium">1</span> à{" "}
-                    <span className="font-medium">{filteredAndSortedUsers.length}</span> sur{" "}
-                    <span className="font-medium">{filteredAndSortedUsers.length}</span> adhérents
-                  </p>
-                </div>
-                <div className="flex-1 flex justify-between sm:justify-end">
-                  {/* Ici vous pourriez ajouter des boutons de pagination si besoin */}
-                </div>
-              </nav>
-            )}
           </div>
         </div>
       </main>
       
-      {/* Toast de succès */}
-      <AnimatePresence>
-        {isSuccessToastVisible && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span>{successMessage}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Modal de confirmation pour la suppression */}
+      {/* Modal de confirmation de suppression */}
       <ModalConfirm
         isOpen={isDeleteModalOpen}
-        title="Confirmation de suppression"
-        message={`Voulez-vous vraiment supprimer ${userToDelete?.first_name} ${userToDelete?.last_name} ?`}
-        onCancel={() => {
-          setIsDeleteModalOpen(false);
-          setUserToDelete(null);
-        }}
+        onCancel={() => setIsDeleteModalOpen(false)}
         onConfirm={deleteUserConfirmed}
+        title="Confirmer la suppression"
+        message={userToDelete ? `Êtes-vous sûr de vouloir supprimer ${userToDelete.first_name} ${userToDelete.last_name} ?` : ""}
+        confirmText="Supprimer"
+        cancelText="Annuler"
       />
-
-      {/* Modal de modification d'utilisateur avec style amélioré */}
+      
+      {/* Modal d'édition d'utilisateur */}
       {selectedUser && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Modifier l&apos;utilisateur
-                </h2>
-                <button
-                  onClick={() => setSelectedUser(null)}
-                  className="text-gray-400 hover:text-gray-500"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-30" aria-hidden="true"></div>
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full z-10">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              {selectedUser.id ? "Modifier l'adhérent" : "Ajouter un adhérent"}
+            </h2>
+            
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nom
+                </label>
+                <input
+                  type="text"
+                  value={selectedUser.last_name}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, last_name: e.target.value })}
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Nom"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Prénom
+                </label>
+                <input
+                  type="text"
+                  value={selectedUser.first_name}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, first_name: e.target.value })}
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Prénom"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={selectedUser.email}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Email"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date de naissance
+                </label>
+                <input
+                  type="date"
+                  value={selectedUser.birthdate}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, birthdate: e.target.value })}
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Numéro de licence
+                </label>
+                <input
+                  type="text"
+                  value={selectedUser.license_number}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, license_number: e.target.value })}
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Numéro de licence"
+                />
+              </div>
+              
+              {/* Case à cocher pour l'administrateur */}
+              <div className="flex items-center gap-2">
+                <input
+                  id="admin-checkbox"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  checked={selectedUser.administrateur}
+                  onChange={(e) =>
+                    setSelectedUser({
+                      ...selectedUser,
+                      administrateur: e.target.checked,
+                    })
+                  }
+                />
+                <label htmlFor="admin-checkbox" className="text-sm font-medium text-gray-700">
+                  Administrateur
+                </label>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedUser.last_name}
-                    onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, last_name: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedUser.first_name}
-                    onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, first_name: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input
-                    type="email"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedUser.email}
-                    onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, email: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
-                  <input
-                    type="date"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedUser.birthdate}
-                    onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, birthdate: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Numéro de licence</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedUser.license_number}
-                    onChange={(e) =>
-                      setSelectedUser({
-                        ...selectedUser,
-                        license_number: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    id="admin-checkbox"
-                    type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    checked={selectedUser.administrateur}
-                    onChange={(e) =>
-                      setSelectedUser({
-                        ...selectedUser,
-                        administrateur: e.target.checked,
-                      })
-                    }
-                  />
-                  <label htmlFor="admin-checkbox" className="text-sm font-medium text-gray-700">
-                    Administrateur
-                  </label>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Statut d&apos;inscription
-                  </label>
-                  <div className="flex gap-4 mt-2">
-                    {["en attente", "inscrit", "refusé"].map((status) => (
-                      <label key={status} className="flex items-center">
-                        <input
-                          type="radio"
-                          name="status"
-                          value={status}
-                          checked={selectedUser.statut_inscription === status}
-                          onChange={() =>
-                            setSelectedUser({
-                              ...selectedUser,
-                              statut_inscription: status as User["statut_inscription"],
-                            })
-                          }
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                        />
-                        <span className="ml-2 text-sm">
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+              {/* Case à cocher pour le rôle animateur */}
+              <div className="flex items-center gap-2">
+                <input
+                  id="animateur-checkbox"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  checked={selectedUser.animateur}
+                  onChange={(e) =>
+                    setSelectedUser({
+                      ...selectedUser,
+                      animateur: e.target.checked,
+                    })
+                  }
+                />
+                <label htmlFor="animateur-checkbox" className="text-sm font-medium text-gray-700">
+                  Animateur
+                </label>
               </div>
-
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-                  onClick={() => setSelectedUser(null)}
-                >
-                  Annuler
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  onClick={saveUserEdits}
-                >
-                  Enregistrer
-                </button>
-              </div>
+            </div>
+            
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={saveUserEdits}
+                className="px-4 py-2 bg-blue-600 rounded-md text-white hover:bg-blue-700"
+              >
+                {selectedUser.id ? "Sauvegarder les modifications" : "Ajouter l'adhérent"}
+              </button>
             </div>
           </div>
         </div>
