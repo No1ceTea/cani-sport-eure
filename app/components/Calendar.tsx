@@ -9,6 +9,7 @@ import supabase from "@/lib/supabaseClient";
 import ModalConfirm from "./ModalConfirm";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { ArrowLeft } from "lucide-react";
 
 moment.locale("fr");
 const localizer = momentLocalizer(moment);
@@ -27,6 +28,7 @@ interface EventData {
 interface CalendarProps {
   mode?: "admin" | "adherent" | "public";
   hidePrivate?: boolean;
+  onEditEvent?: (event: EventData) => void; // Ajout de la prop onEditEvent
 }
 
 function parseColorVisibility(description: string = "#3b82f6::public::") {
@@ -59,6 +61,7 @@ function generateGoogleCalendarUrl(event: EventData) {
 export default function MyCalendar({
   mode = "public",
   hidePrivate = false,
+  onEditEvent, // Récupération de la prop
 }: CalendarProps) {
   const [events, setEvents] = useState<EventData[]>([]);
   const [userToken, setUserToken] = useState<string | null>(null);
@@ -87,6 +90,8 @@ export default function MyCalendar({
   const [currentDate, setCurrentDate] = useState(new Date());
   // 1. Ajoutez un nouvel état pour suivre la vue active
   const [view, setView] = useState<View>("month");
+  const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false);
+  const isMobileView = windowWidth < 768;
 
   useEffect(() => {
     const getToken = async () => {
@@ -188,6 +193,12 @@ export default function MyCalendar({
   const handleSelectEvent = (event: EventData) => {
     setEventToEdit(event);
     setSelectedEventId(event.id);
+    
+    if (isAdmin && typeof onEditEvent === 'function') {
+      onEditEvent(event);
+      return;
+    }
+    
     setShowActionModal(true);
   };
 
@@ -848,6 +859,182 @@ export default function MyCalendar({
           }
         }
       `}</style>
+
+      {/* Modal d'édition d'événement */}
+      {isEditEventModalOpen && eventToEdit && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            {/* En-tête du modal */}
+            <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+              {isMobileView ? (
+                <div className="flex items-center">
+                  <button
+                    onClick={() => setIsEditEventModalOpen(false)}
+                    className="p-1 mr-2 rounded-full hover:bg-gray-100"
+                  >
+                    <ArrowLeft className="h-5 w-5 text-gray-500" />
+                  </button>
+                  <div>
+                    <span>Modifier l&apos;événement</span>
+                    {eventToEdit.title && (
+                      <span className="block text-xs text-gray-500 truncate max-w-[200px]">
+                        {eventToEdit.title}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <span>Modifier l&apos;événement</span>
+                  {eventToEdit.title && (
+                    <span className="block text-sm text-gray-500 font-normal truncate">
+                      {eventToEdit.title}
+                    </span>
+                  )}
+                </div>
+              )}
+            </h2>
+
+            {/* Formulaire d'édition */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdateEvent();
+              }}
+              className="mt-4"
+            >
+              {/* Champs du formulaire d'édition */}
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Titre
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Date de début
+                  </label>
+                  <input
+                    type="date"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Heure de début
+                  </label>
+                  <input
+                    type="time"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Date de fin
+                  </label>
+                  <input
+                    type="date"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Heure de fin
+                  </label>
+                  <input
+                    type="time"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Lieu
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Description
+                  </label>
+                  <textarea
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    rows={3}
+                    value={details}
+                    onChange={(e) => setDetails(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Couleur
+                  </label>
+                  <input
+                    type="color"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    value={newColor}
+                    onChange={(e) => setNewColor(e.target.value)}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Visibilité
+                  </label>
+                  <select
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    value={visibility}
+                    onChange={(e) => setVisibility(e.target.value)}
+                  >
+                    <option value="public">🌍 Public</option>
+                    <option value="private">🔒 Privé</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsEditEventModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Mettre à jour
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
