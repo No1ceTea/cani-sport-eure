@@ -21,6 +21,19 @@ interface User {
   statut_inscription: "en attente" | "inscrit" | "refusé";
 }
 
+// 1. Créer un modèle par défaut pour un nouvel utilisateur
+const defaultUserValues = {
+  id: "",
+  email: "",
+  first_name: "",
+  last_name: "",
+  birthdate: "",
+  license_number: "",
+  administrateur: false,
+  animateur: false,
+  statut_inscription: "en attente" as const,
+};
+
 export default function ListeAdherents() {
   // États pour gérer les données et l'interface
   const [users, setUsers] = useState<User[]>([]); // Liste des utilisateurs
@@ -104,7 +117,7 @@ export default function ListeAdherents() {
         // Filtre par rôle
         const roleMatch = roleFilter === "tous" || 
           (roleFilter === "admin" && user.administrateur) ||
-          (roleFilter === "animateur" && user.animateur) || // Nouveau cas
+          (roleFilter === "animateur" && user.animateur) || // Missing operator here
           (roleFilter === "adherent" && !user.administrateur && !user.animateur); // Mise à jour
         
         return searchMatch && statusMatch && roleMatch;
@@ -133,19 +146,37 @@ export default function ListeAdherents() {
   async function saveUserEdits() {
     if (!selectedUser) return;
 
+    // Log pour déboguer
+    console.log("Envoi des données:", JSON.stringify({
+      ...selectedUser,
+      animateur: !!selectedUser.animateur // Force une conversion explicite en booléen
+    }));
+
     try {
       const res = await fetch("/api/users", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedUser),
+        body: JSON.stringify({
+          ...selectedUser,
+          animateur: !!selectedUser.animateur // S'assurer que c'est bien un booléen
+        }),
       });
 
       if (res.ok) {
+        // Mise à jour du state local
         setUsers((prev) =>
           prev.map((user) => (user.id === selectedUser.id ? selectedUser : user))
         );
+        
         showSuccessToast(`${selectedUser.first_name} ${selectedUser.last_name} mis à jour avec succès !`);
         setSelectedUser(null);
+        
+        // Recharger les données après la mise à jour
+        const refreshRes = await fetch("/api/users");
+        if (refreshRes.ok) {
+          const refreshedData = await refreshRes.json();
+          setUsers(refreshedData);
+        }
       } else {
         const error = await res.json();
         throw new Error(error.message || "Erreur lors de la mise à jour");
@@ -446,7 +477,7 @@ export default function ListeAdherents() {
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex justify-end gap-2">
                               <button
-                                onClick={() => setSelectedUser(user)}
+                                onClick={() => setSelectedUser({...defaultUserValues, ...user})}
                                 title="Modifier"
                                 className="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50"
                               >
@@ -605,6 +636,27 @@ export default function ListeAdherents() {
                   className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Numéro de licence"
                 />
+              </div>
+              
+              {/* Sélecteur de statut d'inscription */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Statut d&apos;inscription
+                </label>
+                <select
+                  value={selectedUser.statut_inscription}
+                  onChange={(e) => 
+                    setSelectedUser({
+                      ...selectedUser,
+                      statut_inscription: e.target.value as "en attente" | "inscrit" | "refusé"
+                    })
+                  }
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="en attente">En attente</option>
+                  <option value="inscrit">Inscrit</option>
+                  <option value="refusé">Refusé</option>
+                </select>
               </div>
               
               {/* Case à cocher pour l'administrateur */}

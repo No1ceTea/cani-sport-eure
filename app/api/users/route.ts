@@ -30,7 +30,7 @@ export async function GET() {
       birthdate: user.user_metadata?.birthdate || "",
       license_number: user.user_metadata?.license_number || "",
       administrateur: user.user_metadata?.administrateur || false,
-      comptable: user.user_metadata.comptable === true,
+      animateur: user.user_metadata?.animateur || false,
       statut_inscription: user.user_metadata?.statut_inscription || "en attente",
     }));
 
@@ -45,57 +45,31 @@ export async function GET() {
 // Mise à jour des informations d'un utilisateur (PUT)
 export async function PUT(req: Request) {
   try {
-    // Extraction des données de la requête
-    const { 
-      id, 
-      first_name, 
-      last_name, 
-      email, 
-      birthdate, 
-      license_number, 
-      statut_inscription, 
-      administrateur, 
-      comptable 
-    } = await req.json();
+    const data = await req.json();
+    const { id, email, first_name, last_name, birthdate, license_number, administrateur, animateur, statut_inscription } = data;
 
-    // Validation des données requises
-    if (!id) {
-      return NextResponse.json({ error: "L'ID de l'utilisateur est requis." }, { status: 400 });
-    }
+    console.log("Mise à jour utilisateur:", { id, animateur });
 
-    if (!email || !first_name || !last_name) {
-      return NextResponse.json({ error: "Email, prénom et nom sont obligatoires." }, { status: 400 });
-    }
-
-    // Validation du statut d'inscription
-    if (statut_inscription && !["inscrit", "refusé", "en attente"].includes(statut_inscription)) {
-      return NextResponse.json({ error: "Statut d'inscription invalide." }, { status: 400 });
-    }
-
-    // Mise à jour de l'utilisateur dans Supabase
+    // Mettre à jour les métadonnées utilisateur via l'API d'authentification
     const { error } = await supabase.auth.admin.updateUserById(id, {
-      email,
+      email: email,
       user_metadata: {
         first_name,
         last_name,
-        birthdate: birthdate || "",
-        license_number: license_number || "",
-        statut_inscription: statut_inscription || "en attente",
-        administrateur: administrateur || false, // Gestion du statut admin
-        comptable: comptable === true,
-      },
+        birthdate,
+        license_number,
+        administrateur,
+        animateur, // Ce champ sera correctement sauvegardé maintenant
+        statut_inscription
+      }
     });
 
-    // Gestion des erreurs Supabase
-    if (error) {
-      return NextResponse.json({ error: "Erreur Supabase : " + error.message }, { status: 500 });
-    }
-
-    // Confirmation de mise à jour réussie
-    return NextResponse.json({ message: "Utilisateur mis à jour avec succès." }, { status: 200 });
+    if (error) throw error;
+    
+    return NextResponse.json({ success: true });
   } catch (error) {
-    // Gestion des erreurs génériques
-    return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
+    console.error("❌ Erreur de mise à jour utilisateur:", error);
+    return NextResponse.json({ error: "Erreur lors de la mise à jour de l'utilisateur" }, { status: 500 });
   }
 }
 
