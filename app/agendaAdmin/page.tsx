@@ -431,7 +431,7 @@ export default function AgendaPage() {
   if (!isAuthLoading && role !== "admin") return null;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-auto bg-gray-50">
       
       <SidebarAdmin />
       {/* Overlay pour le menu mobile */}
@@ -628,7 +628,7 @@ export default function AgendaPage() {
 
         {/* Zone de calendrier - ajout de classes responsive */}
         <div className="flex-1 overflow-auto px-2 sm:px-6 lg:px-8 py-3 sm:py-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-full overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-full overflow-auto">
             {isEventsLoading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
