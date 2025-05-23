@@ -5,8 +5,6 @@ import CatalogueResultats from "../components/CatalogueResultats";
 import SidebarAdmin from "../components/SidebarAdmin";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/components/Auth/AuthProvider";
-import { motion, AnimatePresence } from "framer-motion";
-import { FaPlus, FaBars, FaTimes } from "react-icons/fa";
 
 export default function ResultatsPage() {
   // États existants
@@ -15,7 +13,6 @@ export default function ResultatsPage() {
   const router = useRouter();
 
   // États pour l'UI
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [loadingContent, setLoadingContent] = useState(true);
 
   // Redirection si l'utilisateur n'est pas admin

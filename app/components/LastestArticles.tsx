@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import DOMPurify from "dompurify";
 import supabase from "../../lib/supabaseClient";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -155,7 +156,7 @@ const LastestArticles = () => {
                     {article.titre}
                   </h3>
                   <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-grow">
-                    {article.contenu.replace(/<[^>]*>/g, '').slice(0, 150)}...
+                     {DOMPurify.sanitize(article.contenu).slice(0, 150)}...
                   </p>
                   <div className="mt-auto">
                     <p className="text-xs text-gray-500 mb-3 flex items-center">
