@@ -78,7 +78,7 @@ export default function Presentation() {
             style={{ animationDelay: '0.3s' }}
           >
             Nous sommes une association passionnée par les sports canins. Notre objectif est de promouvoir le cani-cross,
-            le cani-trail, la marche avec chiens et d&apos;autres disciplines adaptées aux duos humain-chien.
+            le cani-trail, la cani-marche et d&apos;autres disciplines adaptées aux duos humain-chien.
           </p>
 
           {/* Image mise en avant avec titre */}
@@ -119,31 +119,31 @@ export default function Presentation() {
           {/* Activités */}
           { [
             {
-              title: "Cross",
+              title: "Cani-cross",
               img: "/cani-trail.png",
               description:
                 "Le Canicross est un sport où le coureur et son chien forment une équipe, courant ensemble reliés par une ceinture et une ligne de trait élastique. Il favorise la complicité et l'endurance sur des distances de 5 à 9 km."
             },
             {
-              title: "Trail",
+              title: "Cani-trail",
               img: "/cani-trail.png",
               description:
                 "Le Cani-trail est une version plus exigeante du canicross, se pratiquant sur des terrains vallonnés et techniques. Il met à l'épreuve la résistance et l'agilité du duo maître-chien."
             },
             {
-              title: "Marche",
+              title: "Cani-marche",
               img: "/cani-marche.png",
               description:
                 "La cani-marche est une activité douce et accessible à tous. Elle permet d'explorer la nature tout en partageant un moment privilégié avec son chien, sans contrainte de vitesse."
             },
             {
-              title: "VTT",
+              title: "Cani-VTT",
               img: "/cani-vtt.png",
               description:
                 "Le Canivtt est une discipline intense où le chien, relié à un VTT par une ligne amortie, court en tête. Il exige une bonne coordination et un entraînement adapté pour garantir sécurité et plaisir."
             },
             {
-              title: "Trottinette",
+              title: "Cani-trottinette",
               img: "/cani-trottinette.png",
               description:
                 "Le Cani-trottinette est une alternative ludique au canivtt, idéale pour les chiens dynamiques. Avec une trottinette tout-terrain, le chien tracte son maître sur des chemins variés."

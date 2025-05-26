@@ -45,7 +45,7 @@ const TitleSection = () => {
           CANI-SPORTS EURE
         </h1>
         <p className="primary_text_blue mt-4 max-w-lg text-center">
-        Notre objectif est de promouvoir le cani-cross, le cani-trail, la marche avec chiens et d&apos;autres disciplines adaptées aux duos humain-chien.
+        Notre objectif est de promouvoir le cani-cross, le cani-trail, la cani-marche et d&apos;autres disciplines adaptées aux duos humain-chien.
         </p>
       </div>
     

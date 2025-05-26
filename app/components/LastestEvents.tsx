@@ -87,7 +87,7 @@ const LatestEvents = () => {
             {/* Texte + bouton */}
             <div className="w-full md:w-[40%] text-white">
               <p className="text-base md:text-lg mb-6">
-                Du canicross aux marches en meute, ne manquez aucun événement
+                Du cani-cross aux marches en meute, ne manquez aucun événement
                 autour du sport canin ! Retrouvez ici les prochains rendez-vous
                 organisés par la communauté.
               </p>
