@@ -77,12 +77,17 @@ const SportBadge = ({ sport }: { sport: string }) => {
   const colorClass = sportColors[sport.toLowerCase()] || sportColors.default;
   const icon = sportIcons[sport.toLowerCase()] || null;
 
+  // Ajout du préfixe "cani" s'il n'est pas déjà présent
+  const displayName = sport.toLowerCase().startsWith("Cani")
+    ? sport
+    : `Cani-${sport}`;
+
   return (
     <span
       className={`inline-flex items-center text-xs px-2 py-1 rounded-full border ${colorClass}`}
     >
       {icon}
-      {sport}
+      {displayName}
     </span>
   );
 };
