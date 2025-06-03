@@ -13,20 +13,25 @@ export default function ForgotPasswordPage() {
 
   // Gestion de la demande de réinitialisation
   const handlePasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault(); // Empêche le rechargement de la page
+    e.preventDefault();
     setLoading(true);
     setMessage(null);
     setError(null);
 
+    // Utilisation de la variable d'environnement
+    const redirectUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+
     // Appel API Supabase pour demander la réinitialisation
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/nouveau-mot-de-passe`, // Redirection après clic dans l'email
+      redirectTo: `${redirectUrl}/nouveau-mot-de-passe`,
     });
 
     setLoading(false);
 
     // Affichage du résultat (succès ou erreur)
     if (error) {
+      console.error("Erreur de réinitialisation:", error);
       setError("Une erreur est survenue. Veuillez réessayer.");
     } else {
       setMessage(

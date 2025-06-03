@@ -49,6 +49,32 @@ export default function NouveauMotDePassePage() {
     }
   }, [supabase]);
 
+  // Vérifier la session au chargement
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Erreur de session:", error);
+        setError(
+          "Le lien a peut-être expiré. Veuillez redemander un nouveau lien."
+        );
+        return;
+      }
+
+      if (!session) {
+        setError(
+          "Session invalide. Veuillez redemander un nouveau lien de réinitialisation."
+        );
+      }
+    };
+
+    checkSession();
+  }, [supabase]);
+
   // Gestion de la soumission du formulaire
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault(); // Empêche le rechargement de la page
@@ -87,11 +113,12 @@ export default function NouveauMotDePassePage() {
     setLoading(false);
 
     if (error) {
+      console.error("Erreur de mise à jour:", error);
       setError("Une erreur est survenue. Le lien a peut-être expiré.");
     } else {
       // Affichage du message de succès et redirection
-      setMessage("Mot de passe mis à jour. Redirection...");
-      setTimeout(() => router.push("/connexion"), 3000); // Redirection après 3 secondes
+      setMessage("Mot de passe mis à jour avec succès !");
+      setTimeout(() => router.push("/connexion"), 2000); // Redirection après 2 secondes
     }
   };
 
